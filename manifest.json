@@ -1,0 +1,19 @@
+{
+  "manifest_version": 2,
+  "name": "Twitter Link Deobfuscator",
+  "version": "0.0.1",
+
+  "author": "Alin Pasol",
+  "homepage_url": "https://github.com/theAlinP/twitter-link-deobfuscator",
+  "description": "Reveals the real destination of the links from tweets, which are usually concealed using shortened URLs. The extension only activates while browsing twitter.com.",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.twitter.com/*"
+      ],
+      "js": [
+        "content_script.js"
+      ]
+    }
+  ]
+}
