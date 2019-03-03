@@ -1,0 +1,33 @@
+{
+  "root": true,
+  "extends": "eslint:recommended",
+  "env": {
+    "browser": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 5
+  },
+  "rules": {
+    "indent": [
+      "warn",
+      2
+    ],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "no-console": "off",
+    "quotes": [
+      "error",
+      "double"
+    ],
+    "semi": [
+      "error",
+      "always"
+    ],
+    "strict": [
+      "error",
+      "global"
+    ]
+  }
+}
