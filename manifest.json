@@ -15,5 +15,22 @@
         "content_script.js"
       ]
     }
-  ]
+  ],
+  "browser_action": {
+    "default_icon": {
+      "32": "icons/TLD_icon-32.png",
+      "48": "icons/TLD_icon-48.png",
+      "64": "icons/TLD_icon-64.png",
+      "96": "icons/TLD_icon-96.png",
+      "128": "icons/TLD_icon-128.png"
+    },
+    "default_title": "Twitter Link Deobfuscator - ENABLED"
+  },
+  "icons": {
+    "32": "icons/TLD_icon-32.png",
+    "48": "icons/TLD_icon-48.png",
+    "64": "icons/TLD_icon-64.png",
+    "96": "icons/TLD_icon-96.png",
+    "128": "icons/TLD_icon-128.png"
+  }
 }
