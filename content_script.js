@@ -26,10 +26,9 @@ function revealLinks() {
     }
   }
 }
-revealLinks();
 
 /**
- * Run the function every time new tweets are added
+ * Create a function that fades out the warning message
  */
 function fadeOutWarning() {
   warningMessageOpacity -= 1;
@@ -41,6 +40,13 @@ function fadeOutWarning() {
   }
   window.setTimeout(fadeOutWarning, 16.666);
 }
+
+revealLinks();
+
+/**
+ * Call revealLinks() every time new tweets are added or show the warning
+ * if the Twitter timeline cannot be detected
+ */
 if (stream !== undefined && stream !== null) {
   streamObserver = new MutationObserver(function () {
   /*streamObserver = new MutationObserver(function (mutations) {
