@@ -1,18 +1,16 @@
 "use strict";
 
-var stream = document.querySelector("#stream-items-id") || console.error("The timeline was not found");
-var streamObserver;
-var observerConfig;
-var warningMessage;
-var warningMessageOpacity;
-var fadeOutMessage;
+const stream = document.querySelector("#stream-items-id") || console.error("The timeline was not found");
+let warningMessage;
+let warningMessageOpacity;
+let fadeOutMessage;
 
 /**
  * Create a function that reveals the <href> attributes
  */
 function revealLinks() {
-  var links = document.querySelectorAll("a[data-expanded-url]");
-  var i;
+  let links = document.querySelectorAll("a[data-expanded-url]");
+  let i;
   //console.log(links);    // for debugging
   for (i = 0; i < links.length; i += 1) {
     if (["", links[i].href].indexOf(links[i].getAttribute("data-expanded-url")) <= 0) {
@@ -48,15 +46,15 @@ revealLinks();
  * if the Twitter timeline cannot be detected
  */
 if (stream !== undefined && stream !== null) {
-  streamObserver = new MutationObserver(function () {
-  /*streamObserver = new MutationObserver(function (mutations) {
+  const streamObserver = new MutationObserver(function () {
+  /*const streamObserver = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
       console.log(mutation.type);    // prints childList
       console.log(mutation.target);    // prints Object {  }/<unavailable> to the web/browser console
     });*/    // for debugging
     revealLinks();
   });
-  observerConfig = {childList: true, subtree: false};
+  const observerConfig = {childList: true, subtree: false};
   streamObserver.observe(stream, observerConfig);
 } else {
   console.error("Warning! The Twitter team modified the page structure. \n" +
