@@ -57,9 +57,10 @@ if (stream !== undefined && stream !== null) {
   const observerConfig = {childList: true, subtree: false};
   streamObserver.observe(stream, observerConfig);
 } else {
-  console.error("Warning! The Twitter team modified the page structure. \n" +
-        "The add-on \"Twitter Link Deobfuscator\" no longer works properly.\n" +
-        "Please update it or, if there is no update available, contact Alin.");
+  console.error(`
+Warning! The Twitter team modified the page structure.
+         The add-on "Twitter Link Deobfuscator" no longer works properly.
+         Please update it or, if there is no update available, contact Alin.`);
   warningMessage = document.createElement("div");
   warningMessage.setAttribute("id", "warningMessage");
   warningMessage.style.position = "fixed";
