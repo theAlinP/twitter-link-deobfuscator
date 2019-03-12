@@ -15,9 +15,10 @@ function revealLinks() {
   for (i = 0; i < links.length; i += 1) {
     if (["", links[i].href].indexOf(links[i].getAttribute("data-expanded-url")) <= 0) {
       /*console.log(links[i]);    // prints Object {  }/<unavailable> to the web/browser console
-      console.log((i + 1) + ": href             :" + links[i].href + "\n" +
-            (i + 1) + ": data-expanded-url:" + links[i].getAttribute("data-expanded-url") + "\n" +
-            (i + 1) + ": title            :" + links[i].title);*/    // for debugging
+      console.log(`
+${i + 1}.href             :${links[i].href}
+${i + 1}.data-expanded-url:${links[i].getAttribute("data-expanded-url")}
+${i + 1}.title            :${links[i].title}`);*/    // for debugging
       links[i].href = links[i].getAttribute("data-expanded-url");
       links[i].removeAttribute("data-expanded-url");
       //console.log(links[i]);    // prints Object {  }/<unavailable> to the web/browser console
