@@ -7,7 +7,7 @@ The Twitter servers secretly conceal the hyperlinks' destinations with shortened
 
 NOTE: This extension comes into action only on twitter.com and stays dormant when other websites are browsed.
 
-Absolutely no input is needed from the user. Once the add-on is installed and while it is enabled it will wait in the background for a page from twitter.com to be loaded and only then it will go into action and scan the Twitter Timeline for any hyperlinks with shortened URLs and replace them.
+Absolutely no input is needed from the user. Once the add-on is installed and while it is enabled it will wait in the background for a page from twitter.com to be loaded and only then it will go into action and scan the Twitter Timeline for any hyperlinks with shortened URLs and clean them.
 
 Twitter Link Deobfuscator only needs the minimum amount of permissions.
 
