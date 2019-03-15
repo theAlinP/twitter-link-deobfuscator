@@ -3,10 +3,11 @@
   "extends": "eslint:recommended",
   "env": {
     "browser": true,
-    "webextensions": true
+    "webextensions": true,
+    "es6": true
   },
   "parserOptions": {
-    "ecmaVersion": 6
+    "ecmaVersion": 2019
   },
   "rules": {
     "indent": [
