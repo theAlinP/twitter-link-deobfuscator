@@ -8,6 +8,9 @@
   "description": "Reveals the real destination of the links from tweets, which are usually concealed using shortened URLs. The extension only activates while browsing twitter.com.",
   "content_scripts": [
     {
+      "exclude_matches": [
+        "*://help.twitter.com/*"
+      ],
       "matches": [
         "*://*.twitter.com/*"
       ],
