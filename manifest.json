@@ -35,5 +35,10 @@
     "64": "icons/TLD_icon_enabled-64.png",
     "96": "icons/TLD_icon_enabled-96.png",
     "128": "icons/TLD_icon_enabled-128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{d820ea6b-de81-4b11-ad1f-832314b8a49f}"
+    }
   }
 }
