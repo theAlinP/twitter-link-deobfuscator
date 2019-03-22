@@ -40,44 +40,59 @@ function fadeOutWarning() {
   window.setTimeout(fadeOutWarning, 16.666);
 }
 
-revealLinks();
 
-/**
- * Call revealLinks() every time new tweets are added or show the warning
- * if the Twitter timeline cannot be detected
- */
-if (stream !== undefined && stream !== null) {
-  const streamObserver = new MutationObserver(function () {
-  /*const streamObserver = new MutationObserver(function (mutations) {
-    mutations.forEach(function (mutation) {
-      console.log(mutation.type);    // prints childList
-      console.log(mutation.target);    // prints Object {  }/<unavailable> to the web/browser console
-    });*/    // for debugging
-    revealLinks();
-  });
-  const observerConfig = {childList: true, subtree: false};
-  streamObserver.observe(stream, observerConfig);
-} else {
-  console.error(`
+browser.storage.local.get()
+  .then((storedSettings) => {
+    //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+    if (storedSettings.enabled === true) {
+      //console.log("The value is true.");    // for debugging
+      revealLinks();
+
+      /**
+       * Call revealLinks() every time new tweets are added or show the warning
+       * if the Twitter timeline cannot be detected
+       */
+      if (stream !== undefined && stream !== null) {
+        const streamObserver = new MutationObserver(function () {
+        /*const streamObserver = new MutationObserver(function (mutations) {
+          mutations.forEach(function (mutation) {
+            console.log(mutation.type);    // prints childList
+            console.log(mutation.target);    // prints Object {  }/<unavailable> to the web/browser console
+          });*/    // for debugging
+          revealLinks();
+        });
+        const observerConfig = {childList: true, subtree: false};
+        streamObserver.observe(stream, observerConfig);
+      } else {
+        console.error(`
 Warning! The Twitter team modified the page structure.
          The add-on "Twitter Link Deobfuscator" no longer works properly.
          Please update it or, if there is no update available, contact Alin.`);
-  warningMessage = document.createElement("div");
-  warningMessage.setAttribute("id", "warningMessage");
-  warningMessage.style.position = "fixed";
-  warningMessage.style.bottom = "10px";
-  warningMessage.style.right = "10px";
-  warningMessage.style.border = "1px solid #F00";
-  warningMessage.style.borderRadius = "5px";
-  warningMessage.style.color = "#F00";
-  warningMessage.style.backgroundColor = "#FF";
-  warningMessage.style.textAlign = "center";
-  warningMessage.style.textShadow = "2px 2px 2px #F00";
-  warningMessage.style.padding = "3px";
-  warningMessage.style.opacity = "1";
-  warningMessage.innerHTML = "The Twitter team modified the page structure!\n<br />\n\"Twitter Link Deobfuscator\" no longer works properly.";
-  document.body.appendChild(warningMessage);
-  warningMessage = document.getElementById("warningMessage");
-  warningMessageOpacity = 100;
-  fadeOutMessage = window.setTimeout(fadeOutWarning, 2000);
-}
+        warningMessage = document.createElement("div");
+        warningMessage.setAttribute("id", "warningMessage");
+        warningMessage.style.position = "fixed";
+        warningMessage.style.bottom = "10px";
+        warningMessage.style.right = "10px";
+        warningMessage.style.border = "1px solid #F00";
+        warningMessage.style.borderRadius = "5px";
+        warningMessage.style.color = "#F00";
+        warningMessage.style.backgroundColor = "#FF";
+        warningMessage.style.textAlign = "center";
+        warningMessage.style.textShadow = "2px 2px 2px #F00";
+        warningMessage.style.padding = "3px";
+        warningMessage.style.opacity = "1";
+        warningMessage.innerHTML = "The Twitter team modified the page structure!\n<br />\n\"Twitter Link Deobfuscator\" no longer works properly.";
+        document.body.appendChild(warningMessage);
+        warningMessage = document.getElementById("warningMessage");
+        warningMessageOpacity = 100;
+        fadeOutMessage = window.setTimeout(fadeOutWarning, 2000);
+      }
+    /*} else if (storedSettings.enabled === false) {
+      console.log("The value is false");
+    } else {
+      console.log("The value is neither true nor false");*/    // for debugging
+    }
+  })
+  .catch(() => {
+    console.error("Error retrieving stored settings");
+  });

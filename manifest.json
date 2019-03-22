@@ -40,5 +40,9 @@
     "gecko": {
       "id": "{d820ea6b-de81-4b11-ad1f-832314b8a49f}"
     }
-  }
+  },
+  "background": {
+    "scripts": ["background_script.js"]
+  },
+  "permissions": ["storage"]
 }
