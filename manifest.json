@@ -15,7 +15,7 @@
         "*://*.twitter.com/*"
       ],
       "js": [
-        "content_script.js"
+        "scripts/content_script.js"
       ]
     }
   ],
@@ -42,7 +42,7 @@
     }
   },
   "background": {
-    "scripts": ["background_script.js"]
+    "scripts": ["scripts/background_script.js"]
   },
   "permissions": ["storage"]
 }
