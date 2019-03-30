@@ -1,11 +1,11 @@
 # Twitter Link Deobfuscator
 
-Reveals the real destination of the links from tweets, which are usually concealed using shortened URLs.
+Reveals the real destinations of the links from tweets, which are usually concealed using shortened URLs.
 
 ## How it works
 The Twitter servers secretly conceal the hyperlinks' destinations with shortened [t.co](https://t.co "https://t.co") URLs. This add-on replaces the shortened URLs with the original ones.
 
-Please note that TLD will expand URLs from t.co to other shortened URLs, like bit.ly or mzl.la, if the user originally posted those shortened URLs, but it will not further expand the shortened URLs to their final destinations.
+Please note that TLD will expand URLs from t.co to other shortened URLs, like bit.ly or mzl.la, if the user originally posted those shortened URLs, but it will not further expand the original shortened URLs to their final destinations.
 
 NOTE: This extension comes into action only on twitter.com and stays dormant when other websites are browsed.
 
