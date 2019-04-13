@@ -19,8 +19,8 @@ function revealLinks() {
 ${index + 1}.href             :${link.href}
 ${index + 1}.data-expanded-url:${link.getAttribute("data-expanded-url")}
 ${index + 1}.title            :${link.title}`);*/    // for debugging
+      link.setAttribute("shortened-url", link.href);
       link.href = link.getAttribute("data-expanded-url");
-      link.removeAttribute("data-expanded-url");
       //console.log(link);    // for debugging
     }
   }
