@@ -6,7 +6,7 @@ let warningMessageOpacity;
 let fadeOutMessage;
 
 /**
- * Create a function that reveals the <href> attributes
+ * Create a function that reveals the original <href> attributes' values
  */
 function revealLinks() {
   let links = document.querySelectorAll("a[data-expanded-url]");
@@ -20,7 +20,9 @@ ${index + 1}.href             :${link.href}
 ${index + 1}.data-expanded-url:${link.getAttribute("data-expanded-url")}
 ${index + 1}.title            :${link.title}`);*/    // for debugging
       link.setAttribute("data-shortened-url", link.href);
+      link.setAttribute("data-original-url", link.getAttribute("data-expanded-url"));
       link.href = link.getAttribute("data-expanded-url");
+      link.removeAttribute("data-expanded-url");
       //console.log(link);    // for debugging
     }
   }
