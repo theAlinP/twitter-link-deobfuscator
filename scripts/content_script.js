@@ -1,6 +1,6 @@
 "use strict";
 
-const stream = document.querySelector("#stream-items-id") || console.error("The timeline was not found");
+
 let warningMessage;
 let warningMessageOpacity;
 let fadeOutMessage;
@@ -43,11 +43,15 @@ function fadeOutWarning() {
 }
 
 
+
 browser.storage.local.get()
   .then((storedSettings) => {
     //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
     if (storedSettings.enabled === true) {
       //console.log("The value is true.");    // for debugging
+
+      const stream = document.querySelector("#stream-items-id") || console.error("The timeline was not found");
+
       revealLinks();
 
       /**
