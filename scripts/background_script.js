@@ -4,6 +4,9 @@
 let defaultAddonState = { enabled : true };    // default add-on state
 
 
+/**
+ * Create a function that changes the add-on's title
+ */
 function updateAddonTitle (state) {
   state ?
     browser.browserAction.setTitle({ title: "Twitter Link Deobfuscator - ENABLED"})
@@ -12,6 +15,9 @@ function updateAddonTitle (state) {
 }
 
 
+/**
+ * Create a function that changes the add-on's icon
+ */
 function updateAddonIcon (state) {
   state ?
     browser.browserAction.setIcon({path: {
@@ -32,6 +38,9 @@ function updateAddonIcon (state) {
 }
 
 
+/**
+ * Create a function that enables and disables the add-on
+ */
 function toggleStatus () {
 
   browser.storage.local.get()
@@ -52,11 +61,11 @@ function toggleStatus () {
           updateAddonIcon (storedSettings.enabled);
         })
         .catch(() => {
-          console.log("Error retrieving stored settings");
+          console.error("Error retrieving stored settings");
         });
     })
     .catch(() => {
-      console.log("Error retrieving stored settings");
+      console.error("Error retrieving stored settings");
     });
 }
 
@@ -69,7 +78,7 @@ browser.storage.local.get()    // get the current settings, then...
     }
   })
   .catch(() => {
-    console.log("Error retrieving stored settings");
+    console.error("Error retrieving stored settings");
   });
 
 
@@ -79,7 +88,7 @@ browser.storage.local.get()    // get the current settings, then...
     console.log("The initial value is: " + storedSettings.enabled);
   })
   .catch(() => {
-    console.log("Error retrieving stored settings");
+    console.error("Error retrieving stored settings");
   });*/    // for debugging
 
 

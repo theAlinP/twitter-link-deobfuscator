@@ -5,6 +5,7 @@ let warningMessage;
 let warningMessageOpacity;
 let fadeOutMessage;
 
+
 /**
  * Create a function that reveals the original <href> attributes' values
  */
@@ -27,6 +28,7 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
     }
   }
 }
+
 
 /**
  * Create a function that fades out the warning message
