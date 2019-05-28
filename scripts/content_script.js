@@ -117,7 +117,8 @@ function getIframeHrefFromBackgroundScript(message) {
 
   let parentCard = iframe.closest(".cards-forward");
   //console.log(parentCard);    // for debugging
-  let originalDestination = parentCard.querySelector("a.twitter-timeline-link").getAttribute("data-original-url");
+  let originalDestination = parentCard.querySelector("a.twitter-timeline-link").getAttribute("data-original-url") ||    // if revealLinks() was already called
+                            parentCard.querySelector("a.twitter-timeline-link").getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
   //console.log("Original destination: " + originalDestination);    // for debugging
 
   return Promise.resolve({response: "The iframe href was received.",
@@ -160,110 +161,132 @@ function getOriginalDestinationFromBackgroundScript(message) {
 
 
 
-browser.storage.local.get()
-  .then((storedSettings) => {
-    //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
-    if (storedSettings.enabled === true) {
-      //console.log("The value is true.");    // for debugging
-      if (window === window.top) {
-        //console.log("The page finished loading.");    // for debugging
+if (window === window.top) {
+  //console.log("The page finished loading.");    // for debugging
 
-        const stream = document.querySelector("#stream-items-id") || console.error("The timeline was not found");
+  const stream = document.querySelector("#stream-items-id") || console.error("The timeline was not found");
 
-        browser.runtime.onMessage.addListener(getIframeHrefFromBackgroundScript);    // listen for messages from the background script with the iframe href
+  browser.runtime.onMessage.addListener(getIframeHrefFromBackgroundScript);    // listen for messages from the background script with the iframe href
 
+  browser.storage.local.get()    // call revealLinks() if the add-on is enabled
+    .then((storedSettings) => {
+      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      if (storedSettings.enabled === true) {
+        //console.log("The value is true.");    // for debugging
         revealLinks();
-
-        // For debugging: print details about the Twitter Cards, the iframe parents and iframes
-        /*let cards = document.querySelectorAll(".cards-forward");
-        console.log("Number of cards: " + cards.length);
-        for (let card of cards) {
-          card.style.border = "1px solid rgb(255, 0, 0)";
-          let originalDestination = card.querySelector("a.twitter-timeline-link").getAttribute("data-original-url");
-          console.log(`Original destination: : ${originalDestination}`);
-          let iframeParents = card.querySelectorAll(".js-macaw-cards-iframe-container");    // select the iframes' parents
-          console.log("Number of parents: " + iframeParents.length);
-          for (let iframeParent of iframeParents) {
-            iframeParent.style.border = "1px solid rgb(0, 255, 0)";
-            if (iframeParent.contains(iframeParent.querySelector("iframe"))) {
-              console.log("The iframe parent has an iframe");
-              let iframe = iframeParent.querySelector("iframe");
-              console.log(iframe);
-            }
-          }
-        }*/    // for debugging
-
-        /**
-         * Call revealLinks() every time new tweets are added
-         * or show the warning if the Twitter timeline cannot be detected
-         */
-        if (stream !== undefined && stream !== null) {
-          const streamObserver = new MutationObserver(function() {
-          /*const streamObserver = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-              console.log(mutation.type);    // prints childList
-              console.log(mutation.target);    // prints Object {  }/<unavailable> to the web/browser console
-            });*/    // for debugging
-            revealLinks();
-
-            // For debugging: print details about the Twitter Cards, the iframe parents and iframes
-            /*let cards = document.querySelectorAll(".cards-forward");
-            console.log("Number of cards: " + cards.length);
-            for (let card of cards) {
-              card.style.border = "1px solid rgb(255, 0, 0)";
-              let originalDestination = card.querySelector("a.twitter-timeline-link").getAttribute("data-original-url");
-              console.log(`Original destination: : ${originalDestination}`);
-              let iframeParents = card.querySelectorAll(".js-macaw-cards-iframe-container");    // select the iframes' parents
-              console.log("Number of parents: " + iframeParents.length);
-              for (let iframeParent of iframeParents) {
-                iframeParent.style.border = "1px solid rgb(0, 255, 0)";
-                if (iframeParent.contains(iframeParent.querySelector("iframe"))) {
-                  console.log("The iframe parent has an iframe");
-                  let iframe = iframeParent.querySelector("iframe");
-                  console.log(iframe);
-                }
-              }
-            }*/    // for debugging
-
-          });
-          const observerConfig = {childList: true, subtree: false};
-          streamObserver.observe(stream, observerConfig);
-        } else {
-          console.error(`
-Warning! The Twitter team modified the page structure.
-         The add-on "Twitter Link Deobfuscator" no longer works properly.
-         Please update it or, if there is no update available, contact Alin.`);
-          warningMessage = document.createElement("div");
-          warningMessage.setAttribute("id", "warningMessage");
-          warningMessage.style.position = "fixed";
-          warningMessage.style.bottom = "10px";
-          warningMessage.style.right = "10px";
-          warningMessage.style.border = "1px solid #F00";
-          warningMessage.style.borderRadius = "5px";
-          warningMessage.style.color = "#F00";
-          warningMessage.style.backgroundColor = "#FF";
-          warningMessage.style.textAlign = "center";
-          warningMessage.style.textShadow = "2px 2px 2px #F00";
-          warningMessage.style.padding = "3px";
-          warningMessage.style.opacity = "1";
-          warningMessage.innerHTML = "The Twitter team modified the page structure!\n<br />\n\"Twitter Link Deobfuscator\" no longer works properly.";
-          document.body.appendChild(warningMessage);
-          warningMessage = document.getElementById("warningMessage");
-          warningMessageOpacity = 100;
-          fadeOutMessage = window.setTimeout(fadeOutWarning, 2000);
-        }
+      /*} else if (storedSettings.enabled === false) {
+        console.log("The value is false");
       } else {
-        browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script with the original destination
-        //console.log("This message is coming from an iframe.");    // for debugging
-        //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
-        notifyBackgroundScript(window.location.href);
+        console.log("The value is neither true nor false");*/    // for debugging
       }
-    /*} else if (storedSettings.enabled === false) {
-      console.log("The value is false");
-    } else {
-      console.log("The value is neither true nor false");*/    // for debugging
+    })
+    .catch(() => {
+      console.error("Error retrieving stored settings");
+    });
+
+  // For debugging: print details about the Twitter Cards, the iframe parents and iframes
+  /*let cards = document.querySelectorAll(".cards-forward");
+  console.log("Number of cards: " + cards.length);
+  for (let card of cards) {
+    card.style.border = "1px solid rgb(255, 0, 0)";
+    let originalDestination = card.querySelector("a.twitter-timeline-link").getAttribute("data-original-url");
+    console.log(`Original destination: : ${originalDestination}`);
+    let iframeParents = card.querySelectorAll(".js-macaw-cards-iframe-container");    // select the iframes' parents
+    console.log("Number of parents: " + iframeParents.length);
+    for (let iframeParent of iframeParents) {
+      iframeParent.style.border = "1px solid rgb(0, 255, 0)";
+      if (iframeParent.contains(iframeParent.querySelector("iframe"))) {
+        console.log("The iframe parent has an iframe");
+        let iframe = iframeParent.querySelector("iframe");
+        console.log(iframe);
+      }
     }
-  })
-  .catch(() => {
-    console.error("Error retrieving stored settings");
-  });
+  }*/    // for debugging
+
+  /**
+   * Call revealLinks() every time new tweets are added
+   * or show the warning if the Twitter timeline cannot be detected
+   */
+  if (stream !== undefined && stream !== null) {
+    const streamObserver = new MutationObserver(function() {
+    /*const streamObserver = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        console.log(mutation.type);    // prints childList
+        console.log(mutation.target);    // prints Object {  }/<unavailable> to the web/browser console
+      });*/    // for debugging
+      browser.storage.local.get()    // call revealLinks() if the add-on is enabled
+        .then((storedSettings) => {
+          if (storedSettings.enabled === true) {
+            revealLinks();
+          }
+        })
+        .catch(() => {
+          console.error("Error retrieving stored settings");
+        });
+
+      // For debugging: print details about the Twitter Cards, the iframe parents and iframes
+      /*let cards = document.querySelectorAll(".cards-forward");
+      console.log("Number of cards: " + cards.length);
+      for (let card of cards) {
+        card.style.border = "1px solid rgb(255, 0, 0)";
+        let originalDestination = card.querySelector("a.twitter-timeline-link").getAttribute("data-original-url");
+        console.log(`Original destination: : ${originalDestination}`);
+        let iframeParents = card.querySelectorAll(".js-macaw-cards-iframe-container");    // select the iframes' parents
+        console.log("Number of parents: " + iframeParents.length);
+        for (let iframeParent of iframeParents) {
+          iframeParent.style.border = "1px solid rgb(0, 255, 0)";
+          if (iframeParent.contains(iframeParent.querySelector("iframe"))) {
+            console.log("The iframe parent has an iframe");
+            let iframe = iframeParent.querySelector("iframe");
+            console.log(iframe);
+          }
+        }
+      }*/    // for debugging
+
+    });
+    const observerConfig = {childList: true, subtree: false};
+    streamObserver.observe(stream, observerConfig);
+  } else {
+    console.error(`
+Warning! The Twitter team modified the page structure.
+   The add-on "Twitter Link Deobfuscator" no longer works properly.
+   Please update it or, if there is no update available, contact Alin.`);
+    warningMessage = document.createElement("div");
+    warningMessage.setAttribute("id", "warningMessage");
+    warningMessage.style.position = "fixed";
+    warningMessage.style.bottom = "10px";
+    warningMessage.style.right = "10px";
+    warningMessage.style.border = "1px solid #F00";
+    warningMessage.style.borderRadius = "5px";
+    warningMessage.style.color = "#F00";
+    warningMessage.style.backgroundColor = "#FF";
+    warningMessage.style.textAlign = "center";
+    warningMessage.style.textShadow = "2px 2px 2px #F00";
+    warningMessage.style.padding = "3px";
+    warningMessage.style.opacity = "1";
+    warningMessage.innerHTML = "The Twitter team modified the page structure!\n<br />\n\"Twitter Link Deobfuscator\" no longer works properly.";
+    document.body.appendChild(warningMessage);
+    warningMessage = document.getElementById("warningMessage");
+    warningMessageOpacity = 100;
+    fadeOutMessage = window.setTimeout(fadeOutWarning, 2000);
+  }
+} else {
+  browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script with the original destination
+  //console.log("This message is coming from an iframe.");    // for debugging
+  //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
+  browser.storage.local.get()    // call notifyBackgroundScript() if the add-on is enabled
+    .then((storedSettings) => {
+      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      if (storedSettings.enabled === true) {
+        //console.log("The value is true.");    // for debugging
+        notifyBackgroundScript(window.location.href);
+      /*} else if (storedSettings.enabled === false) {
+        console.log("The value is false");
+      } else {
+        console.log("The value is neither true nor false");*/    // for debugging
+      }
+    })
+    .catch(() => {
+      console.error("Error retrieving stored settings");
+    });
+}
