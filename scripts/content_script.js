@@ -164,25 +164,7 @@ function getOriginalDestinationFromBackgroundScript(message) {
 if (window === window.top) {
   //console.log("The page finished loading.");    // for debugging
 
-  const stream = document.querySelector("#stream-items-id") || console.error("The timeline was not found");
-
   browser.runtime.onMessage.addListener(getIframeHrefFromBackgroundScript);    // listen for messages from the background script with the iframe href
-
-  browser.storage.local.get()    // call revealLinks() if the add-on is enabled
-    .then((storedSettings) => {
-      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
-      if (storedSettings.enabled === true) {
-        //console.log("The value is true.");    // for debugging
-        revealLinks();
-      /*} else if (storedSettings.enabled === false) {
-        console.log("The value is false");
-      } else {
-        console.log("The value is neither true nor false");*/    // for debugging
-      }
-    })
-    .catch(() => {
-      console.error("Error retrieving stored settings");
-    });
 
   // For debugging: print details about the Twitter Cards, the iframe parents and iframes
   /*let cards = document.querySelectorAll(".cards-forward");
@@ -202,6 +184,27 @@ if (window === window.top) {
       }
     }
   }*/    // for debugging
+
+  /**
+   * Call revealLinks() right now if the add-on is enabled
+   */
+  const stream = document.querySelector("#stream-items-id") || console.error("The timeline was not found");
+
+  browser.storage.local.get()
+    .then((storedSettings) => {
+      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      if (storedSettings.enabled === true) {
+        //console.log("The value is true.");    // for debugging
+        revealLinks();
+      /*} else if (storedSettings.enabled === false) {
+        console.log("The value is false");
+      } else {
+        console.log("The value is neither true nor false");*/    // for debugging
+      }
+    })
+    .catch(() => {
+      console.error("Error retrieving stored settings");
+    });
 
   /**
    * Call revealLinks() every time new tweets are added
