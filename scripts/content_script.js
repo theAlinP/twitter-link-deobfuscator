@@ -115,7 +115,9 @@ function getIframeHrefFromBackgroundScript(message) {
     };
   }
 
-  let parentCard = iframe.closest(".cards-forward");
+  let parentCard = iframe.closest(".cards-forward") ||    // used when all the cards are listed
+                     iframe.closest(".permalink-tweet") ||    // used when a tweet is singled out (is clicked on or opened directly)
+                     iframe.closest("#permalink-overlay");    // used when a tweet is singled out (is clicked on or opened directly)
   //console.log(parentCard);    // for debugging
   let originalDestination = parentCard.querySelector("a.twitter-timeline-link").getAttribute("data-original-url") ||    // if revealLinks() was already called
                             parentCard.querySelector("a.twitter-timeline-link").getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
@@ -160,6 +162,98 @@ function getOriginalDestinationFromBackgroundScript(message) {
 }
 
 
+function listenForTweets() {
+  if (document.querySelector("#timeline")) {
+    var tweets = document.querySelector("#timeline").querySelector("#stream-items-id") || console.error("The timeline was not found");
+  } else {
+    return;
+  }
+  //console.log(tweets);    // for debugging
+
+  browser.storage.local.get()    // call revealLinks() if the add-on is enabled
+    .then((storedSettings) => {
+      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      if (storedSettings.enabled === true) {
+        //console.log("The value is true.");    // for debugging
+        revealLinks();
+      /*} else if (storedSettings.enabled === false) {
+        console.log("The value is false");
+      } else {
+        console.log("The value is neither true nor false");*/    // for debugging
+      }
+    })
+    .catch(() => {
+      console.error("Error retrieving stored settings");
+    });
+
+  const tweetsObserver = new MutationObserver(function() {
+  /*const tweetsObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      console.log(mutation.type);    // prints childList
+      console.log(mutation.target);    // prints Object {  }/<unavailable> to the web/browser console
+    });*/    // for debugging
+    //console.log("New tweets were added.");    // for debugging
+    browser.storage.local.get()    // call revealLinks() if the add-on is enabled
+      .then((storedSettings) => {
+        if (storedSettings.enabled === true) {
+          revealLinks();
+        }
+      })
+      .catch(() => {
+        console.error("Error retrieving stored settings");
+      });
+
+  });
+  const tweetsObserverConfig = {childList: true, subtree: false};
+  tweetsObserver.observe(tweets, tweetsObserverConfig);    // because new <li> elements are added to tweets every time the bottom of the page is reached
+}
+
+
+function listenForReplies() {
+  let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
+  //if (repliesContainer.contains(repliesContainer.querySelector(".permalink-tweet-container")) ||
+  //    repliesContainer.contains(repliesContainer.querySelector(".permalink-replies"))) {
+  if (repliesContainer.contains(repliesContainer.querySelector(".permalink"))) {
+
+    browser.storage.local.get()    // call revealLinks() if the add-on is enabled
+      .then((storedSettings) => {
+        //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+        if (storedSettings.enabled === true) {
+          //console.log("The value is true.");    // for debugging
+          revealLinks();
+        /*} else if (storedSettings.enabled === false) {
+          console.log("The value is false");
+        } else {
+          console.log("The value is neither true nor false");*/    // for debugging
+        }
+      })
+      .catch(() => {
+        console.error("Error retrieving stored settings");
+      });
+
+    /**
+     * Call revealLinks() every time new replies are added
+     */
+    const replies = repliesContainer.querySelector(".permalink-replies").querySelector("#stream-items-id") || console.error("The replies list was not found");
+    //console.log(replies);    // for debugging
+    const repliesObserver = new MutationObserver(function() {
+      //console.log("New replies were added.");    // for debugging
+      browser.storage.local.get()    // call revealLinks() if the add-on is enabled
+        .then((storedSettings) => {
+          if (storedSettings.enabled === true) {
+            revealLinks();
+          }
+        })
+        .catch(() => {
+          console.error("Error retrieving stored settings");
+        });
+    });
+    const repliesObserverConfig = {childList: true, subtree: false};
+    repliesObserver.observe(replies, repliesObserverConfig);    // because new <li> elements are added to replies every time the bottom of the page is reached
+  }
+}
+
+
 
 if (window === window.top) {
   //console.log("The page finished loading.");    // for debugging
@@ -185,70 +279,47 @@ if (window === window.top) {
     }
   }*/    // for debugging
 
-  /**
-   * Call revealLinks() right now if the add-on is enabled
-   */
-  const stream = document.querySelector("#stream-items-id") || console.error("The timeline was not found");
-
-  browser.storage.local.get()
-    .then((storedSettings) => {
-      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
-      if (storedSettings.enabled === true) {
-        //console.log("The value is true.");    // for debugging
-        revealLinks();
-      /*} else if (storedSettings.enabled === false) {
-        console.log("The value is false");
-      } else {
-        console.log("The value is neither true nor false");*/    // for debugging
-      }
-    })
-    .catch(() => {
-      console.error("Error retrieving stored settings");
-    });
+  var stream;
+  if (document.querySelector("#timeline")) {
+    stream = document.querySelector("#timeline").querySelector("#stream-items-id") || console.error("The timeline was not found");
+  } else if (document.querySelector(".PermalinkOverlay-body")) {
+    stream = document.querySelector(".PermalinkOverlay-body").querySelector(".permalink-replies").querySelector("#stream-items-id") || console.error("The replies were not found");
+  }
 
   /**
-   * Call revealLinks() every time new tweets are added
-   * or show the warning if the Twitter timeline cannot be detected
+   * Call revealLinks() every time new tweets and replies are added
+   * or show the warning if they cannot be detected
    */
   if (stream !== undefined && stream !== null) {
-    const streamObserver = new MutationObserver(function() {
-    /*const streamObserver = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        console.log(mutation.type);    // prints childList
-        console.log(mutation.target);    // prints Object {  }/<unavailable> to the web/browser console
-      });*/    // for debugging
-      browser.storage.local.get()    // call revealLinks() if the add-on is enabled
-        .then((storedSettings) => {
-          if (storedSettings.enabled === true) {
-            revealLinks();
-          }
-        })
-        .catch(() => {
-          console.error("Error retrieving stored settings");
-        });
+    if (document.querySelector("#timeline")) {
+      listenForTweets();
+    } else if (document.querySelector(".PermalinkOverlay-body")) {
+      listenForReplies();
+    }
 
-      // For debugging: print details about the Twitter Cards, the iframe parents and iframes
-      /*let cards = document.querySelectorAll(".cards-forward");
-      console.log("Number of cards: " + cards.length);
-      for (let card of cards) {
-        card.style.border = "1px solid rgb(255, 0, 0)";
-        let originalDestination = card.querySelector("a.twitter-timeline-link").getAttribute("data-original-url");
-        console.log(`Original destination: : ${originalDestination}`);
-        let iframeParents = card.querySelectorAll(".js-macaw-cards-iframe-container");    // select the iframes' parents
-        console.log("Number of parents: " + iframeParents.length);
-        for (let iframeParent of iframeParents) {
-          iframeParent.style.border = "1px solid rgb(0, 255, 0)";
-          if (iframeParent.contains(iframeParent.querySelector("iframe"))) {
-            console.log("The iframe parent has an iframe");
-            let iframe = iframeParent.querySelector("iframe");
-            console.log(iframe);
-          }
+    /**
+     * Call revealLinks() every time a tweet is singled out (is clicked on or
+     * it was opened directly from a link or a bookmark)
+     */
+    let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
+    const repliesContainerObserver = new MutationObserver(listenForReplies);
+    const repliesContainerObserverConfig = {childList: true, subtree: false};
+    repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);    // because a new <div> element is added to repliesContainer when a tweet is singled out or it was opened directly
+
+    /**
+     * Call revealLinks() every time a singled out tweet is hidden/closed
+     */
+    let pageContainer = document.querySelector("#page-container") || console.log("The page container was not found");
+    if (pageContainer.classList.contains("wrapper-permalink")) {
+      const pageContainerObserver = new MutationObserver(function() {
+        //console.log("The page container was modified!");    // for debugging
+        if (! pageContainer.classList.contains("wrapper-permalink")) {
+          listenForTweets();
         }
-      }*/    // for debugging
-
-    });
-    const observerConfig = {childList: true, subtree: false};
-    streamObserver.observe(stream, observerConfig);
+      });
+      const pageContainerObserverConfig = {attributes: true};
+      pageContainerObserver.observe(pageContainer, pageContainerObserverConfig);    // because the class "wrapper-permalink" is removed from pageContainer when a singled out tweet is closed
+    }
   } else {
     console.error(`
 Warning! The Twitter team modified the page structure.
