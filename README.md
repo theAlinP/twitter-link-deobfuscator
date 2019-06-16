@@ -1,6 +1,6 @@
 # Twitter Link Deobfuscator
 
-Reveals the real destinations of the links and Twitter Cards from tweets as well as replies, which are usually concealed using shortened URLs.
+Reveals the real destinations of the links and Twitter Cards from tweets as well as from replies, which are usually concealed using shortened URLs.
 
 Okay, okay. I know that "deobfuscator" is not a real word, but it seems like the right word to describe what the add-on does. Plus, if "obfuscator" is a real one, then I think "deobfuscator" deserves some consideration, too.
 
