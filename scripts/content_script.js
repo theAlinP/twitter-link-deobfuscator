@@ -119,8 +119,16 @@ function getIframeHrefFromBackgroundScript(message) {
                      iframe.closest(".permalink-tweet") ||    // used when a tweet is singled out (is clicked on or opened directly)
                      iframe.closest("#permalink-overlay");    // used when a tweet is singled out (is clicked on or opened directly)
   //console.log(parentCard);    // for debugging
-  let originalDestination = parentCard.querySelector("a.twitter-timeline-link").getAttribute("data-original-url") ||    // if revealLinks() was already called
-                            parentCard.querySelector("a.twitter-timeline-link").getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
+  var originalDestination;
+  if (parentCard.querySelector("a.twitter-timeline-link.u-hidden")) {    // in case a hidden link is found
+    originalDestination = parentCard.querySelector("a.twitter-timeline-link.u-hidden").getAttribute("data-original-url") ||    // if revealLinks() was already called
+                          parentCard.querySelector("a.twitter-timeline-link.u-hidden").getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
+  } else {    // if a hidden link was not found, use the last useful link found
+    let links = parentCard.querySelectorAll("a.twitter-timeline-link");
+    console.log(links);    // for debugging
+    originalDestination = links[links.length - 1].getAttribute("data-original-url") ||    // if revealLinks() was already called
+                          links[links.length - 1].getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
+  }
   //console.log("Original destination: " + originalDestination);    // for debugging
 
   return Promise.resolve({response: "The iframe href was received.",
