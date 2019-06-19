@@ -125,7 +125,7 @@ function getIframeHrefFromBackgroundScript(message) {
                           parentCard.querySelector("a.twitter-timeline-link.u-hidden").getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
   } else {    // if a hidden link was not found, use the last useful link found
     let links = parentCard.querySelectorAll("a.twitter-timeline-link");
-    console.log(links);    // for debugging
+    //console.log(links);    // for debugging
     originalDestination = links[links.length - 1].getAttribute("data-original-url") ||    // if revealLinks() was already called
                           links[links.length - 1].getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
   }
