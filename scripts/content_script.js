@@ -82,7 +82,6 @@ function handleError(error) {
  */
 function getIframeHrefFromBackgroundScript(message) {
   //console.log(`getIframeHrefFromBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
-  //console.log(message);    // for debugging
 
   if (window !== window.top) {    // stop if this function is not called from the top document
     //console.log("This function was not called from the top document. Exiting...");    // for debugging
@@ -93,6 +92,7 @@ function getIframeHrefFromBackgroundScript(message) {
     return;
   }
 
+  //console.log(message);    // for debugging
   //console.log("Message from the background script:");    // for debugging
   //console.log(`to: ${message.to}`);    // for debugging
   //console.log(`iframeLocationHref: ${message.iframeLocationHref}`);    // for debugging
@@ -141,7 +141,6 @@ function getIframeHrefFromBackgroundScript(message) {
  */
 function getOriginalDestinationFromBackgroundScript(message) {
   //console.log(`getOriginalDestinationFromBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
-  //console.log(message);    // for debugging
 
   if (window === window.top) {    // stop if this function is called from the top document
     //console.log("This function was NOT called from inside an iframe. Exiting...");    // for debugging
@@ -156,6 +155,7 @@ function getOriginalDestinationFromBackgroundScript(message) {
     return;
   }
 
+  //console.log(message);    // for debugging
   //console.log("Message from the background script:");    // for debugging
   //console.log(`to: ${message.to}`);    // for debugging
   //console.log(`originalDestination: ${message.originalDestination}`);    // for debugging
@@ -353,22 +353,24 @@ Warning! The Twitter team modified the page structure.
     fadeOutMessage = window.setTimeout(fadeOutWarning, 2000);
   }
 } else {
-  browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script with the original destination
-  //console.log("This message is coming from an iframe.");    // for debugging
-  //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
-  browser.storage.local.get()    // call notifyBackgroundScript() if the add-on is enabled
-    .then((storedSettings) => {
-      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
-      if (storedSettings.enabled === true) {
-        //console.log("The value is true.");    // for debugging
-        notifyBackgroundScript(window.location.href);
-      /*} else if (storedSettings.enabled === false) {
-        console.log("The value is false");
-      } else {
-        console.log("The value is neither true nor false");*/    // for debugging
-      }
-    })
-    .catch(() => {
-      console.error("Error retrieving stored settings");
-    });
+  if (document.querySelector("a.TwitterCard-container--clickable")) {    // if there is a link in the Twitter Card...
+    browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script with the original destination
+    //console.log("This message is coming from an iframe.");    // for debugging
+    //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
+    browser.storage.local.get()    // call notifyBackgroundScript() if the add-on is enabled
+      .then((storedSettings) => {
+        //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+        if (storedSettings.enabled === true) {
+          //console.log("The value is true.");    // for debugging
+          notifyBackgroundScript(window.location.href);
+        /*} else if (storedSettings.enabled === false) {
+          console.log("The value is false");
+        } else {
+          console.log("The value is neither true nor false");*/    // for debugging
+        }
+      })
+      .catch(() => {
+        console.error("Error retrieving stored settings");
+      });
+  }
 }
