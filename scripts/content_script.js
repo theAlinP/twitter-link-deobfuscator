@@ -328,6 +328,21 @@ if (window === window.top) {
       const pageContainerObserverConfig = {attributes: true};
       pageContainerObserver.observe(pageContainer, pageContainerObserverConfig);    // because the class "wrapper-permalink" is removed from pageContainer when a singled out tweet is closed
     }
+
+    /**
+     * Detect when a new page is browsed (Home, Notifications, Who to follow, etc.)
+     * then clean the links
+     */
+    const pageObserver = new MutationObserver(function() {
+      //console.log("The page container's attributes were modified.");    // for debugging
+      //console.log("Page container class list: " + document.querySelector("#page-container").classList);    // for debugging
+      if (pageContainer.querySelector("#timeline").querySelector("a[data-expanded-url]")) {
+        //console.log("Shortened URL detected. It will be cleaned immediately.");    // for debugging
+        listenForTweets();
+      }
+    });
+    const pageObserverConfig = {attributes: true};
+    pageObserver.observe(pageContainer, pageObserverConfig);    // because the class list from pageContainer is changed after switching to a different page
   } else {
     console.error(`
 Warning! The Twitter team modified the page structure.
