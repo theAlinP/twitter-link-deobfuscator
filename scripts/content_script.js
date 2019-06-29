@@ -1,11 +1,6 @@
 "use strict";
 
 
-let warningMessage;
-let warningMessageOpacity;
-let fadeOutMessage;
-
-
 /**
  * Create a function that reveals the original <href> attributes' values
  */
@@ -27,21 +22,6 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
       //console.log(link);    // for debugging
     }
   }
-}
-
-
-/**
- * Create a function that fades out the warning message
- */
-function fadeOutWarning() {
-  warningMessageOpacity -= 1;
-  warningMessage.style.opacity = warningMessageOpacity / 100;
-  if (warningMessageOpacity === 0) {
-    window.clearTimeout(fadeOutMessage);
-    warningMessage.parentElement.removeChild(warningMessage);
-    return;
-  }
-  window.setTimeout(fadeOutWarning, 16.666);
 }
 
 
@@ -287,86 +267,53 @@ if (window === window.top) {
     }
   }*/    // for debugging
 
-  var stream;
+  /**
+   * Call revealLinks() every time new tweets and replies are added
+   */
   if (document.querySelector("#timeline")) {
-    stream = document.querySelector("#timeline").querySelector("#stream-items-id") || console.error("The timeline was not found");
+    listenForTweets();
   } else if (document.querySelector(".PermalinkOverlay-body")) {
-    stream = document.querySelector(".PermalinkOverlay-body").querySelector(".permalink-replies").querySelector("#stream-items-id") || console.error("The replies were not found");
+    listenForReplies();
   }
 
   /**
-   * Call revealLinks() every time new tweets and replies are added
-   * or show the warning if they cannot be detected
+   * Call revealLinks() every time a tweet is singled out (is clicked on or
+   * it was opened directly from a link or a bookmark)
    */
-  if (stream !== undefined && stream !== null) {
-    if (document.querySelector("#timeline")) {
-      listenForTweets();
-    } else if (document.querySelector(".PermalinkOverlay-body")) {
-      listenForReplies();
-    }
+  let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
+  const repliesContainerObserver = new MutationObserver(listenForReplies);
+  const repliesContainerObserverConfig = {childList: true, subtree: false};
+  repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);    // because a new <div> element is added to repliesContainer when a tweet is singled out or it was opened directly
 
-    /**
-     * Call revealLinks() every time a tweet is singled out (is clicked on or
-     * it was opened directly from a link or a bookmark)
-     */
-    let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
-    const repliesContainerObserver = new MutationObserver(listenForReplies);
-    const repliesContainerObserverConfig = {childList: true, subtree: false};
-    repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);    // because a new <div> element is added to repliesContainer when a tweet is singled out or it was opened directly
-
-    /**
-     * Call revealLinks() every time a singled out tweet is hidden/closed
-     */
-    let pageContainer = document.querySelector("#page-container") || console.log("The page container was not found");
-    if (pageContainer.classList.contains("wrapper-permalink")) {
-      const pageContainerObserver = new MutationObserver(function() {
-        //console.log("The page container was modified!");    // for debugging
-        if (! pageContainer.classList.contains("wrapper-permalink")) {
-          listenForTweets();
-        }
-      });
-      const pageContainerObserverConfig = {attributes: true};
-      pageContainerObserver.observe(pageContainer, pageContainerObserverConfig);    // because the class "wrapper-permalink" is removed from pageContainer when a singled out tweet is closed
-    }
-
-    /**
-     * Detect when a new page is browsed (Home, Notifications, Who to follow, etc.)
-     * then clean the links
-     */
-    const pageObserver = new MutationObserver(function() {
-      //console.log("The page container's attributes were modified.");    // for debugging
-      //console.log("Page container class list: " + document.querySelector("#page-container").classList);    // for debugging
-      if (pageContainer.querySelector("#timeline").querySelector("a[data-expanded-url]")) {
-        //console.log("Shortened URL detected. It will be cleaned immediately.");    // for debugging
+  /**
+   * Call revealLinks() every time a singled out tweet is hidden/closed
+   */
+  let pageContainer = document.querySelector("#page-container") || console.log("The page container was not found");
+  if (pageContainer.classList.contains("wrapper-permalink")) {
+    const pageContainerObserver = new MutationObserver(function() {
+      //console.log("The page container was modified!");    // for debugging
+      if (! pageContainer.classList.contains("wrapper-permalink")) {
         listenForTweets();
       }
     });
-    const pageObserverConfig = {attributes: true};
-    pageObserver.observe(pageContainer, pageObserverConfig);    // because the class list from pageContainer is changed after switching to a different page
-  } else {
-    console.error(`
-Warning! The Twitter team modified the page structure.
-   The add-on "Twitter Link Deobfuscator" no longer works properly.
-   Please update it or, if there is no update available, contact Alin.`);
-    warningMessage = document.createElement("div");
-    warningMessage.setAttribute("id", "warningMessage");
-    warningMessage.style.position = "fixed";
-    warningMessage.style.bottom = "10px";
-    warningMessage.style.right = "10px";
-    warningMessage.style.border = "1px solid #F00";
-    warningMessage.style.borderRadius = "5px";
-    warningMessage.style.color = "#F00";
-    warningMessage.style.backgroundColor = "#FF";
-    warningMessage.style.textAlign = "center";
-    warningMessage.style.textShadow = "2px 2px 2px #F00";
-    warningMessage.style.padding = "3px";
-    warningMessage.style.opacity = "1";
-    warningMessage.innerHTML = "The Twitter team modified the page structure!\n<br />\n\"Twitter Link Deobfuscator\" no longer works properly.";
-    document.body.appendChild(warningMessage);
-    warningMessage = document.getElementById("warningMessage");
-    warningMessageOpacity = 100;
-    fadeOutMessage = window.setTimeout(fadeOutWarning, 2000);
+    const pageContainerObserverConfig = {attributes: true};
+    pageContainerObserver.observe(pageContainer, pageContainerObserverConfig);    // because the class "wrapper-permalink" is removed from pageContainer when a singled out tweet is closed
   }
+
+  /**
+   * Detect when a new page is browsed (Home, Notifications, Who to follow, etc.)
+   * then clean the links
+   */
+  const pageObserver = new MutationObserver(function() {
+    //console.log("The page container's attributes were modified.");    // for debugging
+    //console.log("Page container class list: " + document.querySelector("#page-container").classList);    // for debugging
+    if (pageContainer.querySelector("#timeline").querySelector("a[data-expanded-url]")) {
+      //console.log("Shortened URL detected. It will be cleaned immediately.");    // for debugging
+      listenForTweets();
+    }
+  });
+  const pageObserverConfig = {attributes: true};
+  pageObserver.observe(pageContainer, pageObserverConfig);    // because the class list from pageContainer is changed after switching to a different page
 } else {
   if (document.querySelector("a.TwitterCard-container--clickable")) {    // if there is a link in the Twitter Card...
     browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script with the original destination
