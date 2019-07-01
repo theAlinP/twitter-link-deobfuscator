@@ -150,6 +150,9 @@ function getOriginalDestinationFromBackgroundScript(message) {
 }
 
 
+/**
+ * Create a function that listens for added tweets and cleans the links inside them
+ */
 function listenForTweets() {
   if (document.querySelector("#timeline")) {
     var tweets = document.querySelector("#timeline").querySelector("#stream-items-id") || console.error("The timeline was not found");
@@ -197,6 +200,9 @@ function listenForTweets() {
 }
 
 
+/**
+ * Create a function that listens for added replies and cleans the links inside them
+ */
 function listenForReplies() {
   let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
   //if (repliesContainer.contains(repliesContainer.querySelector(".permalink-tweet-container")) ||
