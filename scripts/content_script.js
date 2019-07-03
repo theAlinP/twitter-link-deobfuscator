@@ -274,7 +274,7 @@ if (window === window.top) {
   }*/    // for debugging
 
   /**
-   * Call revealLinks() every time new tweets and replies are added
+   * Clean the links every time new tweets and replies are added
    */
   if (document.querySelector("#timeline")) {
     listenForTweets();
@@ -283,7 +283,7 @@ if (window === window.top) {
   }
 
   /**
-   * Call revealLinks() every time a tweet is singled out (is clicked on or
+   * Clean the replies every time a tweet is singled out (is clicked on or
    * it was opened directly from a link or a bookmark)
    */
   let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
@@ -292,7 +292,8 @@ if (window === window.top) {
   repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);    // because a new <div> element is added to repliesContainer when a tweet is singled out or it was opened directly
 
   /**
-   * Call revealLinks() every time a singled out tweet is hidden/closed
+   * Clean the tweets every time a tweet opened directly from a link
+   * or a bookmark is hidden/closed
    */
   let pageContainer = document.querySelector("#page-container") || console.log("The page container was not found");
   if (pageContainer.classList.contains("wrapper-permalink")) {
