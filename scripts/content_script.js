@@ -5,23 +5,37 @@
  * Create a function that reveals the original <href> attributes' values
  */
 function revealLinks() {
-  let links = document.querySelectorAll("a[data-expanded-url]");
-  //console.log(links);    // for debugging
-  for (let link of links) {
-  //for (let [index, link] of links.entries()) {    // for debugging
-    if (["", link.href].indexOf(link.getAttribute("data-expanded-url")) <= 0) {
-      /*console.log(link);    // prints Object {  }/<unavailable> to the web/browser console
-      console.log(`
+  browser.storage.local.get()    // check if the add-on is enabled
+    .then((storedSettings) => {
+      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
+        //console.log("The value is true.");    // for debugging
+        let links = document.querySelectorAll("a[data-expanded-url]");
+        //console.log(links);    // for debugging
+        for (let link of links) {
+        //for (let [index, link] of links.entries()) {    // for debugging
+          if (["", link.href].indexOf(link.getAttribute("data-expanded-url")) <= 0) {
+            /*console.log(link);    // prints Object {  }/<unavailable> to the web/browser console
+            console.log(`
 ${index + 1}.href             :${link.href}
 ${index + 1}.data-expanded-url:${link.getAttribute("data-expanded-url")}
 ${index + 1}.title            :${link.title}`);*/    // for debugging
-      link.setAttribute("data-shortened-url", link.href);
-      link.setAttribute("data-original-url", link.getAttribute("data-expanded-url"));
-      link.href = link.getAttribute("data-expanded-url");
-      link.removeAttribute("data-expanded-url");
-      //console.log(link);    // for debugging
-    }
-  }
+            link.setAttribute("data-shortened-url", link.href);
+            link.setAttribute("data-original-url", link.getAttribute("data-expanded-url"));
+            link.href = link.getAttribute("data-expanded-url");
+            link.removeAttribute("data-expanded-url");
+            //console.log(link);    // for debugging
+          }
+        }
+      /*} else if (storedSettings.enabled === false) {
+        console.log("The value is false");
+      } else {
+        console.log("The value is neither true nor false");*/    // for debugging
+      }
+    })
+    .catch(() => {
+      console.error("Error retrieving stored settings");
+    });
 }
 
 
@@ -161,21 +175,7 @@ function listenForTweets() {
   }
   //console.log(tweets);    // for debugging
 
-  browser.storage.local.get()    // call revealLinks() if the add-on is enabled
-    .then((storedSettings) => {
-      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
-      if (storedSettings.enabled === true) {
-        //console.log("The value is true.");    // for debugging
-        revealLinks();
-      /*} else if (storedSettings.enabled === false) {
-        console.log("The value is false");
-      } else {
-        console.log("The value is neither true nor false");*/    // for debugging
-      }
-    })
-    .catch(() => {
-      console.error("Error retrieving stored settings");
-    });
+  revealLinks();
 
   const tweetsObserver = new MutationObserver(function() {
   /*const tweetsObserver = new MutationObserver(function(mutations) {
@@ -184,16 +184,7 @@ function listenForTweets() {
       console.log(mutation.target);    // prints Object {  }/<unavailable> to the web/browser console
     });*/    // for debugging
     //console.log("New tweets were added.");    // for debugging
-    browser.storage.local.get()    // call revealLinks() if the add-on is enabled
-      .then((storedSettings) => {
-        if (storedSettings.enabled === true) {
-          revealLinks();
-        }
-      })
-      .catch(() => {
-        console.error("Error retrieving stored settings");
-      });
-
+    revealLinks();
   });
   const tweetsObserverConfig = {childList: true, subtree: false};
   tweetsObserver.observe(tweets, tweetsObserverConfig);    // because new <li> elements are added to tweets every time the bottom of the page is reached
@@ -209,21 +200,7 @@ function listenForReplies() {
   //    repliesContainer.contains(repliesContainer.querySelector(".permalink-replies"))) {
   if (repliesContainer.contains(repliesContainer.querySelector(".permalink"))) {
 
-    browser.storage.local.get()    // call revealLinks() if the add-on is enabled
-      .then((storedSettings) => {
-        //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
-        if (storedSettings.enabled === true) {
-          //console.log("The value is true.");    // for debugging
-          revealLinks();
-        /*} else if (storedSettings.enabled === false) {
-          console.log("The value is false");
-        } else {
-          console.log("The value is neither true nor false");*/    // for debugging
-        }
-      })
-      .catch(() => {
-        console.error("Error retrieving stored settings");
-      });
+    revealLinks();
 
     /**
      * Call revealLinks() every time new replies are added
@@ -232,15 +209,7 @@ function listenForReplies() {
     //console.log(replies);    // for debugging
     const repliesObserver = new MutationObserver(function() {
       //console.log("New replies were added.");    // for debugging
-      browser.storage.local.get()    // call revealLinks() if the add-on is enabled
-        .then((storedSettings) => {
-          if (storedSettings.enabled === true) {
-            revealLinks();
-          }
-        })
-        .catch(() => {
-          console.error("Error retrieving stored settings");
-        });
+      revealLinks();
     });
     const repliesObserverConfig = {childList: true, subtree: false};
     repliesObserver.observe(replies, repliesObserverConfig);    // because new <li> elements are added to replies every time the bottom of the page is reached
