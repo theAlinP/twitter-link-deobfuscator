@@ -225,10 +225,10 @@ function cleanWebsiteLink() {
     if (document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url")) {
       let websiteLink = document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url a");
       if (websiteLink !== undefined && websiteLink !== null) {    // check if websiteLink is set (meaning it was found)
-        console.log(websiteLink);    // for debugging
+        //console.log(websiteLink);    // for debugging
         websiteLink.setAttribute("data-shortened-url", websiteLink.href);
         websiteLink.href = websiteLink.title;
-        console.log(websiteLink);    // for debugging
+        //console.log(websiteLink);    // for debugging
       }
     }
   }
