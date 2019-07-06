@@ -217,6 +217,24 @@ function listenForReplies() {
 }
 
 
+/**
+ * Create a function that cleans the "Website" link, if there is one
+ */
+function cleanWebsiteLink() {
+  if (document.querySelector(".ProfileHeaderCard")) {
+    if (document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url")) {
+      let websiteLink = document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url a");
+      if (websiteLink !== undefined && websiteLink !== null) {    // check if websiteLink is set (meaning it was found)
+        console.log(websiteLink);    // for debugging
+        websiteLink.setAttribute("data-shortened-url", websiteLink.href);
+        websiteLink.href = websiteLink.title;
+        console.log(websiteLink);    // for debugging
+      }
+    }
+  }
+}
+
+
 
 if (window === window.top) {
   //console.log("The page finished loading.");    // for debugging
@@ -242,6 +260,8 @@ if (window === window.top) {
     }
   }*/    // for debugging
 
+  cleanWebsiteLink();    // clean the "Website" link
+
   /**
    * Clean the links every time new tweets and replies are added
    */
@@ -261,8 +281,8 @@ if (window === window.top) {
   repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);    // because a new <div> element is added to repliesContainer when a tweet is singled out or it was opened directly
 
   /**
-   * Clean the tweets every time a tweet opened directly from a link
-   * or a bookmark is hidden/closed
+   * Clean the tweets and the "Website" link every time a tweet opened directly
+   * from a link or a bookmark is hidden/closed
    */
   let pageContainer = document.querySelector("#page-container") || console.log("The page container was not found");
   if (pageContainer.classList.contains("wrapper-permalink")) {
@@ -270,6 +290,7 @@ if (window === window.top) {
       //console.log("The page container was modified!");    // for debugging
       if (! pageContainer.classList.contains("wrapper-permalink")) {
         listenForTweets();
+        cleanWebsiteLink();    // clean the "Website" link
       }
     });
     const pageContainerObserverConfig = {attributes: true};
