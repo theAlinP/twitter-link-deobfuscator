@@ -7,7 +7,8 @@ let defaultAddonState = { enabled : true };    // default add-on state
 /**
  * Create a function that changes the add-on's title
  */
-function updateAddonTitle (state) {
+function updateAddonTitle(state) {
+  //console.log(state);    // for debugging
   state ?
     browser.browserAction.setTitle({ title: "Twitter Link Deobfuscator - ENABLED"})
     :
@@ -18,7 +19,8 @@ function updateAddonTitle (state) {
 /**
  * Create a function that changes the add-on's icon
  */
-function updateAddonIcon (state) {
+function updateAddonIcon(state) {
+  //console.log(state);    // for debugging
   state ?
     browser.browserAction.setIcon({path: {
       "32": "icons/TLD_icon_enabled-32.png",
@@ -41,8 +43,7 @@ function updateAddonIcon (state) {
 /**
  * Create a function that enables and disables the add-on
  */
-function toggleStatus () {
-
+function toggleStatus() {
   browser.storage.local.get()
     .then((storedSettings) => {
       if (storedSettings.enabled === true) {
@@ -77,11 +78,18 @@ function toggleStatus () {
 function handleMessage(request) {
   //console.log(request);    // for debugging
   //console.log(sender);    // for debugging
+  //console.log(sendResponse);    // for debugging
   //console.log(`Iframe location href: ${request.iframeLocationHref}`);    // for debugging
 
-  browser.tabs.query({currentWindow: true, active: true}).then( (tabs) => {
-    for (let tab of tabs) {
-      browser.tabs.sendMessage(
+  browser.tabs.query({currentWindow: true, active: true}).then( (tabs) => {    // get the active tab in the current window
+    for (let tab of tabs) {    // loop through the array, which actually contains only one tab
+      //console.log(tabs);    // for debugging
+      browser.tabs.sendMessage(    /* send a message to the tab. It will reach all the listeners from the content script;
+                                      from the parent window will be passed on to getIframeHrefFromBackgroundScript()
+                                      and from ALL the iframes will be passed on to getOriginalDestinationFromBackgroundScript().
+                                      Certain precautions need to be taken to ensure that it will be used by the right function
+                                      from the right window hence the use of the "iframeLocationHref" and "to" methods
+                                      and the checks inside the two functions from the content script. */
         tab.id,
         {to: "getIframeHrefFromBackgroundScript()",
           iframeLocationHref: request.iframeLocationHref}
@@ -118,8 +126,8 @@ function handleMessage(request) {
  * Create a function that handles any messaging errors
  */
 function onMessageError(error) {
-  //console.error(`Error: ${error}`);
-  console.error(`${error}`);
+  //console.error(error);    // for debugging
+  console.error(`Error: ${error.message}`);
 }
 
 
