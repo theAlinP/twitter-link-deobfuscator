@@ -55,6 +55,7 @@ function notifyBackgroundScript(iframeLocationHref) {
  */
 /*function handleResponse(message) {
   console.log(`handleResponse() running from this window: ${window.location.href}`);    // for debugging
+  console.log(message);    // for debugging
   console.log("Response from the background script:");    // for debugging
   console.log("message.response: " + message.response);    // for debugging
 }*/    // for debugging
@@ -66,8 +67,8 @@ function handleResponse() {}
  */
 function handleError(error) {
   //console.log(`handleError() running from this window: ${window.location.href}`);    // for debugging
-  //console.error(`Error: ${error}`);
-  console.error(`${error}`);
+  //console.error(error);    // for debugging
+  console.error(`Error: ${error.message}`);
 }
 
 
