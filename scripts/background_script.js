@@ -5,7 +5,10 @@ let defaultAddonState = { enabled : true };    // default add-on state
 
 
 /**
- * Create a function that changes the add-on's title
+ * A function that changes the add-on's title
+ * @function updateAddonTitle
+ * @param {boolean} state - The title of the add-on icon will be changed based
+ * on the value of this parameter
  */
 function updateAddonTitle(state) {
   //console.log(state);    // for debugging
@@ -17,7 +20,10 @@ function updateAddonTitle(state) {
 
 
 /**
- * Create a function that changes the add-on's icon
+ * A function that changes the add-on's icon
+ * @function updateAddonIcon
+ * @param {boolean} state - The icon of the add-on will be changed based
+ * on the value of this parameter
  */
 function updateAddonIcon(state) {
   //console.log(state);    // for debugging
@@ -41,7 +47,8 @@ function updateAddonIcon(state) {
 
 
 /**
- * Create a function that enables and disables the add-on
+ * A function that enables and disables the add-on
+ * @function toggleStatus
  */
 function toggleStatus() {
   browser.storage.local.get()
@@ -72,7 +79,15 @@ function toggleStatus() {
 
 
 /**
- * Create a function that communicates with the content script
+ * A function that communicates with the content script
+ * @function handleMessage
+ * @param {object} request - The message received from the content script
+ * @param {string} request.iframeLocationHref - The location of the iframe from
+ * which the content script reached out to this script
+ * @param {object} sender - An object passed to the function by the onMessage
+ * listener providing details about the sender of the message
+ * @param {function} sendResponse - A function passed to the function by the
+ * onMessage listener providing a way to send a response to the sender
  */
 //function handleMessage(request, sender, sendResponse) {    // for debugging
 function handleMessage(request) {
@@ -123,7 +138,9 @@ function handleMessage(request) {
 
 
 /**
- * Create a function that handles any messaging errors
+ * A function that handles any messaging errors
+ * @function onMessageError
+ * @param {object} error - An object as defined by the browser
  */
 function onMessageError(error) {
   //console.error(error);    // for debugging
