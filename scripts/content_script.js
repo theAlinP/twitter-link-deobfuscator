@@ -2,7 +2,8 @@
 
 
 /**
- * Create a function that reveals the original <href> attributes' values
+ * A function that reveals the original values of the "href" attributes
+ * @function revealLinks
  */
 function revealLinks() {
   browser.storage.local.get()    // check if the add-on is enabled
@@ -40,7 +41,10 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
 
 
 /**
- * Create a function that communicates with the background script
+ * A function that communicates with the background script {@link boolean}
+ * @function notifyBackgroundScript
+ * @param {string} iframeLocationHref - The location of the iframe from which
+ * this script reaches out to the background script {@link iframeLocationHref}
  */
 function notifyBackgroundScript(iframeLocationHref) {
   //console.log(`notifyBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
@@ -51,7 +55,11 @@ function notifyBackgroundScript(iframeLocationHref) {
 
 
 /**
- * Create a function that handles the responses coming from the background script
+ * A function that handles the responses coming from the background script
+ * @function handleResponse
+ * @param {object} message - The response received from the background script
+ * after sending it a message from notifyBackgroundScript()
+ * @param {string} message.response - The contents of the response
  */
 /*function handleResponse(message) {
   console.log(`handleResponse() running from this window: ${window.location.href}`);    // for debugging
@@ -63,7 +71,9 @@ function handleResponse() {}
 
 
 /**
- * Create a function that handles any messaging errors
+ * A function that handles any messaging errors
+ * @function handleError
+ * @param {object} error - An object as defined by the browser
  */
 function handleError(error) {
   //console.log(`handleError() running from this window: ${window.location.href}`);    // for debugging
@@ -73,7 +83,14 @@ function handleError(error) {
 
 
 /**
- * Create a function that gets the iframe href from the background script
+ * A function that receives the value of the iframe window's href attribute from
+ * the background script then searches for the original destination and returns it
+ * @function getIframeHrefFromBackgroundScript
+ * @param {object} message - The message received from the background script
+ * @param {string} message.to - The name of the function the message is intended for
+ * @param {string} message.iframeLocationHref - The location of the iframe from
+ * which this script initially reached out to the background script and is used
+ * to locate the iframe from the parent document
  */
 function getIframeHrefFromBackgroundScript(message) {
   //console.log(`getIframeHrefFromBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
@@ -132,7 +149,15 @@ function getIframeHrefFromBackgroundScript(message) {
 
 
 /**
- * Create a function that gets the original destination from the background script
+ * A function that gets the original destination from the background script and
+ * uses it to clean the link inside the iframe
+ * @function getOriginalDestinationFromBackgroundScript
+ * @param {object} message - The message received from the background script
+ * @param {string} message.to - The name of the function the message is intended for
+ * @param {string} message.iframeLocationHref - The location of the iframe from
+ * which this script initially reached out to the background script
+ * @param {string} message.originalDestination - The original destination,
+ * which is used to update the href attribute of the link
  */
 function getOriginalDestinationFromBackgroundScript(message) {
   //console.log(`getOriginalDestinationFromBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
@@ -166,7 +191,8 @@ function getOriginalDestinationFromBackgroundScript(message) {
 
 
 /**
- * Create a function that listens for added tweets and cleans the links inside them
+ * A function that listens for added tweets and cleans the links inside them
+ * @function listenForTweets
  */
 function listenForTweets() {
   if (document.querySelector("#timeline")) {
@@ -193,7 +219,8 @@ function listenForTweets() {
 
 
 /**
- * Create a function that listens for added replies and cleans the links inside them
+ * A function that listens for added replies and cleans the links inside them
+ * @function listenForReplies
  */
 function listenForReplies() {
   let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
@@ -219,7 +246,8 @@ function listenForReplies() {
 
 
 /**
- * Create a function that cleans the "Website" link, if there is one
+ * A function that cleans the "Website" link, if there is one
+ * @function cleanWebsiteLink
  */
 function cleanWebsiteLink() {
   if (document.querySelector(".ProfileHeaderCard")) {
