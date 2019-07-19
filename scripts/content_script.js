@@ -43,13 +43,10 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
 /**
  * A function that communicates with the background script {@link boolean}
  * @function notifyBackgroundScript
- * @param {string} iframeLocationHref - The location of the iframe from which
- * this script reaches out to the background script {@link iframeLocationHref}
  */
-function notifyBackgroundScript(iframeLocationHref) {
+function notifyBackgroundScript() {
   //console.log(`notifyBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
-  //console.log(iframeLocationHref);    // for debugging
-  let sending = browser.runtime.sendMessage({iframeLocationHref: iframeLocationHref});
+  let sending = browser.runtime.sendMessage({});
   sending.then(handleResponse, handleError);
 }
 
@@ -340,7 +337,7 @@ if (window === window.top) {
   });
   const pageObserverConfig = {attributes: true};
   pageObserver.observe(pageContainer, pageObserverConfig);    // because the class list from pageContainer is changed after switching to a different page
-} else {
+} else {    // if the script is running from inside an iframe
   if (document.querySelector("a.TwitterCard-container--clickable")) {    // if there is a link in the Twitter Card...
     browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script with the original destination
     //console.log("This message is coming from an iframe.");    // for debugging
@@ -350,7 +347,7 @@ if (window === window.top) {
         //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
         if (storedSettings.enabled === true) {
           //console.log("The value is true.");    // for debugging
-          notifyBackgroundScript(window.location.href);
+          notifyBackgroundScript();
         /*} else if (storedSettings.enabled === false) {
           console.log("The value is false");
         } else {

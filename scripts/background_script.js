@@ -82,19 +82,17 @@ function toggleStatus() {
  * A function that communicates with the content script
  * @function handleMessage
  * @param {object} request - The message received from the content script
- * @param {string} request.iframeLocationHref - The location of the iframe from
- * which the content script reached out to this script
  * @param {object} sender - An object passed to the function by the onMessage
  * listener providing details about the sender of the message
  * @param {function} sendResponse - A function passed to the function by the
  * onMessage listener providing a way to send a response to the sender
  */
 //function handleMessage(request, sender, sendResponse) {    // for debugging
-function handleMessage(request) {
+function handleMessage(request, sender) {
   //console.log(request);    // for debugging
   //console.log(sender);    // for debugging
   //console.log(sendResponse);    // for debugging
-  //console.log(`Iframe location href: ${request.iframeLocationHref}`);    // for debugging
+  //console.log(`Iframe location href: ${sender.url}`);    // for debugging
 
   browser.tabs.query({currentWindow: true, active: true}).then( (tabs) => {    // get the active tab in the current window
     for (let tab of tabs) {    // loop through the array, which actually contains only one tab
@@ -107,7 +105,7 @@ function handleMessage(request) {
                                       and the checks inside the two functions from the content script. */
         tab.id,
         {to: "getIframeHrefFromBackgroundScript()",
-          iframeLocationHref: request.iframeLocationHref}
+          iframeLocationHref: sender.url}
       ).then(response => {
         //console.log(response);    // for debugging
         //console.log(sender);    // for debugging
@@ -119,7 +117,7 @@ function handleMessage(request) {
             browser.tabs.sendMessage(
               tab.id,
               {to: "getOriginalDestinationFromBackgroundScript()",
-                iframeLocationHref: request.iframeLocationHref,
+                iframeLocationHref: sender.url,
                 originalDestination: response.originalDestination}
             /*).then(response => {
               console.log(response);
