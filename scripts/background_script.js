@@ -94,42 +94,32 @@ function handleMessage(request, sender) {
   //console.log(sendResponse);    // for debugging
   //console.log(`Iframe location href: ${sender.url}`);    // for debugging
 
-  browser.tabs.query({currentWindow: true, active: true}).then( (tabs) => {    // get the active tab in the current window
-    for (let tab of tabs) {    // loop through the array, which actually contains only one tab
-      //console.log(tabs);    // for debugging
-      browser.tabs.sendMessage(    /* send a message to the tab. It will reach all the listeners from the content script;
-                                      from the parent window will be passed on to getIframeHrefFromBackgroundScript()
-                                      and from ALL the iframes will be passed on to getOriginalDestinationFromBackgroundScript().
-                                      Certain precautions need to be taken to ensure that it will be used by the right function
-                                      from the right window hence the use of the "iframeLocationHref" and "to" methods
-                                      and the checks inside the two functions from the content script. */
-        tab.id,
-        {to: "getIframeHrefFromBackgroundScript()",
-          iframeLocationHref: sender.url}
-      ).then(response => {
-        //console.log(response);    // for debugging
-        //console.log(sender);    // for debugging
-        //console.log("Message from the content script:");    // for debugging
-        //console.log(response.response);    // for debugging
-        //console.log(`Original destination: ${response.originalDestination}`);    // for debugging
-        browser.tabs.query({currentWindow: true, active: true}).then( (tabs) => {
-          for (let tab of tabs) {
-            browser.tabs.sendMessage(
-              tab.id,
-              {to: "getOriginalDestinationFromBackgroundScript()",
-                iframeLocationHref: sender.url,
-                originalDestination: response.originalDestination}
-            /*).then(response => {
-              console.log(response);
-              console.log(sender);
-            }*//*<=for debugging*/).catch(onMessageError);
-          }
-        }).catch(onMessageError);
-      }).catch(onMessageError);
-    }
-  }).catch(() => {
-    console.error("Error retrieving stored settings");
-  });
+  //console.log(tabs);    // for debugging
+  browser.tabs.sendMessage(    /* send a message to the sender's tab. It will reach all the listeners from the content script;
+                                  from the parent window will be passed on to getIframeHrefFromBackgroundScript()
+                                  and from ALL the iframes will be passed on to getOriginalDestinationFromBackgroundScript().
+                                  Certain precautions need to be taken to ensure that it will be used by the right function
+                                  from the right window hence the use of the "iframeLocationHref" and "to" properties
+                                  and the checks inside the two functions from the content script. */
+    sender.tab.id,
+    {to: "getIframeHrefFromBackgroundScript()",
+      iframeLocationHref: sender.url}
+  ).then(response => {
+    //console.log(response);    // for debugging
+    //console.log(sender);    // for debugging
+    //console.log("Message from the content script:");    // for debugging
+    //console.log(response.response);    // for debugging
+    //console.log(`Original destination: ${response.originalDestination}`);    // for debugging
+    browser.tabs.sendMessage(
+      sender.tab.id,
+      {to: "getOriginalDestinationFromBackgroundScript()",
+        iframeLocationHref: sender.url,
+        originalDestination: response.originalDestination}
+    /*).then(response => {
+      console.log(response);
+      console.log(sender);
+    }*//*<=for debugging*/).catch(onMessageError);
+  }).catch(onMessageError);
 
   //sendResponse({response: "The iframe location href was received."});    // for debugging
 }
