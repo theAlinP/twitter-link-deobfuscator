@@ -262,100 +262,102 @@ function cleanWebsiteLink() {
 
 
 
-if (window === window.top) {
-  //console.log("The page finished loading.");    // for debugging
+if (! document.body.contains(document.body.querySelector("#react-root"))) {    // clean the links if the page is NOT built with React
+  if (window === window.top) {
+    //console.log("The page finished loading.");    // for debugging
 
-  browser.runtime.onMessage.addListener(getIframeHrefFromBackgroundScript);    // listen for messages from the background script with the iframe href
+    browser.runtime.onMessage.addListener(getIframeHrefFromBackgroundScript);    // listen for messages from the background script with the iframe href
 
-  // For debugging: print details about the Twitter Cards, the iframe parents and iframes
-  /*let cards = document.querySelectorAll(".cards-forward");
-  console.log("Number of cards: " + cards.length);
-  for (let card of cards) {
-    card.style.border = "1px solid rgb(255, 0, 0)";
-    let originalDestination = card.querySelector("a.twitter-timeline-link").getAttribute("data-original-url");
-    console.log(`Original destination: : ${originalDestination}`);
-    let iframeParents = card.querySelectorAll(".js-macaw-cards-iframe-container");    // select the iframes' parents
-    console.log("Number of parents: " + iframeParents.length);
-    for (let iframeParent of iframeParents) {
-      iframeParent.style.border = "1px solid rgb(0, 255, 0)";
-      if (iframeParent.contains(iframeParent.querySelector("iframe"))) {
-        console.log("The iframe parent has an iframe");
-        let iframe = iframeParent.querySelector("iframe");
-        console.log(iframe);
+    // For debugging: print details about the Twitter Cards, the iframe parents and iframes
+    /*let cards = document.querySelectorAll(".cards-forward");
+    console.log("Number of cards: " + cards.length);
+    for (let card of cards) {
+      card.style.border = "1px solid rgb(255, 0, 0)";
+      let originalDestination = card.querySelector("a.twitter-timeline-link").getAttribute("data-original-url");
+      console.log(`Original destination: : ${originalDestination}`);
+      let iframeParents = card.querySelectorAll(".js-macaw-cards-iframe-container");    // select the iframes' parents
+      console.log("Number of parents: " + iframeParents.length);
+      for (let iframeParent of iframeParents) {
+        iframeParent.style.border = "1px solid rgb(0, 255, 0)";
+        if (iframeParent.contains(iframeParent.querySelector("iframe"))) {
+          console.log("The iframe parent has an iframe");
+          let iframe = iframeParent.querySelector("iframe");
+          console.log(iframe);
+        }
       }
+    }*/    // for debugging
+
+    cleanWebsiteLink();    // clean the "Website" link
+
+    /**
+     * Clean the links every time new tweets and replies are added
+     */
+    if (document.querySelector("#timeline")) {
+      listenForTweets();
+    } else if (document.querySelector(".PermalinkOverlay-body")) {
+      listenForReplies();
     }
-  }*/    // for debugging
 
-  cleanWebsiteLink();    // clean the "Website" link
+    /**
+     * Clean the replies every time a tweet is singled out (is clicked on or
+     * it was opened directly from a link or a bookmark)
+     */
+    let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
+    const repliesContainerObserver = new MutationObserver(listenForReplies);
+    const repliesContainerObserverConfig = {childList: true, subtree: false};
+    repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);    // because a new <div> element is added to repliesContainer when a tweet is singled out or it was opened directly
 
-  /**
-   * Clean the links every time new tweets and replies are added
-   */
-  if (document.querySelector("#timeline")) {
-    listenForTweets();
-  } else if (document.querySelector(".PermalinkOverlay-body")) {
-    listenForReplies();
-  }
+    /**
+     * Clean the tweets and the "Website" link every time a tweet opened directly
+     * from a link or a bookmark is hidden/closed
+     */
+    let pageContainer = document.querySelector("#page-container") || console.log("The page container was not found");
+    if (pageContainer.classList.contains("wrapper-permalink")) {
+      const pageContainerObserver = new MutationObserver(function() {
+        //console.log("The page container was modified!");    // for debugging
+        if (! pageContainer.classList.contains("wrapper-permalink")) {
+          listenForTweets();
+          cleanWebsiteLink();    // clean the "Website" link
+        }
+      });
+      const pageContainerObserverConfig = {attributes: true};
+      pageContainerObserver.observe(pageContainer, pageContainerObserverConfig);    // because the class "wrapper-permalink" is removed from pageContainer when a singled out tweet is closed
+    }
 
-  /**
-   * Clean the replies every time a tweet is singled out (is clicked on or
-   * it was opened directly from a link or a bookmark)
-   */
-  let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
-  const repliesContainerObserver = new MutationObserver(listenForReplies);
-  const repliesContainerObserverConfig = {childList: true, subtree: false};
-  repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);    // because a new <div> element is added to repliesContainer when a tweet is singled out or it was opened directly
-
-  /**
-   * Clean the tweets and the "Website" link every time a tweet opened directly
-   * from a link or a bookmark is hidden/closed
-   */
-  let pageContainer = document.querySelector("#page-container") || console.log("The page container was not found");
-  if (pageContainer.classList.contains("wrapper-permalink")) {
-    const pageContainerObserver = new MutationObserver(function() {
-      //console.log("The page container was modified!");    // for debugging
-      if (! pageContainer.classList.contains("wrapper-permalink")) {
+    /**
+     * Detect when a new page is browsed (Home, Notifications, Who to follow, etc.)
+     * then clean the links
+     */
+    const pageObserver = new MutationObserver(function() {
+      //console.log("The page container's attributes were modified.");    // for debugging
+      //console.log("Page container class list: " + document.querySelector("#page-container").classList);    // for debugging
+      if (pageContainer.querySelector("#timeline").querySelector("a[data-expanded-url]")) {
+        //console.log("Shortened URL detected. It will be cleaned immediately.");    // for debugging
         listenForTweets();
-        cleanWebsiteLink();    // clean the "Website" link
       }
     });
-    const pageContainerObserverConfig = {attributes: true};
-    pageContainerObserver.observe(pageContainer, pageContainerObserverConfig);    // because the class "wrapper-permalink" is removed from pageContainer when a singled out tweet is closed
-  }
-
-  /**
-   * Detect when a new page is browsed (Home, Notifications, Who to follow, etc.)
-   * then clean the links
-   */
-  const pageObserver = new MutationObserver(function() {
-    //console.log("The page container's attributes were modified.");    // for debugging
-    //console.log("Page container class list: " + document.querySelector("#page-container").classList);    // for debugging
-    if (pageContainer.querySelector("#timeline").querySelector("a[data-expanded-url]")) {
-      //console.log("Shortened URL detected. It will be cleaned immediately.");    // for debugging
-      listenForTweets();
+    const pageObserverConfig = {attributes: true};
+    pageObserver.observe(pageContainer, pageObserverConfig);    // because the class list from pageContainer is changed after switching to a different page
+  } else {    // if the script is running from inside an iframe
+    if (document.querySelector("a.TwitterCard-container--clickable")) {    // if there is a link in the Twitter Card...
+      browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script with the original destination
+      //console.log("This message is coming from an iframe.");    // for debugging
+      //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
+      browser.storage.local.get()    // call notifyBackgroundScript() if the add-on is enabled
+        .then((storedSettings) => {
+          //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+          if (storedSettings.enabled === true) {
+            //console.log("The value is true.");    // for debugging
+            notifyBackgroundScript();
+          /*} else if (storedSettings.enabled === false) {
+            console.log("The value is false");
+          } else {
+            console.log("The value is neither true nor false");*/    // for debugging
+          }
+        })
+        .catch(() => {
+          console.error("Error retrieving stored settings");
+        });
     }
-  });
-  const pageObserverConfig = {attributes: true};
-  pageObserver.observe(pageContainer, pageObserverConfig);    // because the class list from pageContainer is changed after switching to a different page
-} else {    // if the script is running from inside an iframe
-  if (document.querySelector("a.TwitterCard-container--clickable")) {    // if there is a link in the Twitter Card...
-    browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script with the original destination
-    //console.log("This message is coming from an iframe.");    // for debugging
-    //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
-    browser.storage.local.get()    // call notifyBackgroundScript() if the add-on is enabled
-      .then((storedSettings) => {
-        //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
-        if (storedSettings.enabled === true) {
-          //console.log("The value is true.");    // for debugging
-          notifyBackgroundScript();
-        /*} else if (storedSettings.enabled === false) {
-          console.log("The value is false");
-        } else {
-          console.log("The value is neither true nor false");*/    // for debugging
-        }
-      })
-      .catch(() => {
-        console.error("Error retrieving stored settings");
-      });
   }
 }
