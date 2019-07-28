@@ -262,7 +262,7 @@ function cleanWebsiteLink() {
 
 
 
-if (! document.body.contains(document.body.querySelector("#react-root"))) {    // clean the links if the page is NOT built with React
+if (! document.body.contains(document.body.querySelector("#react-root"))) {    // if the page is NOT built with React clean the links the old way
   if (window === window.top) {
     //console.log("The page finished loading.");    // for debugging
 
@@ -360,4 +360,57 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
         });
     }
   }
+} else {    // if the page is built with React clean the links the new way
+  //console.log("React app detected.");    // for debugging
+  //console.log(document.body.querySelectorAll("#react-root"));    // for debugging
+  const bodyObserver = new MutationObserver(function() {
+    //console.log("bodyObserver");    // for debugging
+    if (document.body.querySelector("#react-root main")) {
+      bodyObserver.disconnect();
+      let mainElement = document.body.querySelector("#react-root main");
+      //console.log(mainElement);    // for debugging
+      const mainObserver = new MutationObserver(function() {
+        //console.log("mainObserver");
+        //if (document.body.querySelector("#react-root main section").querySelector("div[aria-label]")) {
+        if (document.body.querySelector("#react-root main section > div[aria-label]")) {
+          mainObserver.disconnect();
+          let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
+          //console.log(userDescription);    // for debugging
+          let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
+          //console.log(userProfileHeader);    // for debugging
+          browser.storage.local.get()    // check if the add-on is enabled
+            .then((storedSettings) => {
+              //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+              if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
+                let links = userDescription.querySelectorAll("a");
+                //console.log(links);    // for debugging
+                for (let link of links) {
+                  //console.log(link);    // for debugging
+                  if (link.title) {
+                    link.setAttribute("data-shortened-url", link.href);
+                    link.href = link.title;
+                    //console.log(link);    // for debugging
+                  }
+                }
+                links = userProfileHeader.querySelectorAll("a");
+                //console.log(links);    // for debugging
+                for (let link of links) {
+                  //console.log(link);    // for debugging
+                  link.setAttribute("data-shortened-url", link.href);
+                  link.href = "http://" + link.text;
+                  //console.log(link);    // for debugging
+                }
+              }
+            })
+            .catch(() => {
+              console.error("Error retrieving stored settings");
+            });
+        }
+      });
+      const mainObserverConfig = {childList: true, subtree: true};
+      mainObserver.observe(mainElement, mainObserverConfig);
+    }
+  });
+  const bodyObserverConfig = {childList: true, subtree: false};
+  bodyObserver.observe(document.body, bodyObserverConfig);
 }
