@@ -41,6 +41,43 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
 
 
 /**
+ * A function that reveals the original values of the "href" attributes on pages built with React
+ * @function revealReactLinks
+ */
+function revealReactLinks() {
+  browser.storage.local.get()    // check if the add-on is enabled
+    .then((storedSettings) => {
+      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
+        //console.log("The value is true.");    // for debugging
+        let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
+        //console.log(timeline);    // for debugging
+        let tweetContainer = timeline.querySelector("div > div > div");
+        //console.log(tweetContainer);    // for debugging
+        //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
+        let links = tweetContainer.querySelectorAll("a[title]");
+        //console.log(links);    // for debugging
+        for (let link of links) {
+        //for (let [index, link] of links.entries()) {    // for debugging
+          if (link.href.startsWith("https://t.co")) {
+            /*console.log(link);    // for debugging
+            console.log(`
+${index + 1}.href             :${link.href}
+${index + 1}.title            :${link.title}`);*/    // for debugging
+            link.setAttribute("data-shortened-url", link.href);
+            link.href = link.title;
+            //console.log(link);    // for debugging
+          }
+        }
+      }
+    })
+    .catch(() => {
+      console.error("Error retrieving stored settings");
+    });
+}
+
+
+/**
  * A function that communicates with the background script {@link boolean}
  * @function notifyBackgroundScript
  */
@@ -405,6 +442,18 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
             .catch(() => {
               console.error("Error retrieving stored settings");
             });
+          revealReactLinks();
+          //let timeline = document.body.querySelector("#react-root main section").querySelector("div[aria-label]");
+          let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
+          //console.log(timeline);    // for debugging
+          let tweetContainer = timeline.querySelector("div > div > div");
+          //console.log(tweetContainer);    // for debugging
+          const tweetContainerObserver = new MutationObserver(function() {
+            //console.log("tweetContainerObserver");
+            revealReactLinks();
+          });
+          const tweetContainerObserverConfig = {childList: true, subtree: false};
+          tweetContainerObserver.observe(tweetContainer, tweetContainerObserverConfig);
         }
       });
       const mainObserverConfig = {childList: true, subtree: true};
