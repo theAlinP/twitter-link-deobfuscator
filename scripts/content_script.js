@@ -298,6 +298,46 @@ function cleanWebsiteLink() {
 }
 
 
+/**
+ * A function that cleans the links from the user description and the
+ * "Website" link, on pages built with React, if there are any
+ * @function cleanReactWebsiteLink
+ */
+function cleanReactWebsiteLink() {
+  browser.storage.local.get()    // check if the add-on is enabled
+    .then((storedSettings) => {
+      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
+        let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
+        //console.log(userDescription);    // for debugging
+        let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
+        //console.log(userProfileHeader);    // for debugging
+        let links = userDescription.querySelectorAll("a");
+        //console.log(links);    // for debugging
+        for (let link of links) {
+          //console.log(link);    // for debugging
+          if (link.title) {
+            link.setAttribute("data-shortened-url", link.href);
+            link.href = link.title;
+            //console.log(link);    // for debugging
+          }
+        }
+        links = userProfileHeader.querySelectorAll("a");
+        //console.log(links);    // for debugging
+        for (let link of links) {
+          //console.log(link);    // for debugging
+          link.setAttribute("data-shortened-url", link.href);
+          link.href = "http://" + link.text;
+          //console.log(link);    // for debugging
+        }
+      }
+    })
+    .catch(() => {
+      console.error("Error retrieving stored settings");
+    });
+}
+
+
 
 if (! document.body.contains(document.body.querySelector("#react-root"))) {    // if the page is NOT built with React clean the links the old way
   if (window === window.top) {
@@ -411,37 +451,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
         //if (document.body.querySelector("#react-root main section").querySelector("div[aria-label]")) {
         if (document.body.querySelector("#react-root main section > div[aria-label]")) {
           mainObserver.disconnect();
-          let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
-          //console.log(userDescription);    // for debugging
-          let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
-          //console.log(userProfileHeader);    // for debugging
-          browser.storage.local.get()    // check if the add-on is enabled
-            .then((storedSettings) => {
-              //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
-              if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
-                let links = userDescription.querySelectorAll("a");
-                //console.log(links);    // for debugging
-                for (let link of links) {
-                  //console.log(link);    // for debugging
-                  if (link.title) {
-                    link.setAttribute("data-shortened-url", link.href);
-                    link.href = link.title;
-                    //console.log(link);    // for debugging
-                  }
-                }
-                links = userProfileHeader.querySelectorAll("a");
-                //console.log(links);    // for debugging
-                for (let link of links) {
-                  //console.log(link);    // for debugging
-                  link.setAttribute("data-shortened-url", link.href);
-                  link.href = "http://" + link.text;
-                  //console.log(link);    // for debugging
-                }
-              }
-            })
-            .catch(() => {
-              console.error("Error retrieving stored settings");
-            });
+          cleanReactWebsiteLink();
           revealReactLinks();
           //let timeline = document.body.querySelector("#react-root main section").querySelector("div[aria-label]");
           let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
