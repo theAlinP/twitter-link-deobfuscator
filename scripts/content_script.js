@@ -338,6 +338,27 @@ function cleanReactWebsiteLink() {
 }
 
 
+/**
+ * A function that listens for added tweets on pages built with React and cleans
+ * the links inside them
+ * @function listenForReactTweets
+ */
+function listenForReactTweets() {
+  revealReactLinks();
+  //let timeline = document.body.querySelector("#react-root main section").querySelector("div[aria-label]");
+  let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
+  //console.log(timeline);    // for debugging
+  let tweetContainer = timeline.querySelector("div > div > div");
+  //console.log(tweetContainer);    // for debugging
+  const tweetContainerObserver = new MutationObserver(function() {
+    //console.log("tweetContainerObserver");
+    revealReactLinks();
+  });
+  const tweetContainerObserverConfig = {childList: true, subtree: false};
+  tweetContainerObserver.observe(tweetContainer, tweetContainerObserverConfig);
+}
+
+
 
 if (! document.body.contains(document.body.querySelector("#react-root"))) {    // if the page is NOT built with React clean the links the old way
   if (window === window.top) {
@@ -452,18 +473,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
         if (document.body.querySelector("#react-root main section > div[aria-label]")) {
           mainObserver.disconnect();
           cleanReactWebsiteLink();
-          revealReactLinks();
-          //let timeline = document.body.querySelector("#react-root main section").querySelector("div[aria-label]");
-          let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
-          //console.log(timeline);    // for debugging
-          let tweetContainer = timeline.querySelector("div > div > div");
-          //console.log(tweetContainer);    // for debugging
-          const tweetContainerObserver = new MutationObserver(function() {
-            //console.log("tweetContainerObserver");
-            revealReactLinks();
-          });
-          const tweetContainerObserverConfig = {childList: true, subtree: false};
-          tweetContainerObserver.observe(tweetContainer, tweetContainerObserverConfig);
+          listenForReactTweets();
         }
       });
       const mainObserverConfig = {childList: true, subtree: true};
