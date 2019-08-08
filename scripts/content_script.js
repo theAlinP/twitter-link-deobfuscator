@@ -359,6 +359,29 @@ function listenForReactTweets() {
 }
 
 
+/**
+ * A function that listens for added replies and cleans the links inside them
+ * @function listenForReactReplies
+ */
+function listenForReactReplies() {
+  revealReactLinks();
+
+  /**
+   * Call revealReactLinks() every time new replies are added
+   */
+  let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
+  //console.log(timeline);    // for debugging
+  let repliesContainer = timeline.querySelector("div > div > div");
+  //console.log(repliesContainer);    // for debugging
+  const repliesContainerObserver = new MutationObserver(function() {
+    //console.log("repliesContainerObserver");    // for debugging
+    revealReactLinks();
+  });
+  const repliesContainerObserverConfig = {childList: true, subtree: false};
+  repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);
+}
+
+
 
 if (! document.body.contains(document.body.querySelector("#react-root"))) {    // if the page is NOT built with React clean the links the old way
   if (window === window.top) {
@@ -472,8 +495,55 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
         //if (document.body.querySelector("#react-root main section").querySelector("div[aria-label]")) {
         if (document.body.querySelector("#react-root main section > div[aria-label]")) {
           mainObserver.disconnect();
-          cleanReactWebsiteLink();
-          listenForReactTweets();
+
+          /**
+           * Clean the tweets or replies on the page which was opened initially
+           */
+          var page;
+          if (document.body.querySelector("div[data-testid=\"UserDescription\"]")
+          || document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]")) {    // if a profile page was opened...
+            //console.log("User description or user profile detected.");    // for debugging
+            cleanReactWebsiteLink();
+            listenForReactTweets();
+            page = "profile";
+          } else {    // if a page with a tweet was opened...
+            listenForReactReplies();
+            page = "tweet";
+          }
+          //console.log(page);    // for debugging
+
+          /**
+           * Clean the replies and the tweets every time it is navigated
+           * between a page with a profile and one with a tweet and vice-versa
+           */
+          let mainElement2 = document.body.querySelector("#react-root main");
+          const mainObserver2 = new MutationObserver(function() {
+            //console.log("mainObserver2");    // for debugging
+            //console.log(page);    // for debugging
+            if (! mainElement2.querySelector("div[data-testid=\"UserDescription\"]")
+            || ! document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]")) {    // if a page with a tweet was opened...
+              //console.log("No user description or no user profile detected.");    // for debugging
+              if (page === "profile") {
+                if (document.body.querySelector("#react-root main section > div[aria-label]")) {
+                  listenForReactReplies();
+                  page = "tweet";
+                }
+              }
+            } else {    // if a profile page was opened...
+              //console.log("User description or user profile detected.");    // for debugging
+              if (page === "tweet") {
+                if (document.body.querySelector("#react-root main section > div[aria-label]")) {
+                  cleanReactWebsiteLink();
+                  listenForReactTweets();
+                  page = "profile";
+                }
+              }
+            }
+            //console.log(page);    // for debugging
+          });
+          const mainObserverConfig2 = {childList: true, subtree: true};
+          mainObserver2.observe(mainElement2, mainObserverConfig2);
+
         }
       });
       const mainObserverConfig = {childList: true, subtree: true};
