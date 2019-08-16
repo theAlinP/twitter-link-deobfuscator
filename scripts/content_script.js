@@ -499,47 +499,47 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           /**
            * Clean the tweets or replies on the page which was opened initially
            */
-          var page;
+          var windowHref;    // declare a variable that will hold the URL of the last cleaned page
           if (document.body.querySelector("div[data-testid=\"UserDescription\"]")
           || document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]")) {    // if a profile page was opened...
             //console.log("User description or user profile detected.");    // for debugging
             cleanReactWebsiteLink();
             listenForReactTweets();
-            page = "profile";
+            windowHref = window.location.href;    // store the URL of this page which was just cleaned
           } else {    // if a page with a tweet was opened...
+            //console.log("No user description or no user profile detected.");    // for debugging
             listenForReactReplies();
-            page = "tweet";
+            windowHref = window.location.href;    // store the URL of this page which was just cleaned
           }
-          //console.log(page);    // for debugging
+          //console.log(windowHref);    // for debugging
 
           /**
            * Clean the replies and the tweets every time it is navigated
-           * between a page with a profile and one with a tweet and vice-versa
+           * to a new page
            */
           let mainElement2 = document.body.querySelector("#react-root main");
           const mainObserver2 = new MutationObserver(function() {
             //console.log("mainObserver2");    // for debugging
-            //console.log(page);    // for debugging
-            if (! mainElement2.querySelector("div[data-testid=\"UserDescription\"]")
-            || ! document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]")) {    // if a page with a tweet was opened...
-              //console.log("No user description or no user profile detected.");    // for debugging
-              if (page === "profile") {
+            //console.log(windowHref);    // for debugging
+
+            if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
+              if (! mainElement2.querySelector("div[data-testid=\"UserDescription\"]")
+              || ! document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]")) {    // if a page with a tweet was opened...
+                //console.log("No user description or no user profile detected.");    // for debugging
                 if (document.body.querySelector("#react-root main section > div[aria-label]")) {
                   listenForReactReplies();
-                  page = "tweet";
+                  windowHref = window.location.href;    // store the URL of this page which was just cleaned
                 }
-              }
-            } else {    // if a profile page was opened...
-              //console.log("User description or user profile detected.");    // for debugging
-              if (page === "tweet") {
+              } else {    // if a profile page was opened...
+                //console.log("User description or user profile detected.");    // for debugging
                 if (document.body.querySelector("#react-root main section > div[aria-label]")) {
                   cleanReactWebsiteLink();
                   listenForReactTweets();
-                  page = "profile";
+                  windowHref = window.location.href;    // store the URL of this page which was just cleaned
                 }
               }
+              //console.log(windowHref);    // for debugging
             }
-            //console.log(page);    // for debugging
           });
           const mainObserverConfig2 = {childList: true, subtree: true};
           mainObserver2.observe(mainElement2, mainObserverConfig2);
