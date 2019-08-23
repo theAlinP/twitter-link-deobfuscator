@@ -382,6 +382,29 @@ function listenForReactReplies() {
 }
 
 
+/**
+ * A function that detects what type of page was opened
+ * @function detectPage
+ */
+function detectPage() {
+  //console.log("detectPage()");
+  let timelines = document.body.querySelectorAll("#react-root main section > div[aria-label]");
+  //console.log(timelines);
+  for (let timeline of timelines) {
+    //console.log (timeline.getAttribute("aria-label"));
+    if (timeline.getAttribute("aria-label").endsWith(" Tweets")) {
+      //console.log("A profile page is opened.");
+      //console.log(timeline);
+      return "profile";
+    } else if (timeline.getAttribute("aria-label").endsWith(" Conversation")) {
+      //console.log("A tweet page is opened.");
+      //console.log(timeline);
+      return "tweet";
+    }
+  }
+}
+
+
 
 if (! document.body.contains(document.body.querySelector("#react-root"))) {    // if the page is NOT built with React clean the links the old way
   if (window === window.top) {
@@ -500,14 +523,14 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
            * Clean the tweets or replies on the page which was opened initially
            */
           var windowHref;    // declare a variable that will hold the URL of the last cleaned page
-          if (document.body.querySelector("div[data-testid=\"UserDescription\"]")
-          || document.body.querySelector("div[data-testid=\"UserProfileHeader_Items\"]")) {    // if a profile page was opened...
-            //console.log("User description or user profile detected.");    // for debugging
+          //console.log(detectPage());    // for debugging
+          if (detectPage() === "profile") {    // if a profile page was opened...
+            //console.log("A profile page was opened.");    // for debugging
             cleanReactWebsiteLink();
             listenForReactTweets();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
-          } else {    // if a page with a tweet was opened...
-            //console.log("No user description or no user profile detected.");    // for debugging
+          } else if (detectPage() === "tweet") {    // if a page with a tweet was opened...
+            //console.log("A tweet page was opened.");    // for debugging
             listenForReactReplies();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
           }
@@ -521,18 +544,18 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           const mainObserver2 = new MutationObserver(function() {
             //console.log("mainObserver2");    // for debugging
             //console.log(windowHref);    // for debugging
+            //console.log(detectPage());    // for debugging
 
             if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
-              if (mainElement2.querySelector("div[data-testid=\"UserDescription\"]")
-              || document.body.querySelector("div[data-testid=\"UserProfileHeader_Items\"]")) {    // if a profile page was opened...
-                //console.log("User description or user profile detected.");    // for debugging
+              if (detectPage() === "profile") {    // if a profile page was opened...
+                //console.log("A profile page was opened.");    // for debugging
                 if (document.body.querySelector("#react-root main section > div[aria-label]")) {
                   cleanReactWebsiteLink();
                   listenForReactTweets();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                 }
-              } else {    // if a page with a tweet was opened...
-                //console.log("No user description or no user profile detected.");    // for debugging
+              } else if (detectPage() === "tweet") {    // if a page with a tweet was opened...
+                //console.log("A tweet was opened.");    // for debugging
                 if (document.body.querySelector("#react-root main section > div[aria-label]")) {
                   listenForReactReplies();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
