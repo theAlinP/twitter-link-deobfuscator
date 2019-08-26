@@ -271,11 +271,11 @@ function revealReactLinks() {
       //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         //console.log("The value is true.");    // for debugging
+        //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
         let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
         //console.log(timeline);    // for debugging
         let tweetContainer = timeline.querySelector("div > div > div");
         //console.log(tweetContainer);    // for debugging
-        //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
         let links = tweetContainer.querySelectorAll("a[title]");
         //console.log(links);    // for debugging
         for (let link of links) {
@@ -345,7 +345,6 @@ function cleanReactWebsiteLink() {
  */
 function listenForReactTweets() {
   revealReactLinks();
-  //let timeline = document.body.querySelector("#react-root main section").querySelector("div[aria-label]");
   let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
   //console.log(timeline);    // for debugging
   let tweetContainer = timeline.querySelector("div > div > div");
@@ -393,11 +392,11 @@ function detectPage() {
   for (let timeline of timelines) {
     //console.log (timeline.getAttribute("aria-label"));
     if (timeline.getAttribute("aria-label").endsWith(" Tweets")) {
-      //console.log("A profile page is opened.");
+      //console.log("A profile page was opened.");
       //console.log(timeline);
       return "profile";
     } else if (timeline.getAttribute("aria-label").endsWith(" Conversation")) {
-      //console.log("A tweet page is opened.");
+      //console.log("A tweet page was opened.");
       //console.log(timeline);
       return "tweet";
     }
@@ -515,7 +514,6 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
       //console.log(mainElement);    // for debugging
       const mainObserver = new MutationObserver(function() {
         //console.log("mainObserver");
-        //if (document.body.querySelector("#react-root main section").querySelector("div[aria-label]")) {
         if (document.body.querySelector("#react-root main section > div[aria-label]")) {
           mainObserver.disconnect();
 
@@ -555,7 +553,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                 }
               } else if (detectPage() === "tweet") {    // if a page with a tweet was opened...
-                //console.log("A tweet was opened.");    // for debugging
+                //console.log("A tweet page was opened.");    // for debugging
                 if (document.body.querySelector("#react-root main section > div[aria-label]")) {
                   listenForReactReplies();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
