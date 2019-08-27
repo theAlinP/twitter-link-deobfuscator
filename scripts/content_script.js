@@ -398,6 +398,10 @@ function detectPage() {
       //console.log("A tweet page was opened.");
       //console.log(timeline);
       return "tweet";
+    } else if (timeline.getAttribute("aria-label").endsWith("Your Home Timeline")) {
+      //console.log("The home page was opened.");
+      //console.log(timeline);
+      return "home";
     }
   }
 }
@@ -520,14 +524,21 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
            * Clean the tweets or replies on the page which was opened initially
            */
           var windowHref;    // declare a variable that will hold the URL of the last cleaned page
-          if (detectPage() === "profile") {    // if a profile page was opened...
+          switch (detectPage()) {    // check what type of page was opened
+          case "profile":    // if a profile page was opened...
             //console.log("A profile page was opened.");    // for debugging
             cleanReactWebsiteLink();
             listenForReactTweets();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
-          } else if (detectPage() === "tweet") {    // if a page with a tweet was opened...
+            break;
+          case "tweet":    // if a page with a tweet was opened...
             //console.log("A tweet page was opened.");    // for debugging
             listenForReactReplies();
+            windowHref = window.location.href;    // store the URL of this page which was just cleaned
+            break;
+          case "home":    // if the home page was opened...
+            //console.log("The home page was opened.");    // for debugging
+            listenForReactTweets();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
           }
           //console.log(windowHref);    // for debugging
@@ -542,17 +553,26 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
             //console.log(windowHref);    // for debugging
 
             if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
-              if (detectPage() === "profile") {    // if a profile page was opened...
+              switch (detectPage()) {    // check what type of page was opened
+              case "profile":    // if a profile page was opened...
                 //console.log("A profile page was opened.");    // for debugging
                 if (document.body.querySelector("#react-root main section > div[aria-label]")) {
                   cleanReactWebsiteLink();
                   listenForReactTweets();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                 }
-              } else if (detectPage() === "tweet") {    // if a page with a tweet was opened...
+                break;
+              case "tweet":    // if a page with a tweet was opened...
                 //console.log("A tweet page was opened.");    // for debugging
                 if (document.body.querySelector("#react-root main section > div[aria-label]")) {
                   listenForReactReplies();
+                  windowHref = window.location.href;    // store the URL of this page which was just cleaned
+                }
+                break;
+              case "home":    // if the home page was opened...
+                //console.log("The home page was opened.");    // for debugging
+                if (document.body.querySelector("#react-root main section > div[aria-label]")) {
+                  listenForReactTweets();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                 }
               }
