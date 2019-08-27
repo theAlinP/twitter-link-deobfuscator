@@ -386,7 +386,6 @@ function listenForReactReplies() {
  * @function detectPage
  */
 function detectPage() {
-  //console.log("detectPage()");
   let timelines = document.body.querySelectorAll("#react-root main section > div[aria-label]");
   //console.log(timelines);
   for (let timeline of timelines) {
@@ -521,7 +520,6 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
            * Clean the tweets or replies on the page which was opened initially
            */
           var windowHref;    // declare a variable that will hold the URL of the last cleaned page
-          //console.log(detectPage());    // for debugging
           if (detectPage() === "profile") {    // if a profile page was opened...
             //console.log("A profile page was opened.");    // for debugging
             cleanReactWebsiteLink();
@@ -542,7 +540,6 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           const mainObserver2 = new MutationObserver(function() {
             //console.log("mainObserver2");    // for debugging
             //console.log(windowHref);    // for debugging
-            //console.log(detectPage());    // for debugging
 
             if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
               if (detectPage() === "profile") {    // if a profile page was opened...
