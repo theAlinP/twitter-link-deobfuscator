@@ -1,6 +1,6 @@
 # Twitter Link Deobfuscator
 
-Reveals the original destinations of the links and Twitter Cards from tweets as well as from replies, but also the "Website" link and others, which are usually concealed using shortened URLs.
+Reveals the original destinations of the links and [Twitter Cards](#disclaimer) from tweets as well as from replies, but also the "Website" link and others, which are usually concealed using shortened URLs.
 
 Okay, okay. I know that "deobfuscator" is not a real word, but it seems like the right word to describe what the add-on does. Plus, if "obfuscator" is a real one, then I think "deobfuscator" deserves some consideration, too.
 
@@ -23,11 +23,11 @@ You can then (or before) clone/download this Git repository and temporarily inst
 There is another way to install add-ons temporarily, and that is by using the [web-ext](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Getting_started_with_web-ext "Getting started with web-ext") command line tool. Web-ext is a Node.js module that can do a lot more than just allow installing add-ons but I leave that for you to discover.
 
 ## Disclaimer
-TLD is guaranteed to work correctly on [twitter.com](https://twitter.com "https://twitter.com").
+TLD is guaranteed to work correctly on [twitter.com](https://twitter.com "https://twitter.com"). However, __**it will not work at its full capacity if you are logged into Twitter**__. It could only clean the links but not the Twitter Cards because in the new layout which appears while logged in, apparently built with [React](https://reactjs.org "https://reactjs.org"), the original URLs of the Twitter Cards posted by the users are not embedded in the page.
 
-I cannot guarantee that it will work on any of its subdomains (about.twitter.com, analytics.twitter.com, careers.twitter.com, data.twitter.com, developer.twitter.com, help.twitter.com, media.twitter.com, marketing.twitter.com etc.). Because not many people browse those subdomains and because there is not much user generated content there, in the sense of tweets, just some occasional quoted ones, I did not spend much time to make it work there. I intend to get to it at some point, but I don't know when. If someone says they need TLD to work on subdomains, I will make this a priority.
+One notable mention is the subdomain [mobile.twitter.com](https://mobile.twitter.com "https://mobile.twitter.com") which is the version optimized for mobile devices. This mobile-oriented version which is integrally built with [React](https://reactjs.org "https://reactjs.org") (the layout seen by the users that are not logged in is built with React, too) suffers from the same shortcomings mentioned above, meaning that the Twitter Cards can't be cleaned at all, only the links from tweets.
 
-One notable mention is the subdomain [mobile.twitter.com](https://mobile.twitter.com "https://mobile.twitter.com") which is the version optimized for mobile devices. Unlike the standard version \([https://twitter.com](https://twitter.com "https://twitter.com")\), the mobile-oriented one does not embed in the page the original URLs of the hyperlinks posted by the user, probably to save bandwidth. This is a major problem because TLD cannot clean the links if it cannot find the original URLs. There might be a workaround around this but only by sacrificing your privacy which would defeat the purpose of this add-on, therefore I will not use it. You should assume that TLD doesn't work on mobile.twitter.com, either.
+I cannot guarantee that it will work on any of its other subdomains (about.twitter.com, analytics.twitter.com, careers.twitter.com, data.twitter.com, developer.twitter.com, help.twitter.com, media.twitter.com, marketing.twitter.com etc.). Because not many people browse those subdomains and because there is not much user generated content there, in the sense of tweets, just some occasional quoted ones, I did not spend much time to make it work there. I intend to get to it at some point, but I don't know when. If someone says they need TLD to work on subdomains, I will make this a priority.
 
 ## For developers
 You can find detailed JSDoc comments in the source code that will help you understand how the add-on works. You can generate documentation from them using the [jsdoc](https://github.com/jsdoc/jsdoc/ "JSDoc") tool as described in the page linked earlier.
