@@ -387,7 +387,12 @@ function listenForReactReplies() {
  */
 function detectPage() {
   let timelines = document.body.querySelectorAll("#react-root main section > div[aria-label]");
+  if (timelines.length === 0) {
+    //console.log("No timelines were found");
+    return null;
+  }
   //console.log(timelines);
+
   for (let timeline of timelines) {
     //console.log (timeline.getAttribute("aria-label"));
     if (timeline.getAttribute("aria-label").endsWith(" Tweets")) {
@@ -540,6 +545,10 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
             //console.log("The home page was opened.");    // for debugging
             listenForReactTweets();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
+            break;
+          case null:    // if the Timeline can't be found or was deleted...
+            //console.log("The page can't be cleaned right now.");    // for debugging
+            windowHref = null;    // reset the variable with the URL of the page which was last cleaned
           }
           //console.log(windowHref);    // for debugging
 
@@ -575,6 +584,10 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
                   listenForReactTweets();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                 }
+                break;
+              case null:    // if the Timeline can't be found or was deleted...
+                //console.log("The page can't be cleaned right now.");    // for debugging
+                windowHref = null;    // reset the variable with the URL of the page which was last cleaned
               }
               //console.log(windowHref);    // for debugging
             }
