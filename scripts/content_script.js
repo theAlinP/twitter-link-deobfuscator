@@ -520,13 +520,13 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     //console.log("bodyObserver");    // for debugging
     if (document.body.querySelector("#react-root main")) {
       //console.log("The main element was found.");    // for debugging
-      bodyObserver.disconnect();
       let mainElement = document.body.querySelector("#react-root main");
       //console.log(mainElement);    // for debugging
       const mainObserver = new MutationObserver(function() {
         //console.log("mainObserver");    // for debugging
         if (document.body.querySelector("#react-root main section > div[aria-label]")) {
           //console.log("The Timeline was found.");    // for debugging
+          bodyObserver.disconnect();
           mainObserver.disconnect();
 
           /**
