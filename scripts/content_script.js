@@ -409,6 +409,10 @@ function detectPage() {
       //console.log("The home page was opened.");
       //console.log(timeline);
       return "home";
+    } else if (timeline.getAttribute("aria-label").endsWith(" Explore")) {
+      //console.log("The \"Explore\" page was opened.");
+      //console.log(timeline);
+      return "explore";
     }
   }
 }
@@ -584,6 +588,13 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
                 break;
               case "home":    // if the home page was opened...
                 //console.log("The home page was opened.");    // for debugging
+                if (document.body.querySelector("#react-root main section > div[aria-label]")) {
+                  listenForReactTweets();
+                  windowHref = window.location.href;    // store the URL of this page which was just cleaned
+                }
+                break;
+              case "explore":    // if the "Explore" page was opened...
+                //console.log("The \"Explore\" page was opened.");    // for debugging
                 if (document.body.querySelector("#react-root main section > div[aria-label]")) {
                   listenForReactTweets();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
