@@ -281,7 +281,7 @@ function revealReactLinks() {
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         //console.log("The value is true.");    // for debugging
         //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
-        let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
+        let timeline = findReactTimeline();
         if (timeline !== null && timeline !== undefined) {
           //console.log(timeline);    // for debugging
           let tweetContainer = timeline.querySelector("div > div > div");
@@ -356,7 +356,7 @@ function cleanReactWebsiteLink() {
  */
 function listenForReactTweets() {
   revealReactLinks();
-  let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
+  let timeline = findReactTimeline();
   //console.log(timeline);    // for debugging
   let tweetContainer = timeline.querySelector("div > div > div");
   //console.log(tweetContainer);    // for debugging
@@ -379,7 +379,7 @@ function listenForReactReplies() {
   /**
    * Call revealReactLinks() every time new replies are added
    */
-  let timeline = document.body.querySelector("#react-root main section > div[aria-label]");
+  let timeline = findReactTimeline();
   //console.log(timeline);    // for debugging
   let repliesContainer = timeline.querySelector("div > div > div");
   //console.log(repliesContainer);    // for debugging
@@ -422,6 +422,30 @@ function detectPage() {
       //console.log("The \"Explore\" page was opened.");
       //console.log(timeline);
       return "explore";
+    }
+  }
+}
+
+
+/**
+ * A function that finds the Timeline on React pages
+ * @function findReactTimeline
+ */
+function findReactTimeline() {
+  let timelines = document.body.querySelectorAll("#react-root main section > div[aria-label]");
+  if (timelines.length === 0) {
+    //console.log("No timelines were found");
+    return null;
+  }
+  //console.log(timelines);
+
+  for (let timeline of timelines) {
+    //console.log (timeline.getAttribute("aria-label"));
+    if (timeline.getAttribute("aria-label").endsWith(" Tweets") ||
+        timeline.getAttribute("aria-label").endsWith(" Conversation") ||
+        timeline.getAttribute("aria-label").endsWith("Your Home Timeline") ||
+        timeline.getAttribute("aria-label").endsWith(" Explore")) {
+      return timeline;
     }
   }
 }
@@ -537,7 +561,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
       //console.log(mainElement);    // for debugging
       const mainObserver = new MutationObserver(function() {
         //console.log("mainObserver");    // for debugging
-        if (document.body.querySelector("#react-root main section > div[aria-label]")) {
+        if (findReactTimeline()) {
           //console.log("The Timeline was found.");    // for debugging
           bodyObserver.disconnect();
           mainObserver.disconnect();
@@ -582,7 +606,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
               switch (detectPage()) {    // check what type of page was opened
               case "profile":    // if a profile page was opened...
                 //console.log("A profile page was opened.");    // for debugging
-                if (document.body.querySelector("#react-root main section > div[aria-label]")) {
+                if (findReactTimeline()) {
                   cleanReactWebsiteLink();
                   listenForReactTweets();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
@@ -590,21 +614,21 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
                 break;
               case "tweet":    // if a page with a tweet was opened...
                 //console.log("A tweet page was opened.");    // for debugging
-                if (document.body.querySelector("#react-root main section > div[aria-label]")) {
+                if (findReactTimeline()) {
                   listenForReactReplies();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                 }
                 break;
               case "home":    // if the home page was opened...
                 //console.log("The home page was opened.");    // for debugging
-                if (document.body.querySelector("#react-root main section > div[aria-label]")) {
+                if (findReactTimeline()) {
                   listenForReactTweets();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                 }
                 break;
               case "explore":    // if the "Explore" page was opened...
                 //console.log("The \"Explore\" page was opened.");    // for debugging
-                if (document.body.querySelector("#react-root main section > div[aria-label]")) {
+                if (findReactTimeline()) {
                   listenForReactTweets();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                 }
