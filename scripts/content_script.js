@@ -432,21 +432,13 @@ function detectPage() {
  * @function findReactTimeline
  */
 function findReactTimeline() {
-  let timelines = document.body.querySelectorAll("#react-root main section > div[aria-label]");
-  if (timelines.length === 0) {
-    //console.log("No timelines were found");
+  let timeline = document.body.querySelector("#react-root main div[data-testid=\"primaryColumn\"] section > div[aria-label]");
+  if (timeline !== null && timeline !== undefined) {
+    //console.log(timeline);    // for debugging
+    return timeline;
+  } else {
+    //console.log("The Timeline was not found");    // for debugging
     return null;
-  }
-  //console.log(timelines);
-
-  for (let timeline of timelines) {
-    //console.log (timeline.getAttribute("aria-label"));
-    if (timeline.getAttribute("aria-label").endsWith(" Tweets") ||
-        timeline.getAttribute("aria-label").endsWith(" Conversation") ||
-        timeline.getAttribute("aria-label").endsWith("Your Home Timeline") ||
-        timeline.getAttribute("aria-label").endsWith(" Explore")) {
-      return timeline;
-    }
   }
 }
 
