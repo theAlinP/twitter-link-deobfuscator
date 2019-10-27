@@ -397,31 +397,35 @@ function listenForReactReplies() {
  * @function detectPage
  */
 function detectPage() {
-  let timelines = document.body.querySelectorAll("#react-root main section > div[aria-label]");
-  if (timelines.length === 0) {
-    //console.log("No timelines were found");
-    return null;
+  //console.log(window.location);    // for debugging
+  let locationPathname = window.location.pathname;
+  //console.log(locationPathname);    // for debugging
+  let pathArray = locationPathname.split("/");
+  //console.log(pathArray);    // for debugging
+  for (let [index, path] of pathArray.entries()) {    // remove the null elements from the array
+    //console.log(path);
+    if (path === "") {    // if the element is null, like for example the first one...
+      pathArray.splice(index, 1);    // ...remove it from the array
+    }
   }
-  //console.log(timelines);
+  //console.log(pathArray);    // for debugging
 
-  for (let timeline of timelines) {
-    //console.log (timeline.getAttribute("aria-label"));
-    if (timeline.getAttribute("aria-label").endsWith(" Tweets")) {
+  if (pathArray.length > 2 && pathArray[1] === "status") {
+    //console.log("A tweet page was opened.");
+    return "tweet";
+  } else if (pathArray.length === 1 && pathArray[0] === "home") {
+    //console.log("The home page was opened.");
+    return "home";
+  } else if (pathArray.length === 1 && pathArray[0] === "explore") {
+    //console.log("The \"Explore\" page was opened.");
+    return "explore";
+  } else if (pathArray.length === 1) {
+    let mainElement = document.body.querySelector("#react-root main");
+    if (mainElement.querySelector("div[data-testid=\"UserDescription\"]")
+    || mainElement.querySelector("div[data-testid=\"UserProfileHeader_Items\"]")) {
+      //console.log("User description or profile header detected.");    // for debugging
       //console.log("A profile page was opened.");
-      //console.log(timeline);
       return "profile";
-    } else if (timeline.getAttribute("aria-label").endsWith(" Conversation")) {
-      //console.log("A tweet page was opened.");
-      //console.log(timeline);
-      return "tweet";
-    } else if (timeline.getAttribute("aria-label").endsWith("Your Home Timeline")) {
-      //console.log("The home page was opened.");
-      //console.log(timeline);
-      return "home";
-    } else if (timeline.getAttribute("aria-label").endsWith(" Explore")) {
-      //console.log("The \"Explore\" page was opened.");
-      //console.log(timeline);
-      return "explore";
     }
   }
 }
