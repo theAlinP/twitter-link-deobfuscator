@@ -593,7 +593,6 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
            * Clean the replies and the tweets every time it is navigated
            * to a new page
            */
-          let mainElement2 = document.body.querySelector("#react-root main");
           const mainObserver2 = new MutationObserver(function() {
             //console.log("mainObserver2");    // for debugging
             //console.log(windowHref);    // for debugging
@@ -637,7 +636,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
             }
           });
           const mainObserverConfig2 = {childList: true, subtree: true};
-          mainObserver2.observe(mainElement2, mainObserverConfig2);
+          mainObserver2.observe(mainElement, mainObserverConfig2);
 
         }
       });
