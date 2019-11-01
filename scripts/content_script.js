@@ -282,23 +282,21 @@ function revealReactLinks() {
         //console.log("The value is true.");    // for debugging
         //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
         let timeline = findReactTimeline();
-        if (timeline !== null && timeline !== undefined) {
-          //console.log(timeline);    // for debugging
-          let tweetContainer = timeline.querySelector("div > div > div");
-          //console.log(tweetContainer);    // for debugging
-          let links = tweetContainer.querySelectorAll("a[title]");
-          //console.log(links);    // for debugging
-          for (let link of links) {
-          //for (let [index, link] of links.entries()) {    // for debugging
-            if (link.href.startsWith("https://t.co")) {
-              /*console.log(link);    // for debugging
-              console.log(`
+        //console.log(timeline);    // for debugging
+        let tweetContainer = timeline.querySelector("div > div > div");
+        //console.log(tweetContainer);    // for debugging
+        let links = tweetContainer.querySelectorAll("a[title]");
+        //console.log(links);    // for debugging
+        for (let link of links) {
+        //for (let [index, link] of links.entries()) {    // for debugging
+          if (link.href.startsWith("https://t.co")) {
+            /*console.log(link);    // for debugging
+            console.log(`
 ${index + 1}.href             :${link.href}
 ${index + 1}.title            :${link.title}`);*/    // for debugging
-              link.setAttribute("data-shortened-url", link.href);
-              link.href = link.title;
-              //console.log(link);    // for debugging
-            }
+            link.setAttribute("data-shortened-url", link.href);
+            link.href = link.title;
+            //console.log(link);    // for debugging
           }
         }
       }
