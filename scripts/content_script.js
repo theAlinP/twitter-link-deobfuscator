@@ -584,6 +584,11 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
             listenForReactTweets();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
             break;
+          case "explore":    // if the "Explore" page was opened...
+            //console.log("The \"Explore\" page was opened.");    // for debugging
+            listenForReactTweets();
+            windowHref = window.location.href;    // store the URL of this page which was just cleaned
+            break;
           case "unknown":    // if a unknown page was opened...
             //console.log("This page can't be cleaned.");    // for debugging
             windowHref = null;    // reset the variable with the URL of the page which was last cleaned
