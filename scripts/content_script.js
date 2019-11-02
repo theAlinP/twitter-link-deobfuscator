@@ -348,45 +348,26 @@ function cleanReactWebsiteLink() {
 
 
 /**
- * A function that listens for added tweets on pages built with React and cleans
- * the links inside them
- * @function listenForReactTweets
+ * A function that listens for added tweets or replies on pages built with React
+ * then cleans the links inside them
+ * @function listenForReactTweetsAndReplies
  */
-function listenForReactTweets() {
-  revealReactLinks();
-  let timeline = findReactTimeline();
-  //console.log(timeline);    // for debugging
-  let tweetContainer = timeline.querySelector("div > div > div");
-  //console.log(tweetContainer);    // for debugging
-  const tweetContainerObserver = new MutationObserver(function() {
-    //console.log("tweetContainerObserver");
-    revealReactLinks();
-  });
-  const tweetContainerObserverConfig = {childList: true, subtree: false};
-  tweetContainerObserver.observe(tweetContainer, tweetContainerObserverConfig);
-}
-
-
-/**
- * A function that listens for added replies and cleans the links inside them
- * @function listenForReactReplies
- */
-function listenForReactReplies() {
+function listenForReactTweetsAndReplies() {
   revealReactLinks();
 
   /**
-   * Call revealReactLinks() every time new replies are added
+   * Call revealReactLinks() every time new tweets or replies are added
    */
   let timeline = findReactTimeline();
   //console.log(timeline);    // for debugging
-  let repliesContainer = timeline.querySelector("div > div > div");
-  //console.log(repliesContainer);    // for debugging
-  const repliesContainerObserver = new MutationObserver(function() {
-    //console.log("repliesContainerObserver");    // for debugging
+  let container = timeline.querySelector("div > div > div");
+  //console.log(container);    // for debugging
+  const containerObserver = new MutationObserver(function() {
+    //console.log("containerObserver");    // for debugging
     revealReactLinks();
   });
-  const repliesContainerObserverConfig = {childList: true, subtree: false};
-  repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);
+  const containerObserverConfig = {childList: true, subtree: false};
+  containerObserver.observe(container, containerObserverConfig);
 }
 
 
@@ -571,22 +552,22 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           case "profile":    // if a profile page was opened...
             //console.log("A profile page was opened.");    // for debugging
             cleanReactWebsiteLink();
-            listenForReactTweets();
+            listenForReactTweetsAndReplies();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
             break;
           case "tweet":    // if a page with a tweet was opened...
             //console.log("A tweet page was opened.");    // for debugging
-            listenForReactReplies();
+            listenForReactTweetsAndReplies();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
             break;
           case "home":    // if the home page was opened...
             //console.log("The home page was opened.");    // for debugging
-            listenForReactTweets();
+            listenForReactTweetsAndReplies();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
             break;
           case "explore":    // if the "Explore" page was opened...
             //console.log("The \"Explore\" page was opened.");    // for debugging
-            listenForReactTweets();
+            listenForReactTweetsAndReplies();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
             break;
           case "unknown":    // if a unknown page was opened...
@@ -609,22 +590,22 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
                 case "profile":    // if a profile page was opened...
                   //console.log("A profile page was opened.");    // for debugging
                   cleanReactWebsiteLink();
-                  listenForReactTweets();
+                  listenForReactTweetsAndReplies();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                   break;
                 case "tweet":    // if a page with a tweet was opened...
                   //console.log("A tweet page was opened.");    // for debugging
-                  listenForReactReplies();
+                  listenForReactTweetsAndReplies();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                   break;
                 case "home":    // if the home page was opened...
                   //console.log("The home page was opened.");    // for debugging
-                  listenForReactTweets();
+                  listenForReactTweetsAndReplies();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                   break;
                 case "explore":    // if the "Explore" page was opened...
                   //console.log("The \"Explore\" page was opened.");    // for debugging
-                  listenForReactTweets();
+                  listenForReactTweetsAndReplies();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                   break;
                 case "unknown":    // if a unknown page was opened...
