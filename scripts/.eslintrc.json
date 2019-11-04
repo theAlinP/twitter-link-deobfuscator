@@ -19,6 +19,7 @@
       "unix"
     ],
     "no-console": "off",
+    "no-fallthrough": "off",
     "quotes": [
       "error",
       "double"
