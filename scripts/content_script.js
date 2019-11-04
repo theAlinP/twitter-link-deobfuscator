@@ -390,23 +390,23 @@ function detectPage() {
   //console.log(pathArray);    // for debugging
 
   if (pathArray.length > 2 && pathArray[1] === "status") {
-    //console.log("A tweet page was opened.");
+    //console.log("A tweet page was opened.");    // for debugging
     return "tweet";
   } else if (pathArray.length === 1 && pathArray[0] === "home") {
-    //console.log("The home page was opened.");
+    //console.log("The home page was opened.");    // for debugging
     return "home";
   } else if (pathArray.length === 1 && pathArray[0] === "explore") {
-    //console.log("The \"Explore\" page was opened.");
+    //console.log("The \"Explore\" page was opened.");    // for debugging
     return "explore";
   } else if (pathArray.length === 1) {
     let mainElement = document.body.querySelector("#react-root main");
     if (mainElement.querySelector("div[data-testid=\"UserDescription\"]")
     || mainElement.querySelector("div[data-testid=\"UserProfileHeader_Items\"]")) {
       //console.log("User description or profile header detected.");    // for debugging
-      //console.log("A profile page was opened.");
+      //console.log("A profile page was opened.");    // for debugging
       return "profile";
     } else {
-      //console.log("A unknown page was opened.");
+      //console.log("A unknown page was opened.");    // for debugging
       return "unknown";
     }
   }
@@ -550,28 +550,15 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           var windowHref;    // declare a variable that will hold the URL of the last cleaned page
           switch (detectPage()) {    // check what type of page was opened
           case "profile":    // if a profile page was opened...
-            //console.log("A profile page was opened.");    // for debugging
             cleanReactWebsiteLink();
-            listenForReactTweetsAndReplies();
-            windowHref = window.location.href;    // store the URL of this page which was just cleaned
-            break;
+            // fall-through (no break statement)
           case "tweet":    // if a page with a tweet was opened...
-            //console.log("A tweet page was opened.");    // for debugging
-            listenForReactTweetsAndReplies();
-            windowHref = window.location.href;    // store the URL of this page which was just cleaned
-            break;
           case "home":    // if the home page was opened...
-            //console.log("The home page was opened.");    // for debugging
-            listenForReactTweetsAndReplies();
-            windowHref = window.location.href;    // store the URL of this page which was just cleaned
-            break;
           case "explore":    // if the "Explore" page was opened...
-            //console.log("The \"Explore\" page was opened.");    // for debugging
             listenForReactTweetsAndReplies();
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
             break;
           case "unknown":    // if a unknown page was opened...
-            //console.log("This page can't be cleaned.");    // for debugging
             windowHref = null;    // reset the variable with the URL of the page which was last cleaned
           }
           //console.log(windowHref);    // for debugging
@@ -588,28 +575,15 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
               if (findReactTimeline()) {
                 switch (detectPage()) {    // check what type of page was opened
                 case "profile":    // if a profile page was opened...
-                  //console.log("A profile page was opened.");    // for debugging
                   cleanReactWebsiteLink();
-                  listenForReactTweetsAndReplies();
-                  windowHref = window.location.href;    // store the URL of this page which was just cleaned
-                  break;
+                  // fall-through (no break statement)
                 case "tweet":    // if a page with a tweet was opened...
-                  //console.log("A tweet page was opened.");    // for debugging
-                  listenForReactTweetsAndReplies();
-                  windowHref = window.location.href;    // store the URL of this page which was just cleaned
-                  break;
                 case "home":    // if the home page was opened...
-                  //console.log("The home page was opened.");    // for debugging
-                  listenForReactTweetsAndReplies();
-                  windowHref = window.location.href;    // store the URL of this page which was just cleaned
-                  break;
                 case "explore":    // if the "Explore" page was opened...
-                  //console.log("The \"Explore\" page was opened.");    // for debugging
                   listenForReactTweetsAndReplies();
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                   break;
                 case "unknown":    // if a unknown page was opened...
-                  //console.log("This page can't be cleaned.");    // for debugging
                   windowHref = null;    // reset the variable with the URL of the page which was last cleaned
                 }
               } else {    // if the Timeline can't be found or was deleted...
