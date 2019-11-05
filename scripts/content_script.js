@@ -273,19 +273,19 @@ function cleanWebsiteLink() {
 /**
  * A function that reveals the original values of the "href" attributes on pages built with React
  * @function revealReactLinks
+ * @param {HTMLDivElement} container - The element containing the tweets or
+ * replies. It should be the type of element returned by getElementById() or
+ * querySelector() or similar methods
  */
-function revealReactLinks() {
+function revealReactLinks(container) {
+  //console.log(container);    // for debugging
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
       //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         //console.log("The value is true.");    // for debugging
         //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
-        let timeline = findReactTimeline();
-        //console.log(timeline);    // for debugging
-        let tweetContainer = timeline.querySelector("div > div > div");
-        //console.log(tweetContainer);    // for debugging
-        let links = tweetContainer.querySelectorAll("a[title]");
+        let links = container.querySelectorAll("a[title]");
         //console.log(links);    // for debugging
         for (let link of links) {
         //for (let [index, link] of links.entries()) {    // for debugging
@@ -351,20 +351,21 @@ function cleanReactWebsiteLink() {
  * A function that listens for added tweets or replies on pages built with React
  * then cleans the links inside them
  * @function listenForReactTweetsAndReplies
+ * @param {HTMLDivElement} container - The element containing the tweets or
+ * replies. It should be the type of element returned by getElementById() or
+ * querySelector() or similar methods
  */
-function listenForReactTweetsAndReplies() {
-  revealReactLinks();
+function listenForReactTweetsAndReplies(container) {
+  //console.log(container);    // for debugging
+
+  revealReactLinks(container);
 
   /**
    * Call revealReactLinks() every time new tweets or replies are added
    */
-  let timeline = findReactTimeline();
-  //console.log(timeline);    // for debugging
-  let container = timeline.querySelector("div > div > div");
-  //console.log(container);    // for debugging
   const containerObserver = new MutationObserver(function() {
     //console.log("containerObserver");    // for debugging
-    revealReactLinks();
+    revealReactLinks(container);
   });
   const containerObserverConfig = {childList: true, subtree: false};
   containerObserver.observe(container, containerObserverConfig);
@@ -555,7 +556,8 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           case "tweet":    // if a page with a tweet was opened...
           case "home":    // if the home page was opened...
           case "explore":    // if the "Explore" page was opened...
-            listenForReactTweetsAndReplies();
+            listenForReactTweetsAndReplies(findReactTimeline()
+              .querySelector("div > div > div"));    // find and clean the element with tweets or replies
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
             break;
           case "unknown":    // if a unknown page was opened...
@@ -580,7 +582,8 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
                 case "tweet":    // if a page with a tweet was opened...
                 case "home":    // if the home page was opened...
                 case "explore":    // if the "Explore" page was opened...
-                  listenForReactTweetsAndReplies();
+                  listenForReactTweetsAndReplies(findReactTimeline()
+                    .querySelector("div > div > div"));    // find and clean the element with tweets or replies
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                   break;
                 case "unknown":    // if a unknown page was opened...
