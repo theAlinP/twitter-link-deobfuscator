@@ -572,7 +572,6 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           const mainObserver2 = new MutationObserver(function() {
             //console.log("mainObserver2");    // for debugging
             //console.log(windowHref);    // for debugging
-
             if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
               if (findReactTimeline()) {
                 switch (detectPage()) {    // check what type of page was opened
@@ -598,7 +597,6 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           });
           const mainObserverConfig2 = {childList: true, subtree: true};
           mainObserver2.observe(mainElement, mainObserverConfig2);
-
         }
       });
       const mainObserverConfig = {childList: true, subtree: true};
