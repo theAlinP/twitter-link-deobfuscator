@@ -47,7 +47,7 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
 function notifyBackgroundScript() {
   //console.log(`notifyBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
   let sending = browser.runtime.sendMessage({});
-  sending.then(handleResponse, handleError);
+  sending.then(handleResponse, handleError);    // a response is received from the background script only if sendResponse is used
 }
 
 
@@ -435,7 +435,12 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
   if (window === window.top) {
     //console.log("The page finished loading.");    // for debugging
 
-    browser.runtime.onMessage.addListener(getIframeHrefFromBackgroundScript);    // listen for messages from the background script with the iframe href
+    /**
+     * Listen for messages from the background script. The callback functions
+     * get called every time an iframe sends a message to the top document
+     * and when the top document sends a message to an iframe.
+     */
+    browser.runtime.onMessage.addListener(getIframeHrefFromBackgroundScript);    // listen for messages from the background script and pass it to the callback function
 
     // For debugging: print details about the Twitter Cards, the iframe parents and iframes
     /*let cards = document.querySelectorAll(".cards-forward");
@@ -509,7 +514,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     pageObserver.observe(pageContainer, pageObserverConfig);    // because the class list from pageContainer is changed after switching to a different page
   } else {    // if the script is running from inside an iframe
     if (document.querySelector("a.TwitterCard-container--clickable")) {    // if there is a link in the Twitter Card...
-      browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script with the original destination
+      browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script and pass it to the callback function
       //console.log("This message is coming from an iframe.");    // for debugging
       //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
       browser.storage.local.get()    // call notifyBackgroundScript() if the add-on is enabled
