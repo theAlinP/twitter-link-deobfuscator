@@ -94,7 +94,6 @@ function handleMessage(request, sender) {
   //console.log(sendResponse);    // for debugging
   //console.log(`Iframe location href: ${sender.url}`);    // for debugging
 
-  //console.log(tabs);    // for debugging
   browser.tabs.sendMessage(    /* send a message to the sender's tab. It will reach all the listeners from the content script;
                                   from the parent window will be passed on to getIframeHrefFromBackgroundScript()
                                   and from ALL the iframes will be passed on to getOriginalDestinationFromBackgroundScript().
@@ -121,7 +120,7 @@ function handleMessage(request, sender) {
     }*//*<=for debugging*/).catch(onMessageError);
   }).catch(onMessageError);
 
-  //sendResponse({response: "The iframe location href was received."});    // for debugging
+  //sendResponse({response: "The iframe location href was received."});    // only useful if handleResponse() is called from notifyBackgroundScript()
 }
 
 
