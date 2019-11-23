@@ -60,8 +60,8 @@ function notifyBackgroundScript() {
  */
 /*function handleResponse(message) {
   console.log(`handleResponse() running from this window: ${window.location.href}`);    // for debugging
-  console.log(message);    // for debugging
   console.log("Response from the background script:");    // for debugging
+  console.log(message);    // for debugging
   console.log("message.response: " + message.response);    // for debugging
 }*/    // for debugging
 function handleResponse() {}
@@ -101,8 +101,8 @@ function getIframeHrefFromBackgroundScript(message) {
     return;
   }
 
-  //console.log(message);    // for debugging
   //console.log("Message from the background script:");    // for debugging
+  //console.log(message);    // for debugging
   //console.log(`to: ${message.to}`);    // for debugging
   //console.log(`iframeLocationHref: ${message.iframeLocationHref}`);    // for debugging
   let iframe = document.querySelector(`iframe[src="${message.iframeLocationHref}"]`);
@@ -172,8 +172,8 @@ function getOriginalDestinationFromBackgroundScript(message) {
     return;
   }
 
-  //console.log(message);    // for debugging
   //console.log("Message from the background script:");    // for debugging
+  //console.log(message);    // for debugging
   //console.log(`to: ${message.to}`);    // for debugging
   //console.log(`originalDestination: ${message.originalDestination}`);    // for debugging
 
