@@ -95,13 +95,13 @@ function handleMessage(request, sender) {
   //console.log(`Iframe location href: ${sender.url}`);    // for debugging
 
   browser.tabs.sendMessage(    /* send a message to the sender's tab. It will reach all the listeners from the content script;
-                                  from the parent window will be passed on to getIframeHrefFromBackgroundScript()
-                                  and from ALL the iframes will be passed on to getOriginalDestinationFromBackgroundScript().
+                                  from the parent window will be passed on to findTwitterCardOriginalDestination()
+                                  and from ALL the iframes will be passed on to restoreTwitterCardOriginalDestination().
                                   Certain precautions need to be taken to ensure that it will be used by the right function
                                   from the right window hence the use of the "iframeLocationHref" and "to" properties
                                   and the checks inside the two functions from the content script. */
     sender.tab.id,
-    {to: "getIframeHrefFromBackgroundScript()",
+    {to: "findTwitterCardOriginalDestination()",
       iframeLocationHref: sender.url}
   ).then(response => {
     //console.log(response);    // for debugging
@@ -111,7 +111,7 @@ function handleMessage(request, sender) {
     //console.log(`Original destination: ${response.originalDestination}`);    // for debugging
     browser.tabs.sendMessage(
       sender.tab.id,
-      {to: "getOriginalDestinationFromBackgroundScript()",
+      {to: "restoreTwitterCardOriginalDestination()",
         iframeLocationHref: sender.url,
         originalDestination: response.originalDestination}
     /*).then(response => {
