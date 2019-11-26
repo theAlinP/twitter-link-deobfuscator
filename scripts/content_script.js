@@ -83,21 +83,21 @@ function handleError(error) {
  * A function that receives the value of the iframe window's href attribute
  * from the background script then searches for the original
  * destination and returns it to the background script
- * @function getIframeHrefFromBackgroundScript
+ * @function findTwitterCardOriginalDestination
  * @param {object} message - The message received from the background script
  * @param {string} message.to - The name of the function the message is intended for
  * @param {string} message.iframeLocationHref - The location of the iframe from
  * which this script initially reached out to the background script and is used
  * to locate the iframe from the parent document
  */
-function getIframeHrefFromBackgroundScript(message) {
-  //console.log(`getIframeHrefFromBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
+function findTwitterCardOriginalDestination(message) {
+  //console.log(`findTwitterCardOriginalDestination() running from this window: ${window.location.href}`);    // for debugging
 
   if (window !== window.top) {    // stop if this function is not called from the top document
     //console.log("This function was not called from the top document. Exiting...");    // for debugging
     return;
   }
-  if (message.to !== "getIframeHrefFromBackgroundScript()") {    // stop if the message was not meant for this function
+  if (message.to !== "findTwitterCardOriginalDestination()") {    // stop if the message was not meant for this function
     //console.log("The message was not meant for this function. Exiting...");    // for debugging
     return;
   }
@@ -149,7 +149,7 @@ function getIframeHrefFromBackgroundScript(message) {
 /**
  * A function that receives the link's original destination from the background
  * script and uses it to clean the link inside the iframe
- * @function getOriginalDestinationFromBackgroundScript
+ * @function restoreTwitterCardOriginalDestination
  * @param {object} message - The message received from the background script
  * @param {string} message.to - The name of the function the message is intended for
  * @param {string} message.iframeLocationHref - The location of the iframe from
@@ -157,14 +157,14 @@ function getIframeHrefFromBackgroundScript(message) {
  * @param {string} message.originalDestination - The original destination,
  * which is used to update the href attribute of the link
  */
-function getOriginalDestinationFromBackgroundScript(message) {
-  //console.log(`getOriginalDestinationFromBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
+function restoreTwitterCardOriginalDestination(message) {
+  //console.log(`restoreTwitterCardOriginalDestination() running from this window: ${window.location.href}`);    // for debugging
 
   if (window === window.top) {    // stop if this function is called from the top document
     //console.log("This function was NOT called from inside an iframe. Exiting...");    // for debugging
     return;
   }
-  if (message.to !== "getOriginalDestinationFromBackgroundScript()") {    // stop if the message was not meant for this function
+  if (message.to !== "restoreTwitterCardOriginalDestination()") {    // stop if the message was not meant for this function
     //console.log("The message was not meant for this function. Exiting...");    // for debugging
     return;
   }
@@ -441,7 +441,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
      * get called every time an iframe sends a message to the top document
      * and when the top document sends a message to an iframe.
      */
-    browser.runtime.onMessage.addListener(getIframeHrefFromBackgroundScript);    // listen for messages from the background script and pass them to the callback function
+    browser.runtime.onMessage.addListener(findTwitterCardOriginalDestination);    // listen for messages from the background script and pass them to the callback function
 
     // For debugging: print details about the Twitter Cards, the iframe parents and iframes
     /*let cards = document.querySelectorAll(".cards-forward");
@@ -515,7 +515,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     pageObserver.observe(pageContainer, pageObserverConfig);    // because the class list from pageContainer is changed after switching to a different page
   } else {    // if the script is running from inside an iframe
     if (document.querySelector("a.TwitterCard-container--clickable")) {    // if there is a link in the Twitter Card...
-      browser.runtime.onMessage.addListener(getOriginalDestinationFromBackgroundScript);    // listen for messages from the background script and pass them to the callback function
+      browser.runtime.onMessage.addListener(restoreTwitterCardOriginalDestination);    // listen for messages from the background script and pass them to the callback function
       //console.log("This message is coming from an iframe.");    // for debugging
       //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
       browser.storage.local.get()    // call notifyBackgroundScript() if the add-on is enabled
