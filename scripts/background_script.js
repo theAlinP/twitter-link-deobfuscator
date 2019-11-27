@@ -100,27 +100,10 @@ function handleMessage(request, sender) {
                                   Certain precautions need to be taken to ensure that it will be used by the right function
                                   from the right window hence the use of the "iframeLocationHref" and "to" properties
                                   and the checks inside the two functions from the content script. */
-    sender.tab.id,
-    {to: "findTwitterCardOriginalDestination()",
-      iframeLocationHref: sender.url}
-  ).then(response => {
-    //console.log(response);    // for debugging
-    //console.log(sender);    // for debugging
-    //console.log("Message from the content script:");    // for debugging
-    //console.log(response.response);    // for debugging
-    //console.log(`Original destination: ${response.originalDestination}`);    // for debugging
-    browser.tabs.sendMessage(
-      sender.tab.id,
-      {to: "restoreTwitterCardOriginalDestination()",
-        iframeLocationHref: sender.url,
-        originalDestination: response.originalDestination}
-    /*).then(response => {
-      console.log(response);
-      console.log(sender);
-    }*//*<=for debugging*/).catch(onMessageError);
-  }).catch(onMessageError);
+    sender.tab.id, request
+  ).catch(onMessageError);
 
-  //sendResponse({response: "The iframe location href was received."});    // only useful if handleResponse() is called from notifyBackgroundScript()
+  //sendResponse({response: "The message was received."});    // only useful if handleResponse() is called from notifyBackgroundScript()
 }
 
 
