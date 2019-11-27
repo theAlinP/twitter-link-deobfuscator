@@ -43,10 +43,11 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
 /**
  * A function that communicates with the background script {@link boolean}
  * @function notifyBackgroundScript
+ * @param {object} message - The message to be sent to the background script
  */
-function notifyBackgroundScript() {
+function notifyBackgroundScript(message) {
   //console.log(`notifyBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
-  let sending = browser.runtime.sendMessage({});
+  let sending = browser.runtime.sendMessage(message);
   sending.then(handleResponse, handleError);    // a response is received from the background script only if sendResponse is used
 }
 
@@ -62,7 +63,6 @@ function notifyBackgroundScript() {
   console.log(`handleResponse() running from this window: ${window.location.href}`);    // for debugging
   console.log("Response from the background script:");    // for debugging
   console.log(message);    // for debugging
-  console.log("message.response: " + message.response);    // for debugging
 }*/    // for debugging
 function handleResponse() {}
 
@@ -82,7 +82,7 @@ function handleError(error) {
 /**
  * A function that receives the value of the iframe window's href attribute
  * from the background script then searches for the original
- * destination and returns it to the background script
+ * destination and sends it to the background script
  * @function findTwitterCardOriginalDestination
  * @param {object} message - The message received from the background script
  * @param {string} message.to - The name of the function the message is intended for
@@ -141,7 +141,8 @@ function findTwitterCardOriginalDestination(message) {
   }
   //console.log("Original destination: " + originalDestination);    // for debugging
 
-  return Promise.resolve({response: "The iframe href was received.",
+  notifyBackgroundScript({to: "restoreTwitterCardOriginalDestination()",
+    iframeLocationHref: message.iframeLocationHref,
     originalDestination: originalDestination});
 }
 
@@ -183,8 +184,6 @@ function restoreTwitterCardOriginalDestination(message) {
   iframeAnchor.setAttribute("data-shortened-url", iframeAnchor.getAttribute("href"));
   iframeAnchor.setAttribute("href", message.originalDestination);
   //console.log("Updated anchor href: " + iframeAnchor.getAttribute("href"));    // for debugging
-
-  return Promise.resolve({response: "The original destination was received."});
 }
 
 
@@ -523,7 +522,8 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
           if (storedSettings.enabled === true) {
             //console.log("The value is true.");    // for debugging
-            notifyBackgroundScript();
+            notifyBackgroundScript({to: "findTwitterCardOriginalDestination()",
+              iframeLocationHref: window.location.href});
           /*} else if (storedSettings.enabled === false) {
             console.log("The value is false");
           } else {
