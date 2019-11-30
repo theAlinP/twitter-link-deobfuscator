@@ -133,17 +133,22 @@ function findTwitterCardOriginalDestination(message) {
   if (parentCard.querySelector("a.twitter-timeline-link.u-hidden")) {    // in case a hidden link is found
     originalDestination = parentCard.querySelector("a.twitter-timeline-link.u-hidden").getAttribute("data-original-url") ||    // if revealLinks() was already called
                           parentCard.querySelector("a.twitter-timeline-link.u-hidden").getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
-  } else {    // if a hidden link was not found, use the last useful link found
+  } else if (parentCard.querySelector("a.twitter-timeline-link")) {    // if a hidden link was not found, but a visible one exists...
     let links = parentCard.querySelectorAll("a.twitter-timeline-link");
     //console.log(links);    // for debugging
     originalDestination = links[links.length - 1].getAttribute("data-original-url") ||    // if revealLinks() was already called
                           links[links.length - 1].getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
-  }
-  //console.log("Original destination: " + originalDestination);    // for debugging
+  }/* else {    // if no link was found...
+    console.log("No links found for this iframe:");    // for debugging
+    console.log(iframe);    // for debugging
+  }*/    // for debugging
 
-  notifyBackgroundScript({to: "restoreTwitterCardOriginalDestination()",
-    iframeLocationHref: message.iframeLocationHref,
-    originalDestination: originalDestination});
+  if (originalDestination !== undefined && originalDestination !== null) {    // if a link was found...
+    //console.log("Original destination: " + originalDestination);    // for debugging
+    notifyBackgroundScript({to: "restoreTwitterCardOriginalDestination()",
+      iframeLocationHref: message.iframeLocationHref,
+      originalDestination: originalDestination});
+  }
 }
 
 
