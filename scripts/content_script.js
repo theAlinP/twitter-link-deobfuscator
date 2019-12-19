@@ -467,6 +467,8 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     }*/    // for debugging
 
     cleanWebsiteLink();    // clean the "Website" link
+    var windowHref = window.location.href;    // declare a variable that will hold the URL of the last cleaned page
+    //console.log(windowHref);    // for debugging
 
     /**
      * Clean the links every time new tweets and replies are added
@@ -487,21 +489,23 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);    // because a new <div> element is added to repliesContainer when a tweet is singled out or it was opened directly
 
     /**
-     * Clean the tweets and the "Website" link every time a tweet opened directly
-     * from a link or a bookmark is hidden/closed
+     * Clean the tweets and the "Website" link every time a tweet opened
+     * directly from a link or a bookmark is hidden/closed
+     * or a new profile page is opened
      */
     let pageContainer = document.querySelector("#page-container") || console.log("The page container was not found");
-    if (pageContainer.classList.contains("wrapper-permalink")) {
-      const pageContainerObserver = new MutationObserver(function() {
-        //console.log("The page container was modified!");    // for debugging
+    const pageContainerObserver = new MutationObserver(function() {
+      //console.log("The page container was modified!");    // for debugging
+      if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
         if (! pageContainer.classList.contains("wrapper-permalink")) {
-          listenForTweets();
           cleanWebsiteLink();    // clean the "Website" link
+          windowHref = window.location.href;    // store the URL of this page which was just cleaned
+          //console.log(windowHref);    // for debugging
         }
-      });
-      const pageContainerObserverConfig = {attributes: true};
-      pageContainerObserver.observe(pageContainer, pageContainerObserverConfig);    // because the class "wrapper-permalink" is removed from pageContainer when a singled out tweet is closed
-    }
+      }
+    });
+    const pageContainerObserverConfig = {attributes: true};
+    pageContainerObserver.observe(pageContainer, pageContainerObserverConfig);    // because the class "wrapper-permalink" is removed from pageContainer when a singled out tweet is closed
 
     /**
      * Detect when a new page is browsed (Home, Notifications, Who to follow, etc.)
