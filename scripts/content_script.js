@@ -184,11 +184,15 @@ function restoreTwitterCardOriginalDestination(message) {
   //console.log(`to: ${message.to}`);    // for debugging
   //console.log(`originalDestination: ${message.originalDestination}`);    // for debugging
 
-  let iframeAnchor = document.querySelector("a.TwitterCard-container--clickable") || console.log("iframeAnchor could not be set");
-  //console.log("Iframe anchor: " + iframeAnchor);    // for debugging
-  iframeAnchor.setAttribute("data-shortened-url", iframeAnchor.getAttribute("href"));
-  iframeAnchor.setAttribute("href", message.originalDestination);
-  //console.log("Updated anchor href: " + iframeAnchor.getAttribute("href"));    // for debugging
+  if (document.querySelector("a.TwitterCard-container--clickable")) {
+    let iframeAnchor = document.querySelector("a.TwitterCard-container--clickable");
+    //console.log("Iframe anchor: " + iframeAnchor);    // for debugging
+    iframeAnchor.setAttribute("data-shortened-url", iframeAnchor.getAttribute("href"));
+    iframeAnchor.setAttribute("href", message.originalDestination);
+    //console.log("Updated anchor href: " + iframeAnchor.getAttribute("href"));    // for debugging
+  } else {
+    console.error("The link inside the iframe could not be found");    // for debugging
+  }
 }
 
 
