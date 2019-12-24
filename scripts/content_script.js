@@ -201,9 +201,10 @@ function restoreTwitterCardOriginalDestination(message) {
  * @function listenForTweets
  */
 function listenForTweets() {
-  if (document.querySelector("#timeline")) {
-    var tweets = document.querySelector("#timeline").querySelector("#stream-items-id") || console.error("The timeline was not found");
+  if (document.querySelector("#timeline #stream-items-id")) {
+    var tweets = document.querySelector("#timeline #stream-items-id");
   } else {
+    console.error("The tweets list was not found");    // for debugging
     return;
   }
   //console.log(tweets);    // for debugging
