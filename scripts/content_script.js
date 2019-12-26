@@ -498,7 +498,11 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
      * Clean the replies every time a tweet is singled out (is clicked on or
      * it was opened directly from a link or a bookmark)
      */
-    let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
+    if (document.querySelector(".PermalinkOverlay-body")) {
+      var repliesContainer = document.querySelector(".PermalinkOverlay-body");
+    } else {
+      console.error("The tweet container was not found");    // for debugging
+    }
     const repliesContainerObserver = new MutationObserver(listenForReplies);
     const repliesContainerObserverConfig = {childList: true, subtree: false};
     repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);    // because a new <div> element is added to repliesContainer when a tweet is singled out or it was opened directly
@@ -508,7 +512,11 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
      * directly from a link or a bookmark is hidden/closed
      * or a new profile page is opened
      */
-    let pageContainer = document.querySelector("#page-container") || console.log("The page container was not found");
+    if (document.querySelector("#page-container")) {
+      var pageContainer = document.querySelector("#page-container");
+    } else {
+      console.error("The page container was not found");    // for debugging
+    }
     const pageContainerObserver = new MutationObserver(function() {
       //console.log("The page container was modified!");    // for debugging
       if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
