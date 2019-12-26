@@ -230,7 +230,12 @@ function listenForTweets() {
  * @function listenForReplies
  */
 function listenForReplies() {
-  let repliesContainer = document.querySelector(".PermalinkOverlay-body") || console.log("The tweet container was not found");
+  if (document.querySelector(".PermalinkOverlay-body")) {
+    var repliesContainer = document.querySelector(".PermalinkOverlay-body");
+  } else {
+    console.error("The tweet container was not found");    // for debugging
+    return;
+  }
   //if (repliesContainer.contains(repliesContainer.querySelector(".permalink-tweet-container")) ||
   //    repliesContainer.contains(repliesContainer.querySelector(".permalink-replies"))) {
   if (repliesContainer.contains(repliesContainer.querySelector(".permalink"))) {
@@ -240,7 +245,12 @@ function listenForReplies() {
     /**
      * Call revealLinks() every time new replies are added
      */
-    const replies = repliesContainer.querySelector(".permalink-replies").querySelector("#stream-items-id") || console.error("The replies list was not found");
+    if (repliesContainer.querySelector(".permalink-replies").querySelector("#stream-items-id")) {
+      var replies = repliesContainer.querySelector(".permalink-replies").querySelector("#stream-items-id");
+    } else {
+      console.error("The replies list was not found");    // for debugging
+      return;
+    }
     //console.log(replies);    // for debugging
     const repliesObserver = new MutationObserver(function() {
       //console.log("New replies were added.");    // for debugging
