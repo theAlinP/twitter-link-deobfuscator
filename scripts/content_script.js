@@ -271,16 +271,14 @@ function cleanWebsiteLink() {
     .then((storedSettings) => {
       //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
       if (storedSettings.enabled === true) {    // clean the link only if the add-on is enabled
-        if (document.querySelector(".ProfileHeaderCard")) {
-          if (document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url")) {
-            let websiteLink = document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url a");
-            if (websiteLink !== undefined && websiteLink !== null) {    // check if websiteLink is set (meaning it was found)
-              //console.log(websiteLink);    // for debugging
-              websiteLink.setAttribute("data-shortened-url", websiteLink.href);
-              websiteLink.href = websiteLink.title;
-              //console.log(websiteLink);    // for debugging
-            }
-          }
+        if (document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url a")) {
+          let websiteLink = document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url a");
+          //console.log(websiteLink);    // for debugging
+          websiteLink.setAttribute("data-shortened-url", websiteLink.href);
+          websiteLink.href = websiteLink.title;
+          //console.log(websiteLink);    // for debugging
+        } else {
+          console.error("The \"Website\" link was not found");    // for debugging
         }
       }
     })
