@@ -230,35 +230,31 @@ function listenForTweets() {
  * @function listenForReplies
  */
 function listenForReplies() {
-  if (document.querySelector(".PermalinkOverlay-body")) {
-    var repliesContainer = document.querySelector(".PermalinkOverlay-body");
+  if (document.querySelector("#permalink-overlay .permalink")) {
+    var repliesContainer = document.querySelector("#permalink-overlay .permalink");
   } else {
-    console.error("The tweet container was not found");    // for debugging
+    //console.error("No tweet seems to be singled out right now.");    // for debugging
     return;
   }
-  //if (repliesContainer.contains(repliesContainer.querySelector(".permalink-tweet-container")) ||
-  //    repliesContainer.contains(repliesContainer.querySelector(".permalink-replies"))) {
-  if (repliesContainer.contains(repliesContainer.querySelector(".permalink"))) {
 
-    revealLinks();
+  revealLinks();
 
-    /**
-     * Call revealLinks() every time new replies are added
-     */
-    if (repliesContainer.querySelector(".permalink-replies").querySelector("#stream-items-id")) {
-      var replies = repliesContainer.querySelector(".permalink-replies").querySelector("#stream-items-id");
-    } else {
-      console.error("The replies list was not found");    // for debugging
-      return;
-    }
-    //console.log(replies);    // for debugging
-    const repliesObserver = new MutationObserver(function() {
-      //console.log("New replies were added.");    // for debugging
-      revealLinks();
-    });
-    const repliesObserverConfig = {childList: true, subtree: false};
-    repliesObserver.observe(replies, repliesObserverConfig);    // because new <li> elements are added to replies every time the bottom of the page is reached
+  /**
+   * Call revealLinks() every time new replies are added
+   */
+  if (repliesContainer.querySelector(".permalink-replies").querySelector("#stream-items-id")) {
+    var replies = repliesContainer.querySelector(".permalink-replies").querySelector("#stream-items-id");
+  } else {
+    console.error("The replies list was not found");    // for debugging
+    return;
   }
+  //console.log(replies);    // for debugging
+  const repliesObserver = new MutationObserver(function() {
+    //console.log("New replies were added.");    // for debugging
+    revealLinks();
+  });
+  const repliesObserverConfig = {childList: true, subtree: false};
+  repliesObserver.observe(replies, repliesObserverConfig);    // because new <li> elements are added to replies every time the bottom of the page is reached
 }
 
 
