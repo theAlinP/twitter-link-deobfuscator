@@ -437,8 +437,8 @@ function detectPage() {
  * @function findReactTimeline
  */
 function findReactTimeline() {
-  let timeline = document.body.querySelector("#react-root main div[data-testid=\"primaryColumn\"] section > div[aria-label]");
-  if (timeline !== null && timeline !== undefined) {
+  if (document.body.querySelector("#react-root main div[data-testid=\"primaryColumn\"] section > div[aria-label]")) {
+    let timeline = document.body.querySelector("#react-root main div[data-testid=\"primaryColumn\"] section > div[aria-label]");
     //console.log(timeline);    // for debugging
     return timeline;
   } else {
