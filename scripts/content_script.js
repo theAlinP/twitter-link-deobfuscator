@@ -242,8 +242,8 @@ function listenForReplies() {
   /**
    * Call revealLinks() every time new replies are added
    */
-  if (repliesContainer.querySelector(".permalink-replies").querySelector("#stream-items-id")) {
-    var replies = repliesContainer.querySelector(".permalink-replies").querySelector("#stream-items-id");
+  if (repliesContainer.querySelector(".permalink-replies #stream-items-id")) {
+    var replies = repliesContainer.querySelector(".permalink-replies #stream-items-id");
   } else {
     console.error("The replies list was not found");    // for debugging
     return;
