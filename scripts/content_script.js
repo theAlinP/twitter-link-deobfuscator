@@ -484,7 +484,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
      */
     if (document.querySelector("#timeline")) {
       listenForTweets();
-    } else if (document.querySelector(".PermalinkOverlay-body")) {
+    } else if (document.querySelector("#permalink-overlay .permalink")) {
       listenForReplies();
     }
 
