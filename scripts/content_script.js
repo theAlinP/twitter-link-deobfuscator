@@ -230,31 +230,24 @@ function listenForTweets() {
  * @function listenForReplies
  */
 function listenForReplies() {
-  if (document.querySelector("#permalink-overlay .permalink")) {
-    var repliesContainer = document.querySelector("#permalink-overlay .permalink");
+  if (document.querySelector("#permalink-overlay .permalink .permalink-replies #stream-items-id")) {
+    const replies = document.querySelector("#permalink-overlay .permalink .permalink-replies #stream-items-id");
+
+    revealLinks();    // call revealLinks() right now
+
+    /**
+     * Call revealLinks() every time new replies are added
+     */
+    //console.log(replies);    // for debugging
+    const repliesObserver = new MutationObserver(function() {
+      //console.log("New replies were added.");    // for debugging
+      revealLinks();
+    });
+    const repliesObserverConfig = {childList: true, subtree: false};
+    repliesObserver.observe(replies, repliesObserverConfig);    // because new <li> elements are added to replies every time the bottom of the page is reached
   } else {
     //console.error("No tweet seems to be singled out right now.");    // for debugging
-    return;
   }
-
-  revealLinks();
-
-  /**
-   * Call revealLinks() every time new replies are added
-   */
-  if (repliesContainer.querySelector(".permalink-replies #stream-items-id")) {
-    var replies = repliesContainer.querySelector(".permalink-replies #stream-items-id");
-  } else {
-    console.error("The replies list was not found");    // for debugging
-    return;
-  }
-  //console.log(replies);    // for debugging
-  const repliesObserver = new MutationObserver(function() {
-    //console.log("New replies were added.");    // for debugging
-    revealLinks();
-  });
-  const repliesObserverConfig = {childList: true, subtree: false};
-  repliesObserver.observe(replies, repliesObserverConfig);    // because new <li> elements are added to replies every time the bottom of the page is reached
 }
 
 
