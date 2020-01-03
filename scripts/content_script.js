@@ -492,8 +492,8 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
      * Clean the replies every time a tweet is singled out (is clicked on or
      * it was opened directly from a link or a bookmark)
      */
-    if (document.querySelector(".PermalinkOverlay-body")) {
-      var repliesContainer = document.querySelector(".PermalinkOverlay-body");
+    if (document.querySelector("#permalink-overlay .PermalinkOverlay-body")) {
+      var repliesContainer = document.querySelector("#permalink-overlay .PermalinkOverlay-body");
     } else {
       console.error("The tweet container was not found");    // for debugging
     }
