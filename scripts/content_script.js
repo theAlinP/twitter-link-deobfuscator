@@ -10,7 +10,6 @@ function revealLinks() {
     .then((storedSettings) => {
       //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
-        //console.log("The value is true.");    // for debugging
         let links = document.querySelectorAll("a[data-expanded-url]");
         //console.log(links);    // for debugging
         for (let link of links) {
@@ -28,10 +27,6 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
             //console.log(link);    // for debugging
           }
         }
-      /*} else if (storedSettings.enabled === false) {
-        console.log("The value is false");
-      } else {
-        console.log("The value is neither true nor false");*/    // for debugging
       }
     })
     .catch(() => {
@@ -46,7 +41,6 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
  * @param {object} message - The message to be sent to the background script
  */
 function notifyBackgroundScript(message) {
-  //console.log(`notifyBackgroundScript() running from this window: ${window.location.href}`);    // for debugging
   let sending = browser.runtime.sendMessage(message);
   sending.then(handleResponse, handleError);    // a response is received from the background script only if sendResponse is used
 }
@@ -60,7 +54,6 @@ function notifyBackgroundScript(message) {
  * @param {string} message.response - The contents of the response
  */
 /*function handleResponse(message) {
-  console.log(`handleResponse() running from this window: ${window.location.href}`);    // for debugging
   console.log("Response from the background script:");    // for debugging
   console.log(message);    // for debugging
 }*/    // for debugging
@@ -73,7 +66,6 @@ function handleResponse() {}
  * @param {object} error - An object as defined by the browser
  */
 function handleError(error) {
-  //console.log(`handleError() running from this window: ${window.location.href}`);    // for debugging
   //console.error(error);    // for debugging
   console.error(`Error: ${error.message}`);
 }
@@ -91,8 +83,6 @@ function handleError(error) {
  * to locate the iframe from the parent document
  */
 function findTwitterCardOriginalDestination(message) {
-  //console.log(`findTwitterCardOriginalDestination() running from this window: ${window.location.href}`);    // for debugging
-
   if (window !== window.top) {    // stop if this function is not called from the top document
     //console.log("This function was not called from the top document. Exiting...");    // for debugging
     return;
@@ -164,8 +154,6 @@ function findTwitterCardOriginalDestination(message) {
  * which is used to update the href attribute of the link
  */
 function restoreTwitterCardOriginalDestination(message) {
-  //console.log(`restoreTwitterCardOriginalDestination() running from this window: ${window.location.href}`);    // for debugging
-
   if (window === window.top) {    // stop if this function is called from the top document
     //console.log("This function was NOT called from inside an iframe. Exiting...");    // for debugging
     return;
@@ -290,7 +278,6 @@ function revealReactLinks(container) {
     .then((storedSettings) => {
       //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
-        //console.log("The value is true.");    // for debugging
         //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
         let links = container.querySelectorAll("a[title]");
         //console.log(links);    // for debugging
@@ -447,7 +434,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
      * get called every time an iframe sends a message to the top document
      * and when the top document sends a message to an iframe.
      */
-    browser.runtime.onMessage.addListener(findTwitterCardOriginalDestination);    // listen for messages from the background script and pass them to the callback function
+    browser.runtime.onMessage.addListener(findTwitterCardOriginalDestination);    // listen for messages from the background script and pass them to findTwitterCardOriginalDestination()
 
     // For debugging: print details about the Twitter Cards, the iframe parents and iframes
     /*let cards = document.querySelectorAll(".cards-forward");
@@ -533,20 +520,15 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     pageObserver.observe(pageContainer, pageObserverConfig);    // because the class list from pageContainer is changed after switching to a different page
   } else {    // if the script is running from inside an iframe
     if (document.querySelector("a.TwitterCard-container--clickable")) {    // if there is a link in the Twitter Card...
-      browser.runtime.onMessage.addListener(restoreTwitterCardOriginalDestination);    // listen for messages from the background script and pass them to the callback function
+      browser.runtime.onMessage.addListener(restoreTwitterCardOriginalDestination);    // listen for messages from the background script and pass them to restoreTwitterCardOriginalDestination()
       //console.log("This message is coming from an iframe.");    // for debugging
       //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
       browser.storage.local.get()    // call notifyBackgroundScript() if the add-on is enabled
         .then((storedSettings) => {
           //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
           if (storedSettings.enabled === true) {
-            //console.log("The value is true.");    // for debugging
             notifyBackgroundScript({to: "findTwitterCardOriginalDestination()",
               iframeLocationHref: window.location.href});
-          /*} else if (storedSettings.enabled === false) {
-            console.log("The value is false");
-          } else {
-            console.log("The value is neither true nor false");*/    // for debugging
           }
         })
         .catch(() => {
@@ -614,7 +596,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
                   windowHref = null;    // reset the variable with the URL of the page which was last cleaned
                 }
               } else {    // if the Timeline can't be found or was deleted...
-                //console.log("The timeline was not found.");
+                //console.log("The Timeline was not found.");
                 windowHref = null;    // reset the variable with the URL of the page which was last cleaned
               }
               //console.log(windowHref);    // for debugging
