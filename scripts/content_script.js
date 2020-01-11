@@ -25,6 +25,10 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
             link.href = link.getAttribute("data-expanded-url");
             link.removeAttribute("data-expanded-url");
             //console.log(link);    // for debugging
+            if (! link.classList.contains("u-hidden")) {    /* don't increase the badge number with hidden links. Do it after cleaning the links
+                                                               inside their corresponding Twitter Cards, from restoreTwitterCardOriginalDestination()*/
+              increaseBadgeNumber();    // increase the number shown on top of the icon
+            }
           }
         }
       }
@@ -144,7 +148,8 @@ function findTwitterCardOriginalDestination(message) {
 
 /**
  * A function that receives the link's original destination from the background
- * script and uses it to clean the link inside the iframe
+ * script and uses it to clean the link inside the iframe then sends a message
+ * to increaseBadgeNumber() to update the badge number
  * @function restoreTwitterCardOriginalDestination
  * @param {object} message - The message received from the background script
  * @param {string} message.to - The name of the function the message is intended for
@@ -178,6 +183,7 @@ function restoreTwitterCardOriginalDestination(message) {
     iframeAnchor.setAttribute("data-shortened-url", iframeAnchor.getAttribute("href"));
     iframeAnchor.setAttribute("href", message.originalDestination);
     //console.log("Updated anchor href: " + iframeAnchor.getAttribute("href"));    // for debugging
+    notifyBackgroundScript({to: "increaseBadgeNumber()"});    // send a message to increaseBadgeNumber() through the background script
   } else {
     console.error("The link inside the iframe could not be found");    // for debugging
   }
@@ -254,6 +260,7 @@ function cleanWebsiteLink() {
           websiteLink.setAttribute("data-shortened-url", websiteLink.href);
           websiteLink.href = websiteLink.title;
           //console.log(websiteLink);    // for debugging
+          increaseBadgeNumber();    // increase the number shown on top of the icon
         } else {
           console.error("The \"Website\" link was not found");    // for debugging
         }
@@ -291,6 +298,7 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
             link.setAttribute("data-shortened-url", link.href);
             link.href = link.title;
             //console.log(link);    // for debugging
+            increaseBadgeNumber();    // increase the number shown on top of the icon
           }
         }
       }
@@ -323,6 +331,7 @@ function cleanReactWebsiteLink() {
             link.setAttribute("data-shortened-url", link.href);
             link.href = link.title;
             //console.log(link);    // for debugging
+            increaseBadgeNumber();    // increase the number shown on top of the icon
           }
         }
         links = userProfileHeader.querySelectorAll("a");
@@ -332,6 +341,7 @@ function cleanReactWebsiteLink() {
           link.setAttribute("data-shortened-url", link.href);
           link.href = "http://" + link.text;
           //console.log(link);    // for debugging
+          increaseBadgeNumber();    // increase the number shown on top of the icon
         }
       }
     })
@@ -424,7 +434,38 @@ function findReactTimeline() {
 }
 
 
+/**
+ * A function that sends a message to the background script to increase the
+ * badge number shown on top of the icon
+ * @function increaseBadgeNumber
+ * @param {object} [message] - The message received from the background script. OPTIONAL!
+ * @param {string} [message.to] - The name of the function the message is intended for. OPTIONAL!
+ */
+function increaseBadgeNumber(message) {
+  //console.log(`increaseBadgeNumber() running from this window: ${window.location.href}`);    // for debugging
+  if ( message !== undefined && message !== null) {    // if this function was called because a message was sent from the background script
+    //console.log("Message from the background script:");    // for debugging
+    //console.log(message);    // for debugging
+    //console.log(`to: ${message.to}`);    // for debugging
+    if ( message.to !== "increaseBadgeNumber()" ) {    // stop if the message was not meant for this function
+      //console.log("The message was not meant for this function. Exiting...");    // for debugging
+      return;
+    }
+  }
+  if (cleanedLinks === undefined || cleanedLinks === null || cleanedLinks < 1) {
+    cleanedLinks = 1;
+  } else {
+    cleanedLinks += 1;
+  }
+  //console.log("cleanedLinks: " + cleanedLinks);    // for debugging
+  notifyBackgroundScript({setBadge: (cleanedLinks).toString()});    // send a message to the background script to update the badge number
+}
 
+
+
+if (window === window.top) {    // declare the variable cleanedLinks from the top window, on the first run on the page
+  var cleanedLinks;
+}
 if (! document.body.contains(document.body.querySelector("#react-root"))) {    // if the page is NOT built with React clean the links the old way
   if (window === window.top) {
     //console.log("The page finished loading.");    // for debugging
@@ -435,6 +476,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
      * and when the top document sends a message to an iframe.
      */
     browser.runtime.onMessage.addListener(findTwitterCardOriginalDestination);    // listen for messages from the background script and pass them to findTwitterCardOriginalDestination()
+    browser.runtime.onMessage.addListener(increaseBadgeNumber);    // listen for messages from the background script and pass them to increaseBadgeNumber()
 
     // For debugging: print details about the Twitter Cards, the iframe parents and iframes
     /*let cards = document.querySelectorAll(".cards-forward");
