@@ -87,15 +87,6 @@ function handleError(error) {
  * to locate the iframe from the parent document
  */
 function findTwitterCardOriginalDestination(message) {
-  if (window !== window.top) {    // stop if this function is not called from the top document
-    //console.log("This function was not called from the top document. Exiting...");    // for debugging
-    return;
-  }
-  if (message.to !== "findTwitterCardOriginalDestination()") {    // stop if the message was not meant for this function
-    //console.log("The message was not meant for this function. Exiting...");    // for debugging
-    return;
-  }
-
   //console.log("Message from the background script:");    // for debugging
   //console.log(message);    // for debugging
   //console.log(`to: ${message.to}`);    // for debugging
@@ -159,19 +150,6 @@ function findTwitterCardOriginalDestination(message) {
  * which is used to update the href attribute of the link
  */
 function restoreTwitterCardOriginalDestination(message) {
-  if (window === window.top) {    // stop if this function is called from the top document
-    //console.log("This function was NOT called from inside an iframe. Exiting...");    // for debugging
-    return;
-  }
-  if (message.to !== "restoreTwitterCardOriginalDestination()") {    // stop if the message was not meant for this function
-    //console.log("The message was not meant for this function. Exiting...");    // for debugging
-    return;
-  }
-  if (message.iframeLocationHref !== window.location.href) {    // stop if the message was not meant for this window/iframe
-    //console.log("The message was not meant for this window/iframe. Exiting...");    // for debugging
-    return;
-  }
-
   //console.log("Message from the background script:");    // for debugging
   //console.log(message);    // for debugging
   //console.log(`to: ${message.to}`);    // for debugging
@@ -438,20 +416,9 @@ function findReactTimeline() {
  * A function that sends a message to the background script to increase the
  * badge number shown on top of the icon
  * @function increaseBadgeNumber
- * @param {object} [message] - The message received from the background script. OPTIONAL!
- * @param {string} [message.to] - The name of the function the message is intended for. OPTIONAL!
  */
-function increaseBadgeNumber(message) {
+function increaseBadgeNumber() {
   //console.log(`increaseBadgeNumber() running from this window: ${window.location.href}`);    // for debugging
-  if ( message !== undefined && message !== null) {    // if this function was called because a message was sent from the background script
-    //console.log("Message from the background script:");    // for debugging
-    //console.log(message);    // for debugging
-    //console.log(`to: ${message.to}`);    // for debugging
-    if ( message.to !== "increaseBadgeNumber()" ) {    // stop if the message was not meant for this function
-      //console.log("The message was not meant for this function. Exiting...");    // for debugging
-      return;
-    }
-  }
   if (cleanedLinks === undefined || cleanedLinks === null || cleanedLinks < 1) {
     cleanedLinks = 1;
   } else {
@@ -459,6 +426,33 @@ function increaseBadgeNumber(message) {
   }
   //console.log("cleanedLinks: " + cleanedLinks);    // for debugging
   notifyBackgroundScript({setBadge: (cleanedLinks).toString()});    // send a message to the background script to update the badge number
+}
+
+
+/**
+ * A function that listens for message from the background script and calls other functions
+ * @function listenForMessages
+ * @param {object} message - The message received from the background script
+ * @param {string} message.to - The name of the function the message is intended for
+ */
+function listenForMessages(message) {
+  //console.log(`listenForMessages() running from this window: ${window.location.href}`);    // for debugging
+  //console.log("Message from the background script:");    // for debugging
+  //console.log(message);    // for debugging
+  //console.log(`to: ${message.to}`);    // for debugging
+
+  if (window === window.top) {    // call the following functions only from the top document
+    if (message.to === "findTwitterCardOriginalDestination()") {
+      findTwitterCardOriginalDestination(message);
+    } else if (message.to === "increaseBadgeNumber()") {
+      increaseBadgeNumber();
+    }
+  } else {    // call restoreTwitterCardOriginalDestination only from an iframe
+    if (message.to === "restoreTwitterCardOriginalDestination()" &&
+      message.iframeLocationHref === window.location.href) {    // call it only from the iframe with the URL specified in the message
+      restoreTwitterCardOriginalDestination(message);
+    }
+  }
 }
 
 
@@ -471,12 +465,11 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     //console.log("The page finished loading.");    // for debugging
 
     /**
-     * Listen for messages from the background script. The callback functions
-     * get called every time an iframe sends a message to the top document
+     * Listen for messages from the background script. The callback function
+     * gets called every time an iframe sends a message to the top document
      * and when the top document sends a message to an iframe.
      */
-    browser.runtime.onMessage.addListener(findTwitterCardOriginalDestination);    // listen for messages from the background script and pass them to findTwitterCardOriginalDestination()
-    browser.runtime.onMessage.addListener(increaseBadgeNumber);    // listen for messages from the background script and pass them to increaseBadgeNumber()
+    browser.runtime.onMessage.addListener(listenForMessages);    // listen for messages from the background script and pass them to listenForMessages()
 
     // For debugging: print details about the Twitter Cards, the iframe parents and iframes
     /*let cards = document.querySelectorAll(".cards-forward");
@@ -562,7 +555,14 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     pageObserver.observe(pageContainer, pageObserverConfig);    // because the class list from pageContainer is changed after switching to a different page
   } else {    // if the script is running from inside an iframe
     if (document.querySelector("a.TwitterCard-container--clickable")) {    // if there is a link in the Twitter Card...
-      browser.runtime.onMessage.addListener(restoreTwitterCardOriginalDestination);    // listen for messages from the background script and pass them to restoreTwitterCardOriginalDestination()
+
+      /**
+       * Listen for messages from the background script. The callback function
+       * gets called every time an iframe sends a message to the top document
+       * and when the top document sends a message to an iframe.
+       */
+      browser.runtime.onMessage.addListener(listenForMessages);    // listen for messages from the background script and pass them to listenForMessages()
+
       //console.log("This message is coming from an iframe.");    // for debugging
       //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
       browser.storage.local.get()    // call notifyBackgroundScript() if the add-on is enabled
