@@ -161,6 +161,7 @@ function restoreTwitterCardOriginalDestination(message) {
     iframeAnchor.setAttribute("data-shortened-url", iframeAnchor.getAttribute("href"));
     iframeAnchor.setAttribute("href", message.originalDestination);
     //console.log("Updated anchor href: " + iframeAnchor.getAttribute("href"));    // for debugging
+    browser.runtime.onMessage.removeListener(listenForMessages);    // stop listening for messages from the background script, now that the link has been cleaned
     notifyBackgroundScript({to: "increaseBadgeNumber()"});    // send a message to increaseBadgeNumber() through the background script
   } else {
     console.error("The link inside the iframe could not be found");    // for debugging
