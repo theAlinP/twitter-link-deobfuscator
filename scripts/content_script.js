@@ -2,6 +2,14 @@
 
 
 /**
+ * The namespace that will contain all the methods and properties
+ * @namespace TLD
+ */
+var TLD = TLD || {};
+//console.log(TLD);    // for debugging
+
+
+/**
  * A function that reveals the original values of the "href" attributes
  * @function revealLinks
  */
