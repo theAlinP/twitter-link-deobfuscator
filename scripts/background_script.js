@@ -1,8 +1,17 @@
 "use strict";
 
 
+/**
+ * The namespace that will contain all the methods and properties
+ * @namespace TLD_background
+ */
+var TLD_background = TLD_background || {};
+//console.log(TLD_background);    // for debugging
+
+
 let defaultAddonState = { enabled : true };    // default add-on state
 browser.browserAction.setBadgeBackgroundColor({"color": "green"});    // set the background of the badge text
+
 
 /**
  * A function that changes the add-on's title
