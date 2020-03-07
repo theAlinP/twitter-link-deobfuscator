@@ -15,7 +15,8 @@ browser.browserAction.setBadgeBackgroundColor({"color": "green"});    // set the
 
 /**
  * A function that changes the add-on's title
- * @function updateAddonTitle
+ * @method updateAddonTitle
+ * @memberof TLD_background
  * @param {boolean} state - The title of the add-on icon will be changed based
  * on the value of this parameter
  */
@@ -30,7 +31,8 @@ TLD_background.updateAddonTitle = function(state) {
 
 /**
  * A function that changes the add-on's icon
- * @function updateAddonIcon
+ * @method updateAddonIcon
+ * @memberof TLD_background
  * @param {boolean} state - The icon of the add-on will be changed based
  * on the value of this parameter
  */
@@ -57,7 +59,8 @@ TLD_background.updateAddonIcon = function(state) {
 
 /**
  * A function that enables and disables the add-on
- * @function toggleStatus
+ * @method toggleStatus
+ * @memberof TLD_background
  */
 TLD_background.toggleStatus = function() {
   browser.storage.local.get()
@@ -89,7 +92,8 @@ TLD_background.toggleStatus = function() {
 
 /**
  * A function that communicates with the content script
- * @function handleMessage
+ * @method handleMessage
+ * @memberof TLD_background
  * @param {object} request - The message received from the content script
  * @param {object} sender - An object passed to the function by the onMessage
  * listener providing details about the sender of the message
@@ -126,7 +130,8 @@ TLD_background.handleMessage = function(request, sender) {
 
 /**
  * A function that handles any messaging errors
- * @function onMessageError
+ * @method onMessageError
+ * @memberof TLD_background
  * @param {object} error - An object as defined by the browser
  */
 TLD_background.onMessageError = function(error) {
