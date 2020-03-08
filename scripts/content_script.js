@@ -13,7 +13,7 @@ var TLD = TLD || {};
  * A function that reveals the original values of the "href" attributes
  * @function revealLinks
  */
-function revealLinks() {
+TLD.revealLinks = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
       //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
@@ -34,8 +34,8 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
             link.removeAttribute("data-expanded-url");
             //console.log(link);    // for debugging
             if (! link.classList.contains("u-hidden")) {    /* don't increase the badge number with hidden links. Do it after cleaning the links
-                                                               inside their corresponding Twitter Cards, from restoreTwitterCardOriginalDestination()*/
-              increaseBadgeNumber();    // increase the number shown on top of the icon
+                                                               inside their corresponding Twitter Cards, from TLD.restoreTwitterCardOriginalDestination()*/
+              TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
             }
           }
         }
@@ -44,7 +44,7 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
     .catch(() => {
       console.error("Error retrieving stored settings");
     });
-}
+};
 
 
 /**
@@ -52,24 +52,24 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
  * @function notifyBackgroundScript
  * @param {object} message - The message to be sent to the background script
  */
-function notifyBackgroundScript(message) {
+TLD.notifyBackgroundScript = function(message) {
   let sending = browser.runtime.sendMessage(message);
-  sending.then(handleResponse, handleError);    // a response is received from the background script only if sendResponse is used
-}
+  sending.then(TLD.handleResponse, TLD.handleError);    // a response is received from the background script only if sendResponse is used
+};
 
 
 /**
  * A function that handles the responses coming from the background script
  * @function handleResponse
  * @param {object} message - The response received from the background script
- * after sending it a message from notifyBackgroundScript()
+ * after sending it a message from TLD.notifyBackgroundScript()
  * @param {string} message.response - The contents of the response
  */
-/*function handleResponse(message) {
+/*TLD.handleResponse = function(message) {
   console.log("Response from the background script:");    // for debugging
   console.log(message);    // for debugging
-}*/    // for debugging
-function handleResponse() {}
+};*/    // for debugging
+TLD.handleResponse = function() {};
 
 
 /**
@@ -77,10 +77,10 @@ function handleResponse() {}
  * @function handleError
  * @param {object} error - An object as defined by the browser
  */
-function handleError(error) {
+TLD.handleError = function(error) {
   //console.error(error);    // for debugging
   console.error(`Error: ${error.message}`);
-}
+};
 
 
 /**
@@ -94,7 +94,7 @@ function handleError(error) {
  * which this script initially reached out to the background script and is used
  * to locate the iframe from the parent document
  */
-function findTwitterCardOriginalDestination(message) {
+TLD.findTwitterCardOriginalDestination = function(message) {
   //console.log("Message from the background script:");    // for debugging
   //console.log(message);    // for debugging
   //console.log(`to: ${message.to}`);    // for debugging
@@ -124,13 +124,13 @@ function findTwitterCardOriginalDestination(message) {
   //console.log(parentCard);    // for debugging
   var originalDestination;
   if (parentCard.querySelector("a.twitter-timeline-link.u-hidden")) {    // in case a hidden link is found
-    originalDestination = parentCard.querySelector("a.twitter-timeline-link.u-hidden").getAttribute("data-original-url") ||    // if revealLinks() was already called
-                          parentCard.querySelector("a.twitter-timeline-link.u-hidden").getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
+    originalDestination = parentCard.querySelector("a.twitter-timeline-link.u-hidden").getAttribute("data-original-url") ||    // if TLD.revealLinks() was already called
+                          parentCard.querySelector("a.twitter-timeline-link.u-hidden").getAttribute("data-expanded-url");    // if TLD.revealLinks() wasn't already called
   } else if (parentCard.querySelector("a.twitter-timeline-link")) {    // if a hidden link was not found, but a visible one exists...
     let links = parentCard.querySelectorAll("a.twitter-timeline-link");
     //console.log(links);    // for debugging
-    originalDestination = links[links.length - 1].getAttribute("data-original-url") ||    // if revealLinks() was already called
-                          links[links.length - 1].getAttribute("data-expanded-url");    // if revealLinks() wasn't already called
+    originalDestination = links[links.length - 1].getAttribute("data-original-url") ||    // if TLD.revealLinks() was already called
+                          links[links.length - 1].getAttribute("data-expanded-url");    // if TLD.revealLinks() wasn't already called
   }/* else {    // if no link was found...
     console.log("No links found for this iframe:");    // for debugging
     console.log(iframe);    // for debugging
@@ -138,17 +138,17 @@ function findTwitterCardOriginalDestination(message) {
 
   if (originalDestination !== undefined && originalDestination !== null) {    // if a link was found...
     //console.log("Original destination: " + originalDestination);    // for debugging
-    notifyBackgroundScript({to: "restoreTwitterCardOriginalDestination()",
+    TLD.notifyBackgroundScript({to: "TLD.restoreTwitterCardOriginalDestination()",
       iframeLocationHref: message.iframeLocationHref,
       originalDestination: originalDestination});
   }
-}
+};
 
 
 /**
  * A function that receives the link's original destination from the background
  * script and uses it to clean the link inside the iframe then sends a message
- * to increaseBadgeNumber() to update the badge number
+ * to TLD.increaseBadgeNumber() to update the badge number
  * @function restoreTwitterCardOriginalDestination
  * @param {object} message - The message received from the background script
  * @param {string} message.to - The name of the function the message is intended for
@@ -157,7 +157,7 @@ function findTwitterCardOriginalDestination(message) {
  * @param {string} message.originalDestination - The original destination,
  * which is used to update the href attribute of the link
  */
-function restoreTwitterCardOriginalDestination(message) {
+TLD.restoreTwitterCardOriginalDestination = function(message) {
   //console.log("Message from the background script:");    // for debugging
   //console.log(message);    // for debugging
   //console.log(`to: ${message.to}`);    // for debugging
@@ -169,19 +169,19 @@ function restoreTwitterCardOriginalDestination(message) {
     iframeAnchor.setAttribute("data-shortened-url", iframeAnchor.getAttribute("href"));
     iframeAnchor.setAttribute("href", message.originalDestination);
     //console.log("Updated anchor href: " + iframeAnchor.getAttribute("href"));    // for debugging
-    browser.runtime.onMessage.removeListener(listenForMessages);    // stop listening for messages from the background script, now that the link has been cleaned
-    notifyBackgroundScript({to: "increaseBadgeNumber()"});    // send a message to increaseBadgeNumber() through the background script
+    browser.runtime.onMessage.removeListener(TLD.listenForMessages);    // stop listening for messages from the background script, now that the link has been cleaned
+    TLD.notifyBackgroundScript({to: "TLD.increaseBadgeNumber()"});    // send a message to TLD.increaseBadgeNumber() through the background script
   } else {
     console.error("The link inside the iframe could not be found");    // for debugging
   }
-}
+};
 
 
 /**
  * A function that listens for added tweets and cleans the links inside them
  * @function listenForTweets
  */
-function listenForTweets() {
+TLD.listenForTweets = function() {
   if (document.querySelector("#timeline #stream-items-id")) {
     var tweets = document.querySelector("#timeline #stream-items-id");
   } else {
@@ -190,7 +190,7 @@ function listenForTweets() {
   }
   //console.log(tweets);    // for debugging
 
-  revealLinks();
+  TLD.revealLinks();
 
   const tweetsObserver = new MutationObserver(function() {
   /*const tweetsObserver = new MutationObserver(function(mutations) {
@@ -199,44 +199,44 @@ function listenForTweets() {
       console.log(mutation.target);    // prints Object {  }/<unavailable> to the web/browser console
     });*/    // for debugging
     //console.log("New tweets were added.");    // for debugging
-    revealLinks();
+    TLD.revealLinks();
   });
   const tweetsObserverConfig = {childList: true, subtree: false};
   tweetsObserver.observe(tweets, tweetsObserverConfig);    // because new <li> elements are added to tweets every time the bottom of the page is reached
-}
+};
 
 
 /**
  * A function that listens for added replies and cleans the links inside them
  * @function listenForReplies
  */
-function listenForReplies() {
+TLD.listenForReplies = function() {
   if (document.querySelector("#permalink-overlay .permalink .permalink-replies #stream-items-id")) {
     const replies = document.querySelector("#permalink-overlay .permalink .permalink-replies #stream-items-id");
 
-    revealLinks();    // call revealLinks() right now
+    TLD.revealLinks();    // call TLD.revealLinks() right now
 
     /**
-     * Call revealLinks() every time new replies are added
+     * Call TLD.revealLinks() every time new replies are added
      */
     //console.log(replies);    // for debugging
     const repliesObserver = new MutationObserver(function() {
       //console.log("New replies were added.");    // for debugging
-      revealLinks();
+      TLD.revealLinks();
     });
     const repliesObserverConfig = {childList: true, subtree: false};
     repliesObserver.observe(replies, repliesObserverConfig);    // because new <li> elements are added to replies every time the bottom of the page is reached
   } else {
     //console.error("No tweet seems to be singled out right now.");    // for debugging
   }
-}
+};
 
 
 /**
  * A function that cleans the "Website" link, if there is one
  * @function cleanWebsiteLink
  */
-function cleanWebsiteLink() {
+TLD.cleanWebsiteLink = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
       //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
@@ -247,7 +247,7 @@ function cleanWebsiteLink() {
           websiteLink.setAttribute("data-shortened-url", websiteLink.href);
           websiteLink.href = websiteLink.title;
           //console.log(websiteLink);    // for debugging
-          increaseBadgeNumber();    // increase the number shown on top of the icon
+          TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
         } else {
           console.error("The \"Website\" link was not found");    // for debugging
         }
@@ -256,7 +256,7 @@ function cleanWebsiteLink() {
     .catch(() => {
       console.error("Error retrieving stored settings");
     });
-}
+};
 
 
 /**
@@ -266,7 +266,7 @@ function cleanWebsiteLink() {
  * replies. It should be the type of element returned by getElementById() or
  * querySelector() or similar methods
  */
-function revealReactLinks(container) {
+TLD.revealReactLinks = function(container) {
   //console.log(container);    // for debugging
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
@@ -285,7 +285,7 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
             link.setAttribute("data-shortened-url", link.href);
             link.href = link.title;
             //console.log(link);    // for debugging
-            increaseBadgeNumber();    // increase the number shown on top of the icon
+            TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
           }
         }
       }
@@ -293,7 +293,7 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
     .catch(() => {
       console.error("Error retrieving stored settings");
     });
-}
+};
 
 
 /**
@@ -301,7 +301,7 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
  * "Website" link, on pages built with React, if there are any
  * @function cleanReactWebsiteLink
  */
-function cleanReactWebsiteLink() {
+TLD.cleanReactWebsiteLink = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
       //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
@@ -318,7 +318,7 @@ function cleanReactWebsiteLink() {
             link.setAttribute("data-shortened-url", link.href);
             link.href = link.title;
             //console.log(link);    // for debugging
-            increaseBadgeNumber();    // increase the number shown on top of the icon
+            TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
           }
         }
         links = userProfileHeader.querySelectorAll("a");
@@ -328,14 +328,14 @@ function cleanReactWebsiteLink() {
           link.setAttribute("data-shortened-url", link.href);
           link.href = "http://" + link.text;
           //console.log(link);    // for debugging
-          increaseBadgeNumber();    // increase the number shown on top of the icon
+          TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
         }
       }
     })
     .catch(() => {
       console.error("Error retrieving stored settings");
     });
-}
+};
 
 
 /**
@@ -346,28 +346,28 @@ function cleanReactWebsiteLink() {
  * replies. It should be the type of element returned by getElementById() or
  * querySelector() or similar methods
  */
-function listenForReactTweetsAndReplies(container) {
+TLD.listenForReactTweetsAndReplies = function(container) {
   //console.log(container);    // for debugging
 
-  revealReactLinks(container);
+  TLD.revealReactLinks(container);
 
   /**
-   * Call revealReactLinks() every time new tweets or replies are added
+   * Call TLD.revealReactLinks() every time new tweets or replies are added
    */
   const containerObserver = new MutationObserver(function() {
     //console.log("containerObserver");    // for debugging
-    revealReactLinks(container);
+    TLD.revealReactLinks(container);
   });
   const containerObserverConfig = {childList: true, subtree: false};
   containerObserver.observe(container, containerObserverConfig);
-}
+};
 
 
 /**
  * A function that detects what type of page was opened
  * @function detectPage
  */
-function detectPage() {
+TLD.detectPage = function() {
   //console.log(window.location);    // for debugging
   let locationPathname = window.location.pathname;
   //console.log(locationPathname);    // for debugging
@@ -402,14 +402,14 @@ function detectPage() {
       return "unknown";
     }
   }
-}
+};
 
 
 /**
  * A function that finds the Timeline on React pages
  * @function findReactTimeline
  */
-function findReactTimeline() {
+TLD.findReactTimeline = function() {
   if (document.body.querySelector("#react-root main div[data-testid=\"primaryColumn\"] section > div[aria-label]")) {
     let timeline = document.body.querySelector("#react-root main div[data-testid=\"primaryColumn\"] section > div[aria-label]");
     //console.log(timeline);    // for debugging
@@ -418,7 +418,7 @@ function findReactTimeline() {
     //console.log("The Timeline was not found");    // for debugging
     return null;
   }
-}
+};
 
 
 /**
@@ -426,16 +426,16 @@ function findReactTimeline() {
  * badge number shown on top of the icon
  * @function increaseBadgeNumber
  */
-function increaseBadgeNumber() {
-  //console.log(`increaseBadgeNumber() running from this window: ${window.location.href}`);    // for debugging
+TLD.increaseBadgeNumber = function() {
+  //console.log(`TLD.increaseBadgeNumber() running from this window: ${window.location.href}`);    // for debugging
   if (cleanedLinks === undefined || cleanedLinks === null || cleanedLinks < 1) {
     cleanedLinks = 1;
   } else {
     cleanedLinks += 1;
   }
   //console.log("cleanedLinks: " + cleanedLinks);    // for debugging
-  notifyBackgroundScript({setBadge: (cleanedLinks).toString()});    // send a message to the background script to update the badge number
-}
+  TLD.notifyBackgroundScript({setBadge: (cleanedLinks).toString()});    // send a message to the background script to update the badge number
+};
 
 
 /**
@@ -444,25 +444,25 @@ function increaseBadgeNumber() {
  * @param {object} message - The message received from the background script
  * @param {string} message.to - The name of the function the message is intended for
  */
-function listenForMessages(message) {
-  //console.log(`listenForMessages() running from this window: ${window.location.href}`);    // for debugging
+TLD.listenForMessages = function(message) {
+  //console.log(`TLD.listenForMessages() running from this window: ${window.location.href}`);    // for debugging
   //console.log("Message from the background script:");    // for debugging
   //console.log(message);    // for debugging
   //console.log(`to: ${message.to}`);    // for debugging
 
   if (window === window.top) {    // call the following functions only from the top document
-    if (message.to === "findTwitterCardOriginalDestination()") {
-      findTwitterCardOriginalDestination(message);
-    } else if (message.to === "increaseBadgeNumber()") {
-      increaseBadgeNumber();
+    if (message.to === "TLD.findTwitterCardOriginalDestination()") {
+      TLD.findTwitterCardOriginalDestination(message);
+    } else if (message.to === "TLD.increaseBadgeNumber()") {
+      TLD.increaseBadgeNumber();
     }
-  } else {    // call restoreTwitterCardOriginalDestination only from an iframe
-    if (message.to === "restoreTwitterCardOriginalDestination()" &&
+  } else {    // call TLD.restoreTwitterCardOriginalDestination only from an iframe
+    if (message.to === "TLD.restoreTwitterCardOriginalDestination()" &&
       message.iframeLocationHref === window.location.href) {    // call it only from the iframe with the URL specified in the message
-      restoreTwitterCardOriginalDestination(message);
+      TLD.restoreTwitterCardOriginalDestination(message);
     }
   }
-}
+};
 
 
 
@@ -478,7 +478,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
      * gets called every time an iframe sends a message to the top document
      * and when the top document sends a message to an iframe.
      */
-    browser.runtime.onMessage.addListener(listenForMessages);    // listen for messages from the background script and pass them to listenForMessages()
+    browser.runtime.onMessage.addListener(TLD.listenForMessages);    // listen for messages from the background script and pass them to TLD.listenForMessages()
 
     // For debugging: print details about the Twitter Cards, the iframe parents and iframes
     /*let cards = document.querySelectorAll(".cards-forward");
@@ -499,7 +499,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
       }
     }*/    // for debugging
 
-    cleanWebsiteLink();    // clean the "Website" link
+    TLD.cleanWebsiteLink();    // clean the "Website" link
     var windowHref = window.location.href;    // declare a variable that will hold the URL of the last cleaned page
     //console.log(windowHref);    // for debugging
 
@@ -507,9 +507,9 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
      * Clean the links every time new tweets and replies are added
      */
     if (document.querySelector("#timeline")) {
-      listenForTweets();
+      TLD.listenForTweets();
     } else if (document.querySelector("#permalink-overlay .permalink")) {
-      listenForReplies();
+      TLD.listenForReplies();
     }
 
     /**
@@ -521,7 +521,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     } else {
       console.error("The tweet container was not found");    // for debugging
     }
-    const repliesContainerObserver = new MutationObserver(listenForReplies);
+    const repliesContainerObserver = new MutationObserver(TLD.listenForReplies);
     const repliesContainerObserverConfig = {childList: true, subtree: false};
     repliesContainerObserver.observe(repliesContainer, repliesContainerObserverConfig);    // because a new <div> element is added to repliesContainer when a tweet is singled out or it was opened directly
 
@@ -539,7 +539,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
       //console.log("The page container was modified!");    // for debugging
       if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
         if (! pageContainer.classList.contains("wrapper-permalink")) {
-          cleanWebsiteLink();    // clean the "Website" link
+          TLD.cleanWebsiteLink();    // clean the "Website" link
           windowHref = window.location.href;    // store the URL of this page which was just cleaned
           //console.log(windowHref);    // for debugging
         }
@@ -557,7 +557,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
       //console.log("Page container class list: " + document.querySelector("#page-container").classList);    // for debugging
       if (pageContainer.querySelector("#timeline").querySelector("a[data-expanded-url]")) {
         //console.log("Shortened URL detected. It will be cleaned immediately.");    // for debugging
-        listenForTweets();
+        TLD.listenForTweets();
       }
     });
     const pageObserverConfig = {attributes: true};
@@ -570,15 +570,15 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
        * gets called every time an iframe sends a message to the top document
        * and when the top document sends a message to an iframe.
        */
-      browser.runtime.onMessage.addListener(listenForMessages);    // listen for messages from the background script and pass them to listenForMessages()
+      browser.runtime.onMessage.addListener(TLD.listenForMessages);    // listen for messages from the background script and pass them to TLD.listenForMessages()
 
       //console.log("This message is coming from an iframe.");    // for debugging
       //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
-      browser.storage.local.get()    // call notifyBackgroundScript() if the add-on is enabled
+      browser.storage.local.get()    // call TLD.notifyBackgroundScript() if the add-on is enabled
         .then((storedSettings) => {
           //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
           if (storedSettings.enabled === true) {
-            notifyBackgroundScript({to: "findTwitterCardOriginalDestination()",
+            TLD.notifyBackgroundScript({to: "TLD.findTwitterCardOriginalDestination()",
               iframeLocationHref: window.location.href});
           }
         })
@@ -598,7 +598,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
       //console.log(mainElement);    // for debugging
       const mainObserver = new MutationObserver(function() {
         //console.log("mainObserver");    // for debugging
-        if (findReactTimeline()) {
+        if (TLD.findReactTimeline()) {
           //console.log("The Timeline was found.");    // for debugging
           bodyObserver.disconnect();
           mainObserver.disconnect();
@@ -607,14 +607,14 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
            * Clean the tweets or replies on the page which was opened initially
            */
           var windowHref;    // declare a variable that will hold the URL of the last cleaned page
-          switch (detectPage()) {    // check what type of page was opened
+          switch (TLD.detectPage()) {    // check what type of page was opened
           case "profile":    // if a profile page was opened...
-            cleanReactWebsiteLink();
+            TLD.cleanReactWebsiteLink();
             // fall-through (no break statement)
           case "tweet":    // if a page with a tweet was opened...
           case "home":    // if the home page was opened...
           case "explore":    // if the "Explore" page was opened...
-            listenForReactTweetsAndReplies(findReactTimeline()
+            TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
               .querySelector("div > div > div"));    // find and clean the element with tweets or replies
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
             break;
@@ -631,15 +631,15 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
             //console.log("mainObserver2");    // for debugging
             //console.log(windowHref);    // for debugging
             if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
-              if (findReactTimeline()) {
-                switch (detectPage()) {    // check what type of page was opened
+              if (TLD.findReactTimeline()) {
+                switch (TLD.detectPage()) {    // check what type of page was opened
                 case "profile":    // if a profile page was opened...
-                  cleanReactWebsiteLink();
+                  TLD.cleanReactWebsiteLink();
                   // fall-through (no break statement)
                 case "tweet":    // if a page with a tweet was opened...
                 case "home":    // if the home page was opened...
                 case "explore":    // if the "Explore" page was opened...
-                  listenForReactTweetsAndReplies(findReactTimeline()
+                  TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
                     .querySelector("div > div > div"));    // find and clean the element with tweets or replies
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                   break;
