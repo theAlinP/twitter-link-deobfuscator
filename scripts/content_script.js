@@ -11,7 +11,8 @@ var TLD = TLD || {};
 
 /**
  * A function that reveals the original values of the "href" attributes
- * @function revealLinks
+ * @method revealLinks
+ * @memberof TLD
  */
 TLD.revealLinks = function() {
   browser.storage.local.get()    // check if the add-on is enabled
@@ -49,7 +50,8 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
 
 /**
  * A function that communicates with the background script {@link boolean}
- * @function notifyBackgroundScript
+ * @method notifyBackgroundScript
+ * @memberof TLD
  * @param {object} message - The message to be sent to the background script
  */
 TLD.notifyBackgroundScript = function(message) {
@@ -60,7 +62,8 @@ TLD.notifyBackgroundScript = function(message) {
 
 /**
  * A function that handles the responses coming from the background script
- * @function handleResponse
+ * @method handleResponse
+ * @memberof TLD
  * @param {object} message - The response received from the background script
  * after sending it a message from TLD.notifyBackgroundScript()
  * @param {string} message.response - The contents of the response
@@ -74,7 +77,8 @@ TLD.handleResponse = function() {};
 
 /**
  * A function that handles any messaging errors
- * @function handleError
+ * @method handleError
+ * @memberof TLD
  * @param {object} error - An object as defined by the browser
  */
 TLD.handleError = function(error) {
@@ -87,7 +91,8 @@ TLD.handleError = function(error) {
  * A function that receives the value of the iframe window's href attribute
  * from the background script then searches for the original
  * destination and sends it to the background script
- * @function findTwitterCardOriginalDestination
+ * @method findTwitterCardOriginalDestination
+ * @memberof TLD
  * @param {object} message - The message received from the background script
  * @param {string} message.to - The name of the function the message is intended for
  * @param {string} message.iframeLocationHref - The location of the iframe from
@@ -149,7 +154,8 @@ TLD.findTwitterCardOriginalDestination = function(message) {
  * A function that receives the link's original destination from the background
  * script and uses it to clean the link inside the iframe then sends a message
  * to TLD.increaseBadgeNumber() to update the badge number
- * @function restoreTwitterCardOriginalDestination
+ * @method restoreTwitterCardOriginalDestination
+ * @memberof TLD
  * @param {object} message - The message received from the background script
  * @param {string} message.to - The name of the function the message is intended for
  * @param {string} message.iframeLocationHref - The location of the iframe from
@@ -179,7 +185,8 @@ TLD.restoreTwitterCardOriginalDestination = function(message) {
 
 /**
  * A function that listens for added tweets and cleans the links inside them
- * @function listenForTweets
+ * @method listenForTweets
+ * @memberof TLD
  */
 TLD.listenForTweets = function() {
   if (document.querySelector("#timeline #stream-items-id")) {
@@ -208,7 +215,8 @@ TLD.listenForTweets = function() {
 
 /**
  * A function that listens for added replies and cleans the links inside them
- * @function listenForReplies
+ * @method listenForReplies
+ * @memberof TLD
  */
 TLD.listenForReplies = function() {
   if (document.querySelector("#permalink-overlay .permalink .permalink-replies #stream-items-id")) {
@@ -234,7 +242,8 @@ TLD.listenForReplies = function() {
 
 /**
  * A function that cleans the "Website" link, if there is one
- * @function cleanWebsiteLink
+ * @method cleanWebsiteLink
+ * @memberof TLD
  */
 TLD.cleanWebsiteLink = function() {
   browser.storage.local.get()    // check if the add-on is enabled
@@ -261,7 +270,8 @@ TLD.cleanWebsiteLink = function() {
 
 /**
  * A function that reveals the original values of the "href" attributes on pages built with React
- * @function revealReactLinks
+ * @method revealReactLinks
+ * @memberof TLD
  * @param {HTMLDivElement} container - The element containing the tweets or
  * replies. It should be the type of element returned by getElementById() or
  * querySelector() or similar methods
@@ -299,7 +309,8 @@ ${index + 1}.title            :${link.title}`);*/    // for debugging
 /**
  * A function that cleans the links from the user description and the
  * "Website" link, on pages built with React, if there are any
- * @function cleanReactWebsiteLink
+ * @method cleanReactWebsiteLink
+ * @memberof TLD
  */
 TLD.cleanReactWebsiteLink = function() {
   browser.storage.local.get()    // check if the add-on is enabled
@@ -341,7 +352,8 @@ TLD.cleanReactWebsiteLink = function() {
 /**
  * A function that listens for added tweets or replies on pages built with React
  * then cleans the links inside them
- * @function listenForReactTweetsAndReplies
+ * @method listenForReactTweetsAndReplies
+ * @memberof TLD
  * @param {HTMLDivElement} container - The element containing the tweets or
  * replies. It should be the type of element returned by getElementById() or
  * querySelector() or similar methods
@@ -365,7 +377,8 @@ TLD.listenForReactTweetsAndReplies = function(container) {
 
 /**
  * A function that detects what type of page was opened
- * @function detectPage
+ * @method detectPage
+ * @memberof TLD
  */
 TLD.detectPage = function() {
   //console.log(window.location);    // for debugging
@@ -407,7 +420,8 @@ TLD.detectPage = function() {
 
 /**
  * A function that finds the Timeline on React pages
- * @function findReactTimeline
+ * @method findReactTimeline
+ * @memberof TLD
  */
 TLD.findReactTimeline = function() {
   if (document.body.querySelector("#react-root main div[data-testid=\"primaryColumn\"] section > div[aria-label]")) {
@@ -424,7 +438,8 @@ TLD.findReactTimeline = function() {
 /**
  * A function that sends a message to the background script to increase the
  * badge number shown on top of the icon
- * @function increaseBadgeNumber
+ * @method increaseBadgeNumber
+ * @memberof TLD
  */
 TLD.increaseBadgeNumber = function() {
   //console.log(`TLD.increaseBadgeNumber() running from this window: ${window.location.href}`);    // for debugging
@@ -440,7 +455,8 @@ TLD.increaseBadgeNumber = function() {
 
 /**
  * A function that listens for message from the background script and calls other functions
- * @function listenForMessages
+ * @method listenForMessages
+ * @memberof TLD
  * @param {object} message - The message received from the background script
  * @param {string} message.to - The name of the function the message is intended for
  */
