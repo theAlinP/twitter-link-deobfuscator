@@ -7,6 +7,16 @@
  */
 var TLD_background = TLD_background || {};
 
+/**
+ * Properties of the namespace TLD_background
+ * @property {object} config - The add-on settings
+ * @property {object} config.defaultAddonState - The default state of the add-on
+ * @property {boolean} config.defaultAddonState.enabled - This property determines
+ * whether the add-on will be enabled or not
+ * @property {object} config.badgeBackgroundColor - This property determines the
+ * background color of the badge text
+ * @memberof TLD_background
+ */
 TLD_background.config = TLD_background.config || {};
 TLD_background.config.defaultAddonState = TLD_background.config.defaultAddonState || {};
 TLD_background.config.defaultAddonState.enabled = true;    // default add-on state
