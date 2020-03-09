@@ -6,11 +6,15 @@
  * @namespace TLD_background
  */
 var TLD_background = TLD_background || {};
+
+TLD_background.config = TLD_background.config || {};
+TLD_background.config.defaultAddonState = TLD_background.config.defaultAddonState || {};
+TLD_background.config.defaultAddonState.enabled = true;    // default add-on state
+TLD_background.config.badgeBackgroundColor = TLD_background.config.badgeBackgroundColor || {"color": "green"};
 //console.log(TLD_background);    // for debugging
 
 
-let defaultAddonState = { enabled : true };    // default add-on state
-browser.browserAction.setBadgeBackgroundColor({"color": "green"});    // set the background of the badge text
+browser.browserAction.setBadgeBackgroundColor(TLD_background.config.badgeBackgroundColor);    // set the background color of the badge text
 
 
 /**
@@ -144,7 +148,7 @@ TLD_background.onMessageError = function(error) {
 browser.storage.local.get()    // get the current settings, then...
   .then((storedSettings) => {
     if (! storedSettings.enabled) {    // if there are no stored settings...
-      browser.storage.local.set(defaultAddonState);    // initialize the storage with the default values
+      browser.storage.local.set(TLD_background.config.defaultAddonState.enabled);    // initialize the storage with the default values
       //console.log ("The default value was stored.");    // for debugging
     }
   })
