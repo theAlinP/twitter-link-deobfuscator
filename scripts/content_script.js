@@ -443,13 +443,14 @@ TLD.findReactTimeline = function() {
  */
 TLD.increaseBadgeNumber = function() {
   //console.log(`TLD.increaseBadgeNumber() running from this window: ${window.location.href}`);    // for debugging
-  if (cleanedLinks === undefined || cleanedLinks === null || cleanedLinks < 1) {
-    cleanedLinks = 1;
+  if (TLD.config.cleanedLinks === undefined || TLD.config.cleanedLinks === null || TLD.config.cleanedLinks < 1) {
+    TLD.config.cleanedLinks = 1;
   } else {
-    cleanedLinks += 1;
+    TLD.config.cleanedLinks += 1;
   }
-  //console.log("cleanedLinks: " + cleanedLinks);    // for debugging
-  TLD.notifyBackgroundScript({setBadge: (cleanedLinks).toString()});    // send a message to the background script to update the badge number
+  //console.log("TLD.config.cleanedLinks: " + TLD.config.cleanedLinks);    // for debugging
+  TLD.notifyBackgroundScript({setBadge: (TLD.config.cleanedLinks).toString()});    // send a message to the background script to update the badge number
+  //console.log(TLD);    // for debugging
 };
 
 
@@ -482,8 +483,10 @@ TLD.listenForMessages = function(message) {
 
 
 
-if (window === window.top) {    // declare the variable cleanedLinks from the top window, on the first run on the page
-  var cleanedLinks;
+if (window === window.top) {    // add the property TLD.config.cleanedLinks to the namespace from the top window, on the first run on the page
+  TLD.config = TLD.config || {};
+  TLD.config.cleanedLinks;
+  //console.log(TLD);    // for debugging
 }
 if (! document.body.contains(document.body.querySelector("#react-root"))) {    // if the page is NOT built with React clean the links the old way
   if (window === window.top) {
