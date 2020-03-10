@@ -484,6 +484,12 @@ TLD.listenForMessages = function(message) {
 
 
 if (window === window.top) {    // add the property TLD.config.cleanedLinks to the namespace from the top window, on the first run on the page
+  /**
+   * Properties of the namespace TLD
+   * @property {object} config - The add-on settings
+   * @property {number} config.cleanedLinks - The number of links cleaned
+   * @memberof TLD
+   */
   TLD.config = TLD.config || {};
   TLD.config.cleanedLinks;
   //console.log(TLD);    // for debugging
