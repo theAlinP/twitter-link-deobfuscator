@@ -379,6 +379,8 @@ TLD.listenForReactTweetsAndReplies = function(container) {
  * A function that detects what type of page was opened
  * @method detectPage
  * @memberof TLD
+ * @returns {string} Returns the type of page detected, or "unknown"
+ * if TLD should not try to clean the page
  */
 TLD.detectPage = function() {
   //console.log(window.location);    // for debugging
@@ -422,6 +424,7 @@ TLD.detectPage = function() {
  * A function that finds the Timeline on React pages
  * @method findReactTimeline
  * @memberof TLD
+ * @returns {HTMLDivElement} Returns the Timeline, or "null" if was not found
  */
 TLD.findReactTimeline = function() {
   if (document.body.querySelector("#react-root main div[data-testid=\"primaryColumn\"] section > div[aria-label]")) {
