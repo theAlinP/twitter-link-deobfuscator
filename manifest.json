@@ -1,11 +1,12 @@
 {
   "manifest_version": 2,
-  "name": "Twitter Link Deobfuscator",
+  "name": "__MSG_extensionName__",
   "version": "0.9.0",
 
   "author": "Alin Pasol",
   "homepage_url": "https://github.com/theAlinP/twitter-link-deobfuscator",
-  "description": "Reveals the original destination of the links and Twitter Cards (see documentation) from tweets as well as from replies, but also the \"Website\" link and others, which are usually concealed using shortened URLs. The extension only activates while browsing twitter.com.",
+  "description": "__MSG_extensionDescription__",
+  "default_locale": "en",
   "content_scripts": [
     {
       "matches": [
@@ -25,7 +26,7 @@
       "96": "icons/TLD_icon_enabled-96.png",
       "128": "icons/TLD_icon_enabled-128.png"
     },
-    "default_title": "Twitter Link Deobfuscator - ENABLED"
+    "default_title": "__MSG_extensionName__ - ENABLED"
   },
   "icons": {
     "32": "icons/TLD_icon_enabled-32.png",
