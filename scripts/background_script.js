@@ -37,9 +37,9 @@ browser.browserAction.setBadgeBackgroundColor(TLD_background.config.badgeBackgro
 TLD_background.updateAddonTitle = function(state) {
   //console.log(state);    // for debugging
   state ?
-    browser.browserAction.setTitle({ title: "Twitter Link Deobfuscator - ENABLED"})
+    browser.browserAction.setTitle({ title: browser.i18n.getMessage("extensionName") + " - ENABLED"})
     :
-    browser.browserAction.setTitle({ title: "Twitter Link Deobfuscator - DISABLED"});
+    browser.browserAction.setTitle({ title: browser.i18n.getMessage("extensionName") + " - DISABLED"});
 };
 
 
