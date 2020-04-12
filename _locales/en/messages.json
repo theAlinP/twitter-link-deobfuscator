@@ -6,5 +6,13 @@
   "extensionDescription": {
     "message": "Reveals the original destinations of the links and Twitter Cards (see documentation) from tweets as well as from replies, but also the \"Website\" link and others, which are usually concealed using shortened URLs. The extension only activates while browsing twitter.com.",
     "description": "The description of the extension."
+  },
+  "enabledStateTitle": {
+    "message": "Twitter Link Deobfuscator - ENABLED",
+    "description": "The title shown while hovering over the extension's icon in the toolbar when is is enabled."
+  },
+  "disabledStateTitle": {
+    "message": "Twitter Link Deobfuscator - DISABLED",
+    "description": "The title shown while hovering over the extension's icon in the toolbar when is is disabled."
   }
 }
