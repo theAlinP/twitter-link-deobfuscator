@@ -26,7 +26,7 @@
       "96": "icons/TLD_icon_enabled-96.png",
       "128": "icons/TLD_icon_enabled-128.png"
     },
-    "default_title": "__MSG_extensionName__ - ENABLED"
+    "default_title": "__MSG_enabledStateTitle__"
   },
   "icons": {
     "32": "icons/TLD_icon_enabled-32.png",
