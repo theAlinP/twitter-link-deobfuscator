@@ -9,10 +9,10 @@
   },
   "enabledStateTitle": {
     "message": "Twitter Link Deobfuscator - ENABLED",
-    "description": "The title shown while hovering over the extension's icon in the toolbar when is is enabled."
+    "description": "The title shown while hovering the cursor over the extension's icon in the toolbar when is is enabled."
   },
   "disabledStateTitle": {
     "message": "Twitter Link Deobfuscator - DISABLED",
-    "description": "The title shown while hovering over the extension's icon in the toolbar when is is disabled."
+    "description": "The title shown while hovering the cursor over the extension's icon in the toolbar when is is disabled."
   }
 }
