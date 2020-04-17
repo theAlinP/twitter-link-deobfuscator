@@ -1,0 +1,18 @@
+{
+  "extensionName": {
+    "message": "Twitter Link Deobfuscator",
+    "description": "Le nom de l'extension."
+  },
+  "extensionDescription": {
+    "message": "Ça révèle les destinations originales de liens et Cartes Twitter (voir la documentation) de tweets ainsi que de réponses, mais aussi le lien «Site Web» et d'autres, qui sont généralement dissimulés à l'aide d'URLs raccourcies. L'extension ne s'active qu'en naviguant sur twitter.com.",
+    "description": "La description de l'extension."
+  },
+  "enabledStateTitle": {
+    "message": "Twitter Link Deobfuscator - ACTIVÉ",
+    "description": "Le titre affiché en planer le curseur au dessous de l'icône de l'extension dans la barre d'utils quand elle est activé."
+  },
+  "disabledStateTitle": {
+    "message": "Twitter Link Deobfuscator - DÉSACTIVÉ",
+    "description": "Le titre affiché en planer le curseur au dessous de l'icône de l'extension dans la barre d'utils quand elle est désactivé."
+  }
+}
