@@ -15,7 +15,7 @@ The add-on can be enabled and disabled by clicking its icon from the browser too
 
 Twitter Link Deobfuscator only needs the minimum amount of permissions. It does not collect, use, store nor share user data.
 
-Right now, only one translation, into Romanian, is available. It will be used automatically if the browser is configured to use the respective language for displaying menus, messages and notifications. Otherwise, it will default to English.
+Right now, only two translations, into Romanian and French, are available. They will be used automatically if the browser is configured to use any of the respective languages for displaying menus, messages and notifications. Otherwise, it will default to English.
 
 ## Installation
 The easiest and safest way would be to go to AMO (addons.mozilla.org) and install the stable [Twitter Link Deobfuscator](https://addons.mozilla.org/en-US/firefox/addon/twitter-link-deobfuscator/ "Twitter Link Deobfuscator") from there.
