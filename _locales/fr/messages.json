@@ -4,7 +4,7 @@
     "description": "Le nom de l'extension."
   },
   "extensionDescription": {
-    "message": "Ça révèle les destinations originales de liens et Cartes Twitter (voir la documentation) de tweets ainsi que de réponses, mais aussi le lien «Site Web» et d'autres, qui sont généralement dissimulés à l'aide d'URLs raccourcies. L'extension ne s'active qu'en naviguant sur twitter.com.",
+    "message": "Révèle les destinations originales des liens et des Cartes Twitter (voir la documentation de README.md) de tweets ainsi que de réponses, mais aussi le lien «Site Web» et d'autres, qui sont généralement cachés à l'aide des URL raccourcies. L'extension entre en action uniquement en naviguant sur twitter.com.",
     "description": "La description de l'extension."
   },
   "enabledStateTitle": {
