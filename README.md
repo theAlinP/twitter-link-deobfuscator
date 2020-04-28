@@ -1,17 +1,17 @@
 # Twitter Link Deobfuscator
 
-Reveals the original destinations of the links and [Twitter Cards](#disclaimer) from tweets as well as from replies, but also the "Website" link and others, which are usually concealed using shortened URLs.
+Reveals the original destinations of the links and of the Twitter Cards (see "[Disclaimer](#disclaimer)") from tweets as well as from replies, but also the "Website" link and others, which are usually concealed using shortened URLs.
 
 Okay, okay. I know that "deobfuscator" is not a real word, but it seems like the right word to describe what the add-on does. Plus, if "obfuscator" is a real one, then I think "deobfuscator" deserves some consideration, too.
 
 ## How it works
-The Twitter servers secretly conceal the hyperlinks' destinations with shortened [t.co](https://t.co "https://t.co") URLs. This add-on replaces the shortened URLs with the original ones then increases counter with the number of cleaned links and Twitter Cards overlapping the TLD icon.
+The Twitter servers secretly conceal the hyperlinks' destinations with shortened [t.co](https://t.co "https://t.co") URLs. This add-on replaces the shortened URLs with the original ones then increases the counter with the number of cleaned links and Twitter Cards overlapping the TLD icon.
 
 Please note that TLD will expand URLs from t.co to other shortened URLs, like bit.ly or mzl.la, if the user originally posted those shortened URLs, but it will not further expand the original shortened URLs to their final destinations.
 
-NOTE: This extension comes into action only on twitter.com and stays dormant when other websites are browsed.
+NOTE: This extension goes into action only while browsing twitter.com and stays dormant when other websites are browsed.
 
-The add-on can be enabled and disabled by clicking its icon from the browser toolbar. Once the add-on is installed and while it is enabled it will wait in the background for a page from twitter.com to be opened and only then it will go into action and scan the web page for any hyperlinks with shortened URLs and clean them.
+The add-on can be enabled and disabled by clicking its icon from the browser toolbar. Once the add-on is installed and while it is enabled, it will wait in the background for a page from twitter.com to be opened and only then it will go into action and scan the web page for any hyperlinks with shortened URLs and clean them.
 
 Twitter Link Deobfuscator only needs the minimum amount of permissions. It does not collect, use, store nor share user data.
 
@@ -35,7 +35,7 @@ I cannot guarantee that it will work on any of its other subdomains (about.twitt
 You can find detailed JSDoc comments in the source code that will help you understand how the add-on works. You can generate documentation from them using the [jsdoc](https://github.com/jsdoc/jsdoc/ "JSDoc") tool as described in the page linked earlier.
 
 ## Support
-In order to report bugs and ask for support please use [Twitter Link Deobfuscator](https://github.com/theAlinP/twitter-link-deobfuscator "Twitter Link Deobfuscator")'s GitHub page instead.
+In order to report bugs or ask for support please use [Twitter Link Deobfuscator](https://github.com/theAlinP/twitter-link-deobfuscator "Twitter Link Deobfuscator")'s GitHub page instead.
 
 ## License
 This software is licensed under the MIT License (MIT Expat License). The full text can be found in the file LICENSE.
