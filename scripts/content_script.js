@@ -628,6 +628,11 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
         //console.log("mainObserver");    // for debugging
         if (TLD.findReactTimeline()) {
           //console.log("The Timeline was found.");    // for debugging
+
+          if (TLD.findReactTimeline().querySelector("div").childElementCount <= 1) {
+            return;
+          }    // stop if no tweets or replies have been loaded yet
+
           bodyObserver.disconnect();
           mainObserver.disconnect();
 
