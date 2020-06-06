@@ -283,17 +283,17 @@ TLD.revealReactLinks = function(container) {
       //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
-        let links = container.querySelectorAll("a[title]");
+        let links = container.querySelectorAll("a.r-1n1174f");
         //console.log(links);    // for debugging
         for (let link of links) {
         //for (let [index, link] of links.entries()) {    // for debugging
-          if (link.href.startsWith("https://t.co")) {
-            /*console.log(link);    // for debugging
-            console.log(`
+          if (link.hostname === "t.co") {
+            //console.log(link);    // for debugging
+            /*console.log(`
 ${index + 1}.href             :${link.href}
-${index + 1}.title            :${link.title}`);*/    // for debugging
+${index + 1}.innerText        :${link.innerText}`);*/    // for debugging
             link.setAttribute("data-shortened-url", link.href);
-            link.href = link.title;
+            link.href = link.innerText;
             //console.log(link);    // for debugging
             TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
           }
@@ -321,13 +321,13 @@ TLD.cleanReactWebsiteLink = function() {
         //console.log(userDescription);    // for debugging
         let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
         //console.log(userProfileHeader);    // for debugging
-        let links = userDescription.querySelectorAll("a");
+        let links = userDescription.querySelectorAll("a.r-1n1174f");
         //console.log(links);    // for debugging
         for (let link of links) {
           //console.log(link);    // for debugging
-          if (link.title) {
+          if (link.hostname === "t.co") {
             link.setAttribute("data-shortened-url", link.href);
-            link.href = link.title;
+            link.href = link.innerText;
             //console.log(link);    // for debugging
             TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
           }
