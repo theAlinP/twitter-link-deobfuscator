@@ -287,7 +287,7 @@ TLD.revealReactLinks = function(container) {
         //console.log(links);    // for debugging
         for (let link of links) {
         //for (let [index, link] of links.entries()) {    // for debugging
-          if (link.hostname === "t.co") {
+          if (link.hostname === "t.co" && link.pathname !== "/") {
             //console.log(link);    // for debugging
             /*console.log(`
 ${index + 1}.href             :${link.href}
