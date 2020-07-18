@@ -35,7 +35,7 @@ I cannot guarantee that it will work on any of its other subdomains (about.twitt
 You can find detailed JSDoc comments in the source code that will help you understand how the add-on works. You can generate documentation from them using the [jsdoc](https://github.com/jsdoc/jsdoc/ "JSDoc") tool as described in the page linked earlier.
 
 ## Support
-In order to report bugs or ask for support please use [Twitter Link Deobfuscator](https://github.com/theAlinP/twitter-link-deobfuscator "Twitter Link Deobfuscator")'s GitHub page instead.
+In order to report bugs or ask for support please use Twitter Link Deobfuscator's [Issues](https://github.com/theAlinP/twitter-link-deobfuscator/issues "Issues") page instead.
 
 ## License
 This software is licensed under the MIT License (MIT Expat License). The full text can be found in the file LICENSE.
