@@ -158,7 +158,7 @@ TLD_background.onMessageError = function(error) {
 browser.storage.local.get()    // get the current settings, then...
   .then((storedSettings) => {
     if (! storedSettings.enabled) {    // if there are no stored settings...
-      browser.storage.local.set(TLD_background.config.defaultAddonState.enabled);    // initialize the storage with the default values
+      browser.storage.local.set(TLD_background.config.defaultAddonState);    // initialize the storage with the default values
       //console.log ("The default value was stored.");    // for debugging
     }
   })
