@@ -156,20 +156,19 @@ TLD_background.onMessageError = function(error) {
 
 
 browser.storage.local.set(TLD_background.config.defaultAddonState)    // initialize the storage with the default value
-  .catch(() => {
+  /*.then(() => {    // ...then log the stored value
+    console.log("The default value was stored.");    // for debugging
+    browser.storage.local.get()
+      .then((storedSettings) => {
+        console.log(`The initial value is: ${storedSettings.enabled}`);    // for debugging
+      })
+      .catch(() => {
+        console.error("Error retrieving stored settings");
+      });
+  })    // for debugging
+  */.catch(() => {
     console.error("Error storing the default value.");
   });
-//console.log ("The default value was stored.");    // for debugging
-
-
-// Log the stored value
-/*browser.storage.local.get()
-  .then((storedSettings) => {
-    console.log("The initial value is: " + storedSettings.enabled);
-  })
-  .catch(() => {
-    console.error("Error retrieving stored settings");
-  });*/    // for debugging
 
 
 /*browser.storage.onChanged.addListener((newSettings) => {    // log the new value everytime it changes
