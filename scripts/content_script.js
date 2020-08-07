@@ -636,9 +636,10 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
         if (TLD.findReactTimeline()) {
           //console.log("The Timeline was found.");    // for debugging
 
-          if (TLD.findReactTimeline().querySelector("div").childElementCount <= 1) {
+          if (TLD.findReactTimeline().querySelector("div[style*='min-height']")
+            .childElementCount <= 1) {
             return;
-          }    // stop if no tweets or replies have been loaded yet
+          }    // stop if the container whose "style" attribute contains the string "min-height" has only 1 child
 
           bodyObserver.disconnect();
           mainObserver.disconnect();
@@ -655,7 +656,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           case "home":    // if the home page was opened...
           case "explore":    // if the "Explore" page was opened...
             TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
-              .querySelector("div"));    // find and clean the element with tweets or replies
+              .querySelector("div[style*='min-height']"));    // find the container with tweets or replies and clean them
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
             break;
           case "unknown":    // if a unknown page was opened...
@@ -680,7 +681,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
                 case "home":    // if the home page was opened...
                 case "explore":    // if the "Explore" page was opened...
                   TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
-                    .querySelector("div"));    // find and clean the element with tweets or replies
+                    .querySelector("div[style*='min-height']"));    // find the container with tweets or replies and clean them
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                   break;
                 case "unknown":    // if a unknown page was opened...
