@@ -636,7 +636,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
         if (TLD.findReactTimeline()) {
           //console.log("The Timeline was found.");    // for debugging
 
-          if (TLD.findReactTimeline().querySelector("div").querySelector("div").childElementCount <= 1) {
+          if (TLD.findReactTimeline().querySelector("div").childElementCount <= 1) {
             return;
           }    // stop if no tweets or replies have been loaded yet
 
@@ -655,7 +655,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           case "home":    // if the home page was opened...
           case "explore":    // if the "Explore" page was opened...
             TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
-              .querySelector("div").querySelector("div"));    // find and clean the element with tweets or replies
+              .querySelector("div"));    // find and clean the element with tweets or replies
             windowHref = window.location.href;    // store the URL of this page which was just cleaned
             break;
           case "unknown":    // if a unknown page was opened...
@@ -680,7 +680,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
                 case "home":    // if the home page was opened...
                 case "explore":    // if the "Explore" page was opened...
                   TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
-                    .querySelector("div").querySelector("div"));    // find and clean the element with tweets or replies
+                    .querySelector("div"));    // find and clean the element with tweets or replies
                   windowHref = window.location.href;    // store the URL of this page which was just cleaned
                   break;
                 case "unknown":    // if a unknown page was opened...
