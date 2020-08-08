@@ -639,7 +639,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           if (TLD.findReactTimeline().querySelector("div[style*='min-height']")
             .childElementCount <= 1) {
             return;
-          }    // stop if the container whose "style" attribute contains the string "min-height" has only 1 child
+          }    // stop if the container whose "style" attribute value containing the string "min-height" has only 1 child
 
           bodyObserver.disconnect();
           mainObserver.disconnect();
