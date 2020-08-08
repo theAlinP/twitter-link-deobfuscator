@@ -283,24 +283,17 @@ TLD.revealReactLinks = function(container) {
       //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
-        let links = container.querySelectorAll("a.r-1n1174f");
+        let links = container.querySelectorAll("a[title]");
         //console.log(links);    // for debugging
         for (let link of links) {
         //for (let [index, link] of links.entries()) {    // for debugging
           if (link.hostname === "t.co" && link.pathname !== "/") {
             //console.log(link);    // for debugging
             /*console.log(`
-${index + 1}.href             :${link.href}
-${index + 1}.innerText        :${link.innerText}`);*/    // for debugging
+${index + 1}.href:             ${link.href}
+${index + 1}.title:            ${link.title};*/    // for debugging
             link.setAttribute("data-shortened-url", link.href);
-            if (link.lastElementChild.innerText === "…") {
-              let badURL = link.innerText;
-              //let goodURL = badURL.substring(0, badURL.length - 1);
-              let goodURL = badURL.slice(0, -1);
-              link.href = goodURL;
-            } else {
-              link.href = link.innerText;
-            }
+            link.href = link.title;
             //console.log(link);    // for debugging
             TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
           }
@@ -328,7 +321,7 @@ TLD.cleanReactWebsiteLink = function() {
         //console.log(userDescription);    // for debugging
         let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
         //console.log(userProfileHeader);    // for debugging
-        let links = userDescription.querySelectorAll("a.r-1n1174f");
+        let links = userDescription.querySelectorAll("a[title]");
         //console.log(links);    // for debugging
         for (let link of links) {
           //console.log(link);    // for debugging
