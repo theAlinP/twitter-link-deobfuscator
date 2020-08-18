@@ -20,7 +20,7 @@ var TLD_background = TLD_background || {};
 TLD_background.config = TLD_background.config || {};
 TLD_background.config.defaultAddonState = TLD_background.config.defaultAddonState || {};
 TLD_background.config.defaultAddonState.enabled = true;    // default add-on state
-TLD_background.config.badgeBackgroundColor = TLD_background.config.badgeBackgroundColor || {"color": "green"};
+TLD_background.config.badgeBackgroundColor = TLD_background.config.badgeBackgroundColor || {color: "green"};
 //console.log(TLD_background);    // for debugging
 
 
