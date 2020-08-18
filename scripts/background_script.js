@@ -24,9 +24,6 @@ TLD_background.config.badgeBackgroundColor = TLD_background.config.badgeBackgrou
 //console.log(TLD_background);    // for debugging
 
 
-browser.browserAction.setBadgeBackgroundColor(TLD_background.config.badgeBackgroundColor);    // set the background color of the badge text
-
-
 /**
  * A function that changes the add-on's title
  * @method updateAddonTitle
@@ -155,6 +152,13 @@ TLD_background.onMessageError = function(error) {
 
 
 
+/**
+ * Initialize the add-on
+ */
+// Set the background color of the badge text
+browser.browserAction.setBadgeBackgroundColor(TLD_background.config.badgeBackgroundColor);
+
+// Set the initial add-on state
 browser.storage.local.set(TLD_background.config.defaultAddonState)    // initialize the storage with the default value
   /*.then(() => {    // ...then log the stored value
     console.log("The default value was stored.");    // for debugging
