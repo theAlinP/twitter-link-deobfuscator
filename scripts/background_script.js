@@ -80,17 +80,17 @@ TLD_background.toggleStatus = function() {
   browser.storage.local.get()
     .then((storedSettings) => {
       if (storedSettings.enabled === true) {
-        //console.log("Old value: " + storedSettings.enabled);    // for debugging
+        //console.log(`Old value: ${storedSettings.enabled}`);    // for debugging
         browser.storage.local.set({ enabled : false });
         //console.log("The addon has been disabled.");    // for debugging
       } else {
-        //console.log("Old value: " + storedSettings.enabled);    // for debugging
+        //console.log(`Old value: ${storedSettings.enabled}`);    // for debugging
         browser.storage.local.set({ enabled : true });
         //console.log("The addon has been enabled.");    // for debugging
       }
       browser.storage.local.get()
         .then((storedSettings) => {
-          //console.log("New value: " + storedSettings.enabled);    // for debugging
+          //console.log(`New value: ${storedSettings.enabled}`);    // for debugging
           TLD_background.updateAddonTitle (storedSettings.enabled);
           TLD_background.updateAddonIcon (storedSettings.enabled);
         })
@@ -172,7 +172,7 @@ browser.storage.local.set(TLD_background.config.defaultAddonState)    // initial
 
 
 /*browser.storage.onChanged.addListener((newSettings) => {    // log the new value everytime it changes
-  browser.tabs.query({}).then(console.log("The value was changed to " + newSettings.enabled.newValue));
+  browser.tabs.query({}).then(console.log(`The value was changed to ${newSettings.enabled.newValue}`));
 });*/    // for debugging
 browser.browserAction.onClicked.addListener(TLD_background.toggleStatus);
 

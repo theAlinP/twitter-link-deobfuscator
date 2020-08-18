@@ -17,7 +17,7 @@ var TLD = TLD || {};
 TLD.revealLinks = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
-      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      //console.log(`The addon state is: ${storedSettings.enabled}`);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         let links = document.querySelectorAll("a[data-expanded-url]");
         //console.log(links);    // for debugging
@@ -142,7 +142,7 @@ TLD.findTwitterCardOriginalDestination = function(message) {
   }*/    // for debugging
 
   if (originalDestination !== undefined && originalDestination !== null) {    // if a link was found...
-    //console.log("Original destination: " + originalDestination);    // for debugging
+    //console.log(`Original destination: ${originalDestination}`);    // for debugging
     TLD.notifyBackgroundScript({to: "TLD.restoreTwitterCardOriginalDestination()",
       iframeLocationHref: message.iframeLocationHref,
       originalDestination: originalDestination});
@@ -171,10 +171,10 @@ TLD.restoreTwitterCardOriginalDestination = function(message) {
 
   if (document.querySelector("a.TwitterCard-container--clickable")) {
     let iframeAnchor = document.querySelector("a.TwitterCard-container--clickable");
-    //console.log("Iframe anchor: " + iframeAnchor);    // for debugging
+    //console.log(`Iframe anchor: ${iframeAnchor}`);    // for debugging
     iframeAnchor.setAttribute("data-shortened-url", iframeAnchor.getAttribute("href"));
     iframeAnchor.setAttribute("href", message.originalDestination);
-    //console.log("Updated anchor href: " + iframeAnchor.getAttribute("href"));    // for debugging
+    //console.log(`Updated anchor href: ${iframeAnchor.getAttribute("href")}`);    // for debugging
     browser.runtime.onMessage.removeListener(TLD.listenForMessages);    // stop listening for messages from the background script, now that the link has been cleaned
     TLD.notifyBackgroundScript({to: "TLD.increaseBadgeNumber()"});    // send a message to TLD.increaseBadgeNumber() through the background script
   } else {
@@ -248,7 +248,7 @@ TLD.listenForReplies = function() {
 TLD.cleanWebsiteLink = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
-      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      //console.log(`The addon state is: ${storedSettings.enabled}`);    // for debugging
       if (storedSettings.enabled === true) {    // clean the link only if the add-on is enabled
         if (document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url a")) {
           let websiteLink = document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url a");
@@ -280,7 +280,7 @@ TLD.revealReactLinks = function(container) {
   //console.log(container);    // for debugging
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
-      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      //console.log(`The addon state is: ${storedSettings.enabled}`);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
         let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
@@ -325,7 +325,7 @@ ${index + 1}.innerText:        ${link.innerText}`);*/    // for debugging
 TLD.cleanReactWebsiteLink = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
-      //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+      //console.log(`The addon state is: ${storedSettings.enabled}`);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
         //console.log(userDescription);    // for debugging
@@ -350,7 +350,7 @@ TLD.cleanReactWebsiteLink = function() {
         for (let link of links) {
           //console.log(link);    // for debugging
           link.setAttribute("data-shortened-url", link.href);
-          link.href = "http://" + link.text;
+          link.href = `http://${link.text}`;
           //console.log(link);    // for debugging
           TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
         }
@@ -464,7 +464,7 @@ TLD.increaseBadgeNumber = function() {
   } else {
     TLD.config.cleanedLinks += 1;
   }
-  //console.log("TLD.config.cleanedLinks: " + TLD.config.cleanedLinks);    // for debugging
+  //console.log(`TLD.config.cleanedLinks: ${TLD.config.cleanedLinks}`);    // for debugging
   TLD.notifyBackgroundScript({setBadge: (TLD.config.cleanedLinks).toString()});    // send a message to the background script to update the badge number
   //console.log(TLD);    // for debugging
 };
@@ -523,13 +523,13 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
 
     // For debugging: print details about the Twitter Cards, the iframe parents and iframes
     /*let cards = document.querySelectorAll(".cards-forward");
-    console.log("Number of cards: " + cards.length);
+    console.log(`Number of cards: ${cards.length}`);
     for (let card of cards) {
       card.style.border = "1px solid rgb(255, 0, 0)";
       let originalDestination = card.querySelector("a.twitter-timeline-link").getAttribute("data-original-url");
       console.log(`Original destination: : ${originalDestination}`);
       let iframeParents = card.querySelectorAll(".js-macaw-cards-iframe-container");    // select the iframes' parents
-      console.log("Number of parents: " + iframeParents.length);
+      console.log(`Number of parents: ${iframeParents.length}`);
       for (let iframeParent of iframeParents) {
         iframeParent.style.border = "1px solid rgb(0, 255, 0)";
         if (iframeParent.contains(iframeParent.querySelector("iframe"))) {
@@ -595,7 +595,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
      */
     const pageObserver = new MutationObserver(function() {
       //console.log("The page container's attributes were modified.");    // for debugging
-      //console.log("Page container class list: " + document.querySelector("#page-container").classList);    // for debugging
+      //console.log(`Page container class list: ${document.querySelector("#page-container").classList}`);    // for debugging
       if (pageContainer.querySelector("#timeline").querySelector("a[data-expanded-url]")) {
         //console.log("Shortened URL detected. It will be cleaned immediately.");    // for debugging
         TLD.listenForTweets();
@@ -617,7 +617,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
       //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
       browser.storage.local.get()    // call TLD.notifyBackgroundScript() if the add-on is enabled
         .then((storedSettings) => {
-          //console.log("The addon state is: " + storedSettings.enabled);    // for debugging
+          //console.log(`The addon state is: ${storedSettings.enabled}`);    // for debugging
           if (storedSettings.enabled === true) {
             TLD.notifyBackgroundScript({to: "TLD.findTwitterCardOriginalDestination()",
               iframeLocationHref: window.location.href});
