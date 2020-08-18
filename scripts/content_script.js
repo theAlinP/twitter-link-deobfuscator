@@ -17,7 +17,7 @@ var TLD = TLD || {};
 TLD.revealLinks = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
-      //console.log(`The addon state is: ${storedSettings.enabled}`);    // for debugging
+      //console.log(`The add-on state is: ${storedSettings.enabled}`);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         let links = document.querySelectorAll("a[data-expanded-url]");
         //console.log(links);    // for debugging
@@ -248,7 +248,7 @@ TLD.listenForReplies = function() {
 TLD.cleanWebsiteLink = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
-      //console.log(`The addon state is: ${storedSettings.enabled}`);    // for debugging
+      //console.log(`The add-on state is: ${storedSettings.enabled}`);    // for debugging
       if (storedSettings.enabled === true) {    // clean the link only if the add-on is enabled
         if (document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url a")) {
           let websiteLink = document.querySelector(".ProfileHeaderCard .ProfileHeaderCard-url a");
@@ -280,7 +280,7 @@ TLD.revealReactLinks = function(container) {
   //console.log(container);    // for debugging
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
-      //console.log(`The addon state is: ${storedSettings.enabled}`);    // for debugging
+      //console.log(`The add-on state is: ${storedSettings.enabled}`);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
         let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
@@ -325,7 +325,7 @@ ${index + 1}.innerText:        ${link.innerText}`);*/    // for debugging
 TLD.cleanReactWebsiteLink = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
-      //console.log(`The addon state is: ${storedSettings.enabled}`);    // for debugging
+      //console.log(`The add-on state is: ${storedSettings.enabled}`);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
         //console.log(userDescription);    // for debugging
@@ -617,7 +617,7 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
       //console.log(`Iframe location href: ${window.location.href}`);    // for debugging
       browser.storage.local.get()    // call TLD.notifyBackgroundScript() if the add-on is enabled
         .then((storedSettings) => {
-          //console.log(`The addon state is: ${storedSettings.enabled}`);    // for debugging
+          //console.log(`The add-on state is: ${storedSettings.enabled}`);    // for debugging
           if (storedSettings.enabled === true) {
             TLD.notifyBackgroundScript({to: "TLD.findTwitterCardOriginalDestination()",
               iframeLocationHref: window.location.href});

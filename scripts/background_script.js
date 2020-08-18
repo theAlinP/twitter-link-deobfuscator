@@ -82,11 +82,11 @@ TLD_background.toggleStatus = function() {
       if (storedSettings.enabled === true) {
         //console.log(`Old value: ${storedSettings.enabled}`);    // for debugging
         browser.storage.local.set({ enabled : false });
-        //console.log("The addon has been disabled.");    // for debugging
+        //console.log("The add-on has been disabled.");    // for debugging
       } else {
         //console.log(`Old value: ${storedSettings.enabled}`);    // for debugging
         browser.storage.local.set({ enabled : true });
-        //console.log("The addon has been enabled.");    // for debugging
+        //console.log("The add-on has been enabled.");    // for debugging
       }
       browser.storage.local.get()
         .then((storedSettings) => {
@@ -171,9 +171,12 @@ browser.storage.local.set(TLD_background.config.defaultAddonState)    // initial
   });
 
 
-/*browser.storage.onChanged.addListener((newSettings) => {    // log the new value everytime it changes
+/**
+ * Add some event listeners
+ */
+/*browser.storage.onChanged.addListener((newSettings) => {    // log the new value every time it changes
   browser.tabs.query({}).then(console.log(`The value was changed to ${newSettings.enabled.newValue}`));
 });*/    // for debugging
-browser.browserAction.onClicked.addListener(TLD_background.toggleStatus);
+browser.browserAction.onClicked.addListener(TLD_background.toggleStatus);    // toggle the add-on status when the icon is clicked
 
 browser.runtime.onMessage.addListener(TLD_background.handleMessage);    // listen for messages from the background script
