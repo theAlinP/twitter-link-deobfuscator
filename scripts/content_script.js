@@ -499,13 +499,15 @@ TLD.listenForMessages = function(message) {
 
 
 
-if (window === window.top) {    // add the property TLD.cleanedLinks to the namespace from the top window, on the first run on the page
+if (window === window.top) {    // add properties to the namespace from the top window, on the first run on the page
   /**
    * Properties of the namespace TLD
    * @property {number} cleanedLinks - The number of links cleaned
+   * @property {string} lastCleanedPage - The URL of the last cleaned page
    * @memberof TLD
    */
   TLD.cleanedLinks;
+  TLD.lastCleanedPage;
   //console.log(TLD);    // for debugging
 }
 if (! document.body.contains(document.body.querySelector("#react-root"))) {    // if the page is NOT built with React clean the links the old way
@@ -539,8 +541,6 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     }*/    // for debugging
 
     TLD.cleanWebsiteLink();    // clean the "Website" link
-    var windowHref = window.location.href;    // declare a variable that will hold the URL of the last cleaned page
-    //console.log(windowHref);    // for debugging
 
     /**
      * Clean the links every time new tweets and replies are added
@@ -576,11 +576,11 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
     }
     const pageContainerObserver = new MutationObserver(function() {
       //console.log("The page container was modified!");    // for debugging
-      if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
+      if (TLD.lastCleanedPage !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
         if (! pageContainer.classList.contains("wrapper-permalink")) {
           TLD.cleanWebsiteLink();    // clean the "Website" link
-          windowHref = window.location.href;    // store the URL of this page which was just cleaned
-          //console.log(windowHref);    // for debugging
+          TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
+          //console.log(TLD.lastCleanedPage);    // for debugging
         }
       }
     });
@@ -651,7 +651,6 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           /**
            * Clean the tweets or replies on the page which was opened initially
            */
-          var windowHref;    // declare a variable that will hold the URL of the last cleaned page
           switch (TLD.detectPage()) {    // check what type of page was opened
           case "profile":    // if a profile page was opened...
             TLD.cleanReactWebsiteLink();
@@ -661,12 +660,12 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
           case "explore":    // if the "Explore" page was opened...
             TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
               .querySelector("div[style*='min-height']"));    // find the container with tweets or replies and clean them
-            windowHref = window.location.href;    // store the URL of this page which was just cleaned
+            TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
             break;
           case "unknown":    // if a unknown page was opened...
-            windowHref = null;    // reset the variable with the URL of the page which was last cleaned
+            TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
           }
-          //console.log(windowHref);    // for debugging
+          //console.log(TLD.lastCleanedPage);    // for debugging
 
           /**
            * Clean the replies and the tweets every time it is navigated
@@ -674,8 +673,8 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
            */
           const mainObserver2 = new MutationObserver(function() {
             //console.log("mainObserver2");    // for debugging
-            //console.log(windowHref);    // for debugging
-            if (windowHref !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
+            //console.log(TLD.lastCleanedPage);    // for debugging
+            if (TLD.lastCleanedPage !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
               if (TLD.findReactTimeline()) {
                 switch (TLD.detectPage()) {    // check what type of page was opened
                 case "profile":    // if a profile page was opened...
@@ -686,16 +685,16 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
                 case "explore":    // if the "Explore" page was opened...
                   TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
                     .querySelector("div[style*='min-height']"));    // find the container with tweets or replies and clean them
-                  windowHref = window.location.href;    // store the URL of this page which was just cleaned
+                  TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
                   break;
                 case "unknown":    // if a unknown page was opened...
-                  windowHref = null;    // reset the variable with the URL of the page which was last cleaned
+                  TLD.lastCleanedPage = null;    // reset the variable with the URL of the page which was last cleaned
                 }
               } else {    // if the Timeline can't be found or was deleted...
                 //console.log("The Timeline was not found.");
-                windowHref = null;    // reset the variable with the URL of the page which was last cleaned
+                TLD.lastCleanedPage = null;    // reset the variable with the URL of the page which was last cleaned
               }
-              //console.log(windowHref);    // for debugging
+              //console.log(TLD.lastCleanedPage);    // for debugging
             }
           });
           const mainObserverConfig2 = {childList: true, subtree: true};
