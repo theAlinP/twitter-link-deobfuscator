@@ -459,13 +459,13 @@ TLD.findReactTimeline = function() {
  */
 TLD.increaseBadgeNumber = function() {
   //console.log(`TLD.increaseBadgeNumber() running from this window: ${window.location.href}`);    // for debugging
-  if (TLD.config.cleanedLinks === undefined || TLD.config.cleanedLinks === null || TLD.config.cleanedLinks < 1) {
-    TLD.config.cleanedLinks = 1;
+  if (TLD.cleanedLinks === undefined || TLD.cleanedLinks === null || TLD.cleanedLinks < 1) {
+    TLD.cleanedLinks = 1;
   } else {
-    TLD.config.cleanedLinks += 1;
+    TLD.cleanedLinks += 1;
   }
-  //console.log(`TLD.config.cleanedLinks: ${TLD.config.cleanedLinks}`);    // for debugging
-  TLD.notifyBackgroundScript({setBadge: (TLD.config.cleanedLinks).toString()});    // send a message to the background script to update the badge number
+  //console.log(`TLD.cleanedLinks: ${TLD.cleanedLinks}`);    // for debugging
+  TLD.notifyBackgroundScript({setBadge: (TLD.cleanedLinks).toString()});    // send a message to the background script to update the badge number
   //console.log(TLD);    // for debugging
 };
 
@@ -499,15 +499,13 @@ TLD.listenForMessages = function(message) {
 
 
 
-if (window === window.top) {    // add the property TLD.config.cleanedLinks to the namespace from the top window, on the first run on the page
+if (window === window.top) {    // add the property TLD.cleanedLinks to the namespace from the top window, on the first run on the page
   /**
    * Properties of the namespace TLD
-   * @property {object} config - The add-on settings
-   * @property {number} config.cleanedLinks - The number of links cleaned
+   * @property {number} cleanedLinks - The number of links cleaned
    * @memberof TLD
    */
-  TLD.config = TLD.config || {};
-  TLD.config.cleanedLinks;
+  TLD.cleanedLinks;
   //console.log(TLD);    // for debugging
 }
 if (! document.body.contains(document.body.querySelector("#react-root"))) {    // if the page is NOT built with React clean the links the old way
