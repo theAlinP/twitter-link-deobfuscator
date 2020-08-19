@@ -638,13 +638,11 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
       //console.log(mainElement);    // for debugging
       const mainObserver = new MutationObserver(function() {
         //console.log("mainObserver");    // for debugging
-        if (TLD.findReactTimeline()) {
+        if (TLD.findReactTimeline() &&
+            TLD.findReactTimeline().querySelector("div[style*='min-height']") &&
+            TLD.findReactTimeline().querySelector("div[style*='min-height']")
+              .childElementCount > 1) {
           //console.log("The Timeline was found.");    // for debugging
-
-          if (TLD.findReactTimeline().querySelector("div[style*='min-height']")
-            .childElementCount <= 1) {
-            return;
-          }    // stop if the container whose "style" attribute value containing the string "min-height" has only 1 child
 
           bodyObserver.disconnect();
           mainObserver.disconnect();
