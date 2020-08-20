@@ -390,6 +390,32 @@ TLD.listenForReactTweetsAndReplies = function(container) {
 
 
 /**
+ * A function that listens for added messages on pages built with React then
+ * cleans the links inside them
+ * @method listenForReactMessages
+ * @memberof TLD
+ * @param {HTMLDivElement} container - The element containing the messages. It
+ * should be the type of element returned by getElementById() or
+ * querySelector() or similar methods
+ */
+TLD.listenForReactMessages = function(container) {
+  //console.log(container);    // for debugging
+
+  TLD.revealReactLinks(container);
+
+  /**
+   * Call TLD.revealReactLinks() every time new messages are added
+   */
+  const containerObserver = new MutationObserver(function() {
+    //console.log("listenForReactMessages() containerObserver");    // for debugging
+    TLD.revealReactLinks(container);
+  });
+  const containerObserverConfig = {childList: true, subtree: true};
+  containerObserver.observe(container, containerObserverConfig);
+};
+
+
+/**
  * A function that detects what type of page was opened
  * @method detectPage
  * @memberof TLD
@@ -677,7 +703,9 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
             //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
             break;
           case "conversation":    // if a message thread was opened...
-            TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
+            var sections = document.querySelectorAll("#react-root main section");
+            TLD.listenForReactMessages(sections[sections.length - 1]);    // find the element with messages and clean them
+            TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
             //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
             break;
           case "unknown":    // if a unknown page was opened...
