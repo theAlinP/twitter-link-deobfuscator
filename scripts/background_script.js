@@ -20,11 +20,8 @@ var TLD_background = TLD_background || {};
 TLD_background.config = TLD_background.config || {};
 TLD_background.config.defaultAddonState = TLD_background.config.defaultAddonState || {};
 TLD_background.config.defaultAddonState.enabled = true;    // default add-on state
-TLD_background.config.badgeBackgroundColor = TLD_background.config.badgeBackgroundColor || {"color": "green"};
+TLD_background.config.badgeBackgroundColor = TLD_background.config.badgeBackgroundColor || {color: "green"};
 //console.log(TLD_background);    // for debugging
-
-
-browser.browserAction.setBadgeBackgroundColor(TLD_background.config.badgeBackgroundColor);    // set the background color of the badge text
 
 
 /**
@@ -80,17 +77,17 @@ TLD_background.toggleStatus = function() {
   browser.storage.local.get()
     .then((storedSettings) => {
       if (storedSettings.enabled === true) {
-        //console.log("Old value: " + storedSettings.enabled);    // for debugging
+        //console.log(`Old value: ${storedSettings.enabled}`);    // for debugging
         browser.storage.local.set({ enabled : false });
-        //console.log("The addon has been disabled.");    // for debugging
+        //console.log("The add-on has been disabled.");    // for debugging
       } else {
-        //console.log("Old value: " + storedSettings.enabled);    // for debugging
+        //console.log(`Old value: ${storedSettings.enabled}`);    // for debugging
         browser.storage.local.set({ enabled : true });
-        //console.log("The addon has been enabled.");    // for debugging
+        //console.log("The add-on has been enabled.");    // for debugging
       }
       browser.storage.local.get()
         .then((storedSettings) => {
-          //console.log("New value: " + storedSettings.enabled);    // for debugging
+          //console.log(`New value: ${storedSettings.enabled}`);    // for debugging
           TLD_background.updateAddonTitle (storedSettings.enabled);
           TLD_background.updateAddonIcon (storedSettings.enabled);
         })
@@ -122,7 +119,7 @@ TLD_background.handleMessage = function(request, sender) {
   //console.log(`Iframe location href: ${sender.url}`);    // for debugging
 
   if (request.setBadge) {    // if the message was sent to increase the badge number...
-    /*var gettingBadgeText = browser.browserAction.getBadgeText({tabId: sender.tab.id});    // get the badge text
+    /*let gettingBadgeText = browser.browserAction.getBadgeText({tabId: sender.tab.id});    // get the badge text
     gettingBadgeText.then(badgeText => { console.log(`Old badge text: ${badgeText}`); });    // log the badge text*/    //for debugging
     browser.browserAction.setBadgeText({text: request.setBadge, tabId: sender.tab.id});    // update the badge text
     //console.log(`The badge text has been updated to ${request.setBadge}.`);    // for debugging
@@ -154,7 +151,182 @@ TLD_background.onMessageError = function(error) {
 };
 
 
+/**
+ * A function that intercepts and modifies the network requests
+ * @method interceptNetworkRequests
+ * @memberof TLD_background
+ * @param {object} requestDetails - An object passed over by the event listener
+ */
+TLD_background.interceptNetworkRequests = function(requestDetails) {
+  //console.log(`Loading: " ${requestDetails.url}`);    // for debugging
+  browser.tabs.query({active: true, url: "*://*.twitter.com/*"}).then((tabs) => {
+    //console.log(tabs);    // for debugging
+    tabs.forEach(tab => {
+      //console.log(tab);    // for debugging
+      let pageURL = new URL(tab.url);
+      //console.log(pageURL);    // for debugging
+      let locationPathname = pageURL.pathname;
+      //console.log(locationPathname);    // for debugging
+      let locationArray = locationPathname.split("/");
+      //console.log(locationArray);    // for debugging
+      let requestURL = new URL(requestDetails.url);
+      //console.log(requestURL);    // for debugging
+      let requestArray = requestURL.pathname.split("/");
+      //console.log(requestArray);    // for debugging
+      /*for (let [index, path] of locationArray.entries()) {    // remove the null elements from the array
+        //console.log(path);    // for debugging
+        if (path === pageURL) {    // if the element is null, like for example the first one...
+          locationArray.splice(index, 1);    // ...remove it from the array
+          let requestURL = requestDetails.url;
+          console.log(`requestURL: ${requestURL}`);    // for debugging
+        }
+      }*/
+      if (requestArray[requestArray.length - 1] === `${locationArray[locationArray.length -1]}.json` ||
+          requestArray[requestArray.length - 1] === "user_updates.json") {
+        //console.log(requestDetails);    // for debugging
+        let filter = browser.webRequest.filterResponseData(requestDetails.requestId);
+        let decoder = new TextDecoder("utf-8");
+        let encoder = new TextEncoder();
+        let data = [];
+        filter.ondata = event => {
+          data.push(event.data);
+        };
+        filter.onstop = () => {
+          let stringResponse = "";
+          if (data.length == 1) {
+            stringResponse = decoder.decode(data[0]);
+          } else {
+            for (let i = 0; i < data.length; i++){
+              let stream = (i == data.length - 1) ? false : true;
+              stringResponse += decoder.decode(data[i], {stream});
+            }
+          }
+          //console.log(stringResponse);    // for debugging
+          if (TLD_background.hasJsonStructure(stringResponse)) {
+            //console.log(stringResponse);    // for debugging
+            let jsonResponse = JSON.parse(stringResponse);
+            //console.log(jsonResponse);    // for debugging
+            if (jsonResponse.conversation_timeline) {
+              //console.log(jsonResponse.conversation_timeline.entries);    // for debugging
+              let conv_entries = jsonResponse.conversation_timeline.entries;
+              for (let entry of conv_entries) {
+                //console.log(entry);    // for debugging
+                //console.log(entry.message.message_data.text);    // for debugging
+                if (entry.message.message_data.hasOwnProperty("entities") &&
+                  entry.message.message_data.entities.hasOwnProperty("urls")) {
+                  //console.log(entry);    // for debugging
+                  //console.log(entry.message.message_data.text);    // for debugging
+                  let urls = entry.message.message_data.entities.urls;
+                  /*for (let url of urls) {
+                    //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
+                    //console.log(entry.message.message_data.text);    // for debugging
+                    url.url = url.expanded_url;
+                    //console.log(url.url);    // for debugging
+                    TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                    //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                  }    // uncloak the links from messages*/
+                  if (entry.message.message_data.hasOwnProperty("attachment") &&
+                      entry.message.message_data.attachment.hasOwnProperty("card")) {
+                    let lastURL = urls[urls.length - 1];
+                    //console.log(lastURL);    // for debugging
+                    entry.message.message_data.attachment.card.url = lastURL.expanded_url;
+                    entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
+                    TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                    //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                    //console.log(entry);    // for debugging
+                  }    // uncloak the Twitter Cards from messages
+                }
+                //console.log(entry);    // for debugging
+              }
+            } else if (jsonResponse.user_events && jsonResponse.user_events.entries) {
+              //console.log(jsonResponse.user_events.entries);    // for debugging
+              let event_entries = jsonResponse.user_events.entries;
+              for (let entry of event_entries) {
+                //console.log(entry);    // for debugging
+                //console.log(entry.message.message_data.text);    // for debugging
+                if (entry.message &&
+                    entry.message.message_data.hasOwnProperty("entities") &&
+                    entry.message.message_data.entities.hasOwnProperty("urls")) {
+                  //console.log(entry);    // for debugging
+                  //console.log(entry.message.message_data.text);    // for debugging
+                  let urls = entry.message.message_data.entities.urls;
+                  /*for (let url of urls) {
+                    //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
+                    //console.log(entry.message.message_data.text);    // for debugging
+                    url.url = url.expanded_url;
+                    //console.log(url.url);    // for debugging
+                    TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                    //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                  }    // uncloak the links from messages*/
+                  if (entry.message.message_data.hasOwnProperty("attachment") &&
+                      entry.message.message_data.attachment.hasOwnProperty("card")) {
+                    let lastURL = urls[urls.length - 1];
+                    //console.log(lastURL);    // for debugging
+                    entry.message.message_data.attachment.card.url = lastURL.expanded_url;
+                    entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
+                    TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                    //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                    //console.log(entry);    // for debugging
+                  }    // uncloak the Twitter Cards from messages
+                }
+                //console.log(entry);    // for debugging
+              }
+            }
+            //console.log(stringResponse);    // for debugging
+            stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
+            //console.log(stringResponse);    // for debugging
+          }
+          //console.log(stringResponse);    // for debugging
+          filter.write(encoder.encode(stringResponse));
+          filter.close();
+        };
+      }
+    });
+  }, console.error);
+};
 
+
+/**
+ * A function that checks if a string is a well-formed JSON structure
+ * @method hasJsonStructure
+ * @memberof TLD_background
+ * @param {string} str - The string that should be checked if is valid JSON
+ */
+TLD_background.hasJsonStructure = function(str) {
+  if (typeof str !== "string") return false;
+  try {
+    const result = JSON.parse(str);
+    const type = Object.prototype.toString.call(result);
+    return type === "[object Object]" 
+      || type === "[object Array]";
+  } catch (err) {
+    return false;
+  }
+};
+
+
+/**
+ * A function that messages the content script when a link is cleaned
+ * @method messageContentScript
+ * @memberof TLD_background
+ * @param {number} tabID - The ID of the tab that should have its badge updated
+ */
+TLD_background.messageContentScript = function(tabID) {
+  browser.tabs.sendMessage(
+    tabID,
+    {}
+  ).catch(TLD_background.onMessageError);
+};
+
+
+
+/**
+ * Initialize the add-on
+ */
+// Set the background color of the badge text
+browser.browserAction.setBadgeBackgroundColor(TLD_background.config.badgeBackgroundColor);
+
+// Set the initial add-on state
 browser.storage.local.set(TLD_background.config.defaultAddonState)    // initialize the storage with the default value
   /*.then(() => {    // ...then log the stored value
     console.log("The default value was stored.");    // for debugging
@@ -171,9 +343,18 @@ browser.storage.local.set(TLD_background.config.defaultAddonState)    // initial
   });
 
 
-/*browser.storage.onChanged.addListener((newSettings) => {    // log the new value everytime it changes
-  browser.tabs.query({}).then(console.log("The value was changed to " + newSettings.enabled.newValue));
+/**
+ * Add some event listeners
+ */
+/*browser.storage.onChanged.addListener((newSettings) => {    // log the new value every time it changes
+  browser.tabs.query({}).then(console.log(`The value was changed to ${newSettings.enabled.newValue}`));
 });*/    // for debugging
-browser.browserAction.onClicked.addListener(TLD_background.toggleStatus);
+browser.browserAction.onClicked.addListener(TLD_background.toggleStatus);    // toggle the add-on status when the icon is clicked
 
 browser.runtime.onMessage.addListener(TLD_background.handleMessage);    // listen for messages from the background script
+
+browser.webRequest.onBeforeRequest.addListener(
+  TLD_background.interceptNetworkRequests,
+  {urls: ["*://*.twitter.com/*"]},
+  ["blocking"]
+);    // intercept the network responses from twitter.com
