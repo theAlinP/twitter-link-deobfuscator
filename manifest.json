@@ -43,5 +43,10 @@
   "background": {
     "scripts": ["scripts/background_script.js"]
   },
-  "permissions": ["storage"]
+  "permissions": ["*://*.twitter.com/*",
+    "storage",
+    "tabs",
+    "webRequest",
+    "webRequestBlocking"
+  ]
 }
