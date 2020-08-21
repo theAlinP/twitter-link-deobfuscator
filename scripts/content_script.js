@@ -662,6 +662,14 @@ if (! document.body.contains(document.body.querySelector("#react-root"))) {    /
 } else {    // if the page is built with React clean the links the new way
   //console.log("React app detected.");    // for debugging
   //console.log(document.body.querySelectorAll("#react-root"));    // for debugging
+
+  if (window === window.top) {
+    browser.runtime.onMessage.addListener(() => {
+      //console.log("A message was received from the background script.");    // for debugging
+      TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
+    });    // listen for messages from the background script and increase the badge number
+  }
+
   let mainElement = document.body.querySelector("#react-root main");
   //console.log(mainElement);    // for debugging
   const mainObserver = new MutationObserver(function() {
