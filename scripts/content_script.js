@@ -285,6 +285,9 @@ TLD.revealReactLinks = function(container) {
         //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
         let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
         //let links = container.querySelectorAll("a.css-16my406.r-ad9z0x.r-1qd0xha.r-bcqeeo.r-qvutc0.css-901oao");    // in case the links have no "title" attributes
+        if (links.length === 0) {
+          return;
+        }
         //console.log(links);    // for debugging
         for (let link of links) {
         //for (let [index, link] of links.entries()) {    // for debugging
