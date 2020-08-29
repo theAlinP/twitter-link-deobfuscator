@@ -4,7 +4,7 @@
     "description": "The name of the extension."
   },
   "extensionDescription": {
-    "message": "Offenbart die tatsächlichen Ziele der Links und Twitter Cards (siehe Dokumentation in README.md) in Tweets, als auch in Antworten, aber auch den \"Website\"-Link and andere, die gewöhnlich durch verkürzte URLs verschleiert werden. Die Erweiterung tritt nur in Aktion, wenn twitter.com besucht wird.",
+    "message": "Offenbart die tatsächlichen Ziele der Links und Twitter Cards (siehe Dokumentation in README.md) in Tweets, Antworten als auch in Direktnachrichten, aber auch den \"Website\"-Link and andere, die gewöhnlich durch verkürzte URLs verschleiert werden. Die Erweiterung tritt nur in Aktion, wenn twitter.com besucht wird.",
     "description": "The description of the extension."
   },
   "enabledStateTitle": {

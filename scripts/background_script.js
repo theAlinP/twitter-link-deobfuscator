@@ -212,8 +212,8 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               for (let entry of conv_entries) {
                 //console.log(entry);    // for debugging
                 //console.log(entry.message.message_data.text);    // for debugging
-                if (entry.message.message_data.hasOwnProperty("entities") &&
-                  entry.message.message_data.entities.hasOwnProperty("urls")) {
+                if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
+                  Object.prototype.hasOwnProperty.call(entry.message.message_data.entities, "urls")) {
                   //console.log(entry);    // for debugging
                   //console.log(entry.message.message_data.text);    // for debugging
                   let urls = entry.message.message_data.entities.urls;
@@ -225,8 +225,8 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                     TLD_background.messageContentScript(tab.id);    // send a message to the content script
                     //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
                   }    // uncloak the links from messages*/
-                  if (entry.message.message_data.hasOwnProperty("attachment") &&
-                      entry.message.message_data.attachment.hasOwnProperty("card")) {
+                  if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
+                      Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
                     let lastURL = urls[urls.length - 1];
                     //console.log(lastURL);    // for debugging
                     entry.message.message_data.attachment.card.url = lastURL.expanded_url;
@@ -245,8 +245,8 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                 //console.log(entry);    // for debugging
                 //console.log(entry.message.message_data.text);    // for debugging
                 if (entry.message &&
-                    entry.message.message_data.hasOwnProperty("entities") &&
-                    entry.message.message_data.entities.hasOwnProperty("urls")) {
+                    Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
+                    Object.prototype.hasOwnProperty.call(entry.message.message_data.entities, "urls")) {
                   //console.log(entry);    // for debugging
                   //console.log(entry.message.message_data.text);    // for debugging
                   let urls = entry.message.message_data.entities.urls;
@@ -258,8 +258,8 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                     TLD_background.messageContentScript(tab.id);    // send a message to the content script
                     //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
                   }    // uncloak the links from messages*/
-                  if (entry.message.message_data.hasOwnProperty("attachment") &&
-                      entry.message.message_data.attachment.hasOwnProperty("card")) {
+                  if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
+                      Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
                     let lastURL = urls[urls.length - 1];
                     //console.log(lastURL);    // for debugging
                     entry.message.message_data.attachment.card.url = lastURL.expanded_url;
