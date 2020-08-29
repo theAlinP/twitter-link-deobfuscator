@@ -31,7 +31,7 @@ One notable mention is the subdomain [mobile.twitter.com](https://mobile.twitter
 
 I cannot guarantee that it will work on any of its other subdomains (about.twitter.com, analytics.twitter.com, careers.twitter.com, data.twitter.com, developer.twitter.com, help.twitter.com, media.twitter.com, marketing.twitter.com etc.). Because not many people browse those subdomains and because there is not much user generated content there, in the sense of tweets, just some occasional quoted ones, I did not spend much time to make it work there. I intend to get to it at some point, but I don't know when. If someone says they need TLD to work on subdomains, I will make this a priority.
 
-Also, for the moment, it can only clean the links and the Twitter Cards from the "Messages" page.
+Also, for the moment, it can only clean the links and the Twitter Cards from the messages on the "Messages" page.
 
 ## For developers
 You can find detailed JSDoc comments in the source code that will help you understand how the add-on works. You can generate documentation from them using the [jsdoc](https://github.com/jsdoc/jsdoc/ "JSDoc") tool as described in the page linked earlier.
