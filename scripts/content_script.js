@@ -535,6 +535,27 @@ TLD.listenForMessages = function(message) {
 
 
 /**
+ * A function that modifies the message box
+ * @method modifyDMBox
+ * @memberof TLD
+ */
+TLD.modifyDMBox = function() {
+  let DMBox = document.querySelector("div[data-testid=\"DMDrawer\"]");
+  //console.log(DMBox);    // for debugging
+  let asideElement = DMBox.querySelector("aside");
+  if (asideElement === null) return;
+  //console.log(asideElement);    // for debugging
+  let asideParent = asideElement.parentElement;
+  //console.log(asideParent);    // for debugging
+  let messageContainerContainer = asideParent.firstElementChild;
+  //console.log(messageContainerContainer);    // for debugging
+  let messageContainer = messageContainerContainer.querySelector("div[style*='padding-top'][style*='padding-bottom']");
+  //console.log(messageContainer);    // for debugging
+  if (messageContainer !== null) TLD.revealReactLinks(messageContainer);
+};
+
+
+/**
  * A function that modifies the React pages
  * @method modifyReactPages
  * @memberof TLD
@@ -584,6 +605,20 @@ TLD.modifyReactPages = function() {
         //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
       }
     }
+    //console.log(TLD.DMBoxMOActive);    // for debugging
+    let DMBox = document.querySelector("div[data-testid=\"DMDrawer\"]");
+    if (DMBox !== null && TLD.DMBoxMOActive === false) {
+      //console.log(DMBox);    // for debugging
+      TLD.modifyDMBox();
+      const DMBoxObserver = new MutationObserver(TLD.modifyDMBox);
+      const DMBoxObserverConfig = {childList: true, subtree: true};
+      DMBoxObserver.observe(DMBox, DMBoxObserverConfig);
+      TLD.DMBoxMOActive = true;
+      //console.log("TLD.DMBoxMOActive = true;");    // for debugging
+    } else if (DMBox === null && TLD.DMBoxMOActive === true) {
+      TLD.DMBoxMOActive = false;
+      //console.log("TLD.DMBoxMOActive = false;");    // for debugging
+    }
   });
   const mainObserverConfig = {childList: true, subtree: true};
   mainObserver.observe(mainElement, mainObserverConfig);
@@ -596,10 +631,13 @@ if (window === window.top) {    // add properties to the namespace from the top 
    * Properties of the namespace TLD
    * @property {number} cleanedLinks - The number of links cleaned
    * @property {string} lastCleanedPage - The URL of the last cleaned page
+   * @property {boolean} DMBoxMOActive - DM_Box_MutationObserver_Active - shows
+   * whether there is a MutationObserver attached to the message box
    * @memberof TLD
    */
   TLD.cleanedLinks;
   TLD.lastCleanedPage;
+  TLD.DMBoxMOActive = false;
   //console.log(TLD);    // for debugging
 }
 if (! document.body.contains(document.body.querySelector("#react-root"))) {    // if the page is NOT built with React clean the links the old way
