@@ -260,6 +260,39 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                     }
                     //console.log(entry);    // for debugging
                   }
+                } else if (jsonResponse.inbox_initial_state && jsonResponse.inbox_initial_state.entries) {
+                  //console.log(jsonResponse.inbox_initial_state.entries);    // for debugging
+                  let event_entries = jsonResponse.inbox_initial_state.entries;
+                  for (let entry of event_entries) {
+                    //console.log(entry);    // for debugging
+                    //console.log(entry.message.message_data.text);    // for debugging
+                    if (entry.message &&
+                        Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
+                        Object.prototype.hasOwnProperty.call(entry.message.message_data.entities, "urls")) {
+                      //console.log(entry);    // for debugging
+                      //console.log(entry.message.message_data.text);    // for debugging
+                      let urls = entry.message.message_data.entities.urls;
+                      /*for (let url of urls) {
+                        //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
+                        //console.log(entry.message.message_data.text);    // for debugging
+                        url.url = url.expanded_url;
+                        //console.log(url.url);    // for debugging
+                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                      }    // uncloak the links from messages*/
+                      if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
+                          Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
+                        let lastURL = urls[urls.length - 1];
+                        //console.log(lastURL);    // for debugging
+                        entry.message.message_data.attachment.card.url = lastURL.expanded_url;
+                        entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
+                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                        //console.log(entry);    // for debugging
+                      }    // uncloak the Twitter Cards from messages
+                    }
+                    //console.log(entry);    // for debugging
+                  }
                 }
                 //console.log(stringResponse);    // for debugging
                 stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
