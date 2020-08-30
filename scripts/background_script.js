@@ -159,130 +159,154 @@ TLD_background.onMessageError = function(error) {
  */
 TLD_background.interceptNetworkRequests = function(requestDetails) {
   //console.log(`Loading: " ${requestDetails.url}`);    // for debugging
-  browser.tabs.query({active: true, url: "*://*.twitter.com/*"}).then((tabs) => {
-    //console.log(tabs);    // for debugging
-    tabs.forEach(tab => {
-      //console.log(tab);    // for debugging
-      let pageURL = new URL(tab.url);
-      //console.log(pageURL);    // for debugging
-      let locationPathname = pageURL.pathname;
-      //console.log(locationPathname);    // for debugging
-      let locationArray = locationPathname.split("/");
-      //console.log(locationArray);    // for debugging
-      let requestURL = new URL(requestDetails.url);
-      //console.log(requestURL);    // for debugging
-      let requestArray = requestURL.pathname.split("/");
-      //console.log(requestArray);    // for debugging
-      /*for (let [index, path] of locationArray.entries()) {    // remove the null elements from the array
-        //console.log(path);    // for debugging
-        if (path === pageURL) {    // if the element is null, like for example the first one...
-          locationArray.splice(index, 1);    // ...remove it from the array
-          let requestURL = requestDetails.url;
-          console.log(`requestURL: ${requestURL}`);    // for debugging
-        }
-      }*/
-      if (requestArray[requestArray.length - 1] === `${locationArray[locationArray.length -1]}.json` ||
-          requestArray[requestArray.length - 1] === "user_updates.json") {
-        //console.log(requestDetails);    // for debugging
-        let filter = browser.webRequest.filterResponseData(requestDetails.requestId);
-        let decoder = new TextDecoder("utf-8");
-        let encoder = new TextEncoder();
-        let data = [];
-        filter.ondata = event => {
-          data.push(event.data);
-        };
-        filter.onstop = () => {
-          let stringResponse = "";
-          if (data.length == 1) {
-            stringResponse = decoder.decode(data[0]);
-          } else {
-            for (let i = 0; i < data.length; i++){
-              let stream = (i == data.length - 1) ? false : true;
-              stringResponse += decoder.decode(data[i], {stream});
-            }
-          }
-          //console.log(stringResponse);    // for debugging
-          if (TLD_background.hasJsonStructure(stringResponse)) {
-            //console.log(stringResponse);    // for debugging
-            let jsonResponse = JSON.parse(stringResponse);
-            //console.log(jsonResponse);    // for debugging
-            if (jsonResponse.conversation_timeline) {
-              //console.log(jsonResponse.conversation_timeline.entries);    // for debugging
-              let conv_entries = jsonResponse.conversation_timeline.entries;
-              for (let entry of conv_entries) {
-                //console.log(entry);    // for debugging
-                //console.log(entry.message.message_data.text);    // for debugging
-                if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
-                  Object.prototype.hasOwnProperty.call(entry.message.message_data.entities, "urls")) {
-                  //console.log(entry);    // for debugging
-                  //console.log(entry.message.message_data.text);    // for debugging
-                  let urls = entry.message.message_data.entities.urls;
-                  /*for (let url of urls) {
-                    //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
-                    //console.log(entry.message.message_data.text);    // for debugging
-                    url.url = url.expanded_url;
-                    //console.log(url.url);    // for debugging
-                    TLD_background.messageContentScript(tab.id);    // send a message to the content script
-                    //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
-                  }    // uncloak the links from messages*/
-                  if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
-                      Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
-                    let lastURL = urls[urls.length - 1];
-                    //console.log(lastURL);    // for debugging
-                    entry.message.message_data.attachment.card.url = lastURL.expanded_url;
-                    entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
-                    TLD_background.messageContentScript(tab.id);    // send a message to the content script
-                    //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
-                    //console.log(entry);    // for debugging
-                  }    // uncloak the Twitter Cards from messages
+  browser.storage.local.get().then((storedSettings) => {
+    if (storedSettings.enabled === true) {
+      browser.tabs.query({url: "*://*.twitter.com/*"}).then((tabs) => {
+        //console.log(tabs);    // for debugging
+        tabs.forEach(tab => {
+          //console.log(tab);    // for debugging
+          let requestURL = new URL(requestDetails.url);
+          //console.log(requestURL);    // for debugging
+          let requestArray = requestURL.pathname.split("/");
+          //console.log(requestArray);    // for debugging
+          if (requestArray[requestArray.length - 2] === "conversation" ||
+              requestArray[requestArray.length - 1] === "user_updates.json" ||
+              requestArray[requestArray.length - 1] === "inbox_initial_state.json") {
+            //console.log(requestDetails);    // for debugging
+            let filter = browser.webRequest.filterResponseData(requestDetails.requestId);
+            let decoder = new TextDecoder("utf-8");
+            let encoder = new TextEncoder();
+            let data = [];
+            filter.ondata = event => {
+              data.push(event.data);
+            };
+            filter.onstop = () => {
+              let stringResponse = "";
+              if (data.length == 1) {
+                stringResponse = decoder.decode(data[0]);
+              } else {
+                for (let i = 0; i < data.length; i++){
+                  let stream = (i == data.length - 1) ? false : true;
+                  stringResponse += decoder.decode(data[i], {stream});
                 }
-                //console.log(entry);    // for debugging
               }
-            } else if (jsonResponse.user_events && jsonResponse.user_events.entries) {
-              //console.log(jsonResponse.user_events.entries);    // for debugging
-              let event_entries = jsonResponse.user_events.entries;
-              for (let entry of event_entries) {
-                //console.log(entry);    // for debugging
-                //console.log(entry.message.message_data.text);    // for debugging
-                if (entry.message &&
-                    Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
-                    Object.prototype.hasOwnProperty.call(entry.message.message_data.entities, "urls")) {
-                  //console.log(entry);    // for debugging
-                  //console.log(entry.message.message_data.text);    // for debugging
-                  let urls = entry.message.message_data.entities.urls;
-                  /*for (let url of urls) {
-                    //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
-                    //console.log(entry.message.message_data.text);    // for debugging
-                    url.url = url.expanded_url;
-                    //console.log(url.url);    // for debugging
-                    TLD_background.messageContentScript(tab.id);    // send a message to the content script
-                    //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
-                  }    // uncloak the links from messages*/
-                  if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
-                      Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
-                    let lastURL = urls[urls.length - 1];
-                    //console.log(lastURL);    // for debugging
-                    entry.message.message_data.attachment.card.url = lastURL.expanded_url;
-                    entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
-                    TLD_background.messageContentScript(tab.id);    // send a message to the content script
-                    //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+              //console.log(stringResponse);    // for debugging
+              if (TLD_background.hasJsonStructure(stringResponse)) {
+                //console.log(stringResponse);    // for debugging
+                let jsonResponse = JSON.parse(stringResponse);
+                //console.log(jsonResponse);    // for debugging
+                if (jsonResponse.conversation_timeline) {
+                  //console.log(jsonResponse.conversation_timeline.entries);    // for debugging
+                  let conv_entries = jsonResponse.conversation_timeline.entries;
+                  for (let entry of conv_entries) {
                     //console.log(entry);    // for debugging
-                  }    // uncloak the Twitter Cards from messages
+                    //console.log(entry.message.message_data.text);    // for debugging
+                    if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
+                      Object.prototype.hasOwnProperty.call(entry.message.message_data.entities, "urls")) {
+                      //console.log(entry);    // for debugging
+                      //console.log(entry.message.message_data.text);    // for debugging
+                      let urls = entry.message.message_data.entities.urls;
+                      /*for (let url of urls) {
+                        //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
+                        //console.log(entry.message.message_data.text);    // for debugging
+                        url.url = url.expanded_url;
+                        //console.log(url.url);    // for debugging
+                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                      }    // uncloak the links from messages*/
+                      if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
+                          Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
+                        let lastURL = urls[urls.length - 1];
+                        //console.log(lastURL);    // for debugging
+                        entry.message.message_data.attachment.card.url = lastURL.expanded_url;
+                        entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
+                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                        //console.log(entry);    // for debugging
+                      }    // uncloak the Twitter Cards from messages
+                    }
+                    //console.log(entry);    // for debugging
+                  }
+                } else if (jsonResponse.user_events && jsonResponse.user_events.entries) {
+                  //console.log(jsonResponse.user_events.entries);    // for debugging
+                  let event_entries = jsonResponse.user_events.entries;
+                  for (let entry of event_entries) {
+                    //console.log(entry);    // for debugging
+                    //console.log(entry.message.message_data.text);    // for debugging
+                    if (entry.message &&
+                        Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
+                        Object.prototype.hasOwnProperty.call(entry.message.message_data.entities, "urls")) {
+                      //console.log(entry);    // for debugging
+                      //console.log(entry.message.message_data.text);    // for debugging
+                      let urls = entry.message.message_data.entities.urls;
+                      /*for (let url of urls) {
+                        //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
+                        //console.log(entry.message.message_data.text);    // for debugging
+                        url.url = url.expanded_url;
+                        //console.log(url.url);    // for debugging
+                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                      }    // uncloak the links from messages*/
+                      if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
+                          Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
+                        let lastURL = urls[urls.length - 1];
+                        //console.log(lastURL);    // for debugging
+                        entry.message.message_data.attachment.card.url = lastURL.expanded_url;
+                        entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
+                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                        //console.log(entry);    // for debugging
+                      }    // uncloak the Twitter Cards from messages
+                    }
+                    //console.log(entry);    // for debugging
+                  }
+                } else if (jsonResponse.inbox_initial_state && jsonResponse.inbox_initial_state.entries) {
+                  //console.log(jsonResponse.inbox_initial_state.entries);    // for debugging
+                  let event_entries = jsonResponse.inbox_initial_state.entries;
+                  for (let entry of event_entries) {
+                    //console.log(entry);    // for debugging
+                    //console.log(entry.message.message_data.text);    // for debugging
+                    if (entry.message &&
+                        Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
+                        Object.prototype.hasOwnProperty.call(entry.message.message_data.entities, "urls")) {
+                      //console.log(entry);    // for debugging
+                      //console.log(entry.message.message_data.text);    // for debugging
+                      let urls = entry.message.message_data.entities.urls;
+                      /*for (let url of urls) {
+                        //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
+                        //console.log(entry.message.message_data.text);    // for debugging
+                        url.url = url.expanded_url;
+                        //console.log(url.url);    // for debugging
+                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                      }    // uncloak the links from messages*/
+                      if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
+                          Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
+                        let lastURL = urls[urls.length - 1];
+                        //console.log(lastURL);    // for debugging
+                        entry.message.message_data.attachment.card.url = lastURL.expanded_url;
+                        entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
+                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
+                        //console.log(entry);    // for debugging
+                      }    // uncloak the Twitter Cards from messages
+                    }
+                    //console.log(entry);    // for debugging
+                  }
                 }
-                //console.log(entry);    // for debugging
+                //console.log(stringResponse);    // for debugging
+                stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
+                //console.log(stringResponse);    // for debugging
               }
-            }
-            //console.log(stringResponse);    // for debugging
-            stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
-            //console.log(stringResponse);    // for debugging
+              //console.log(stringResponse);    // for debugging
+              filter.write(encoder.encode(stringResponse));
+              filter.close();
+            };
           }
-          //console.log(stringResponse);    // for debugging
-          filter.write(encoder.encode(stringResponse));
-          filter.close();
-        };
-      }
-    });
-  }, console.error);
+        });
+      }, console.error);
+    }
+  });
 };
 
 
