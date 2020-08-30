@@ -165,26 +165,13 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
         //console.log(tabs);    // for debugging
         tabs.forEach(tab => {
           //console.log(tab);    // for debugging
-          let pageURL = new URL(tab.url);
-          //console.log(pageURL);    // for debugging
-          let locationPathname = pageURL.pathname;
-          //console.log(locationPathname);    // for debugging
-          let locationArray = locationPathname.split("/");
-          //console.log(locationArray);    // for debugging
           let requestURL = new URL(requestDetails.url);
           //console.log(requestURL);    // for debugging
           let requestArray = requestURL.pathname.split("/");
           //console.log(requestArray);    // for debugging
-          /*for (let [index, path] of locationArray.entries()) {    // remove the null elements from the array
-            //console.log(path);    // for debugging
-            if (path === pageURL) {    // if the element is null, like for example the first one...
-              locationArray.splice(index, 1);    // ...remove it from the array
-              let requestURL = requestDetails.url;
-              console.log(`requestURL: ${requestURL}`);    // for debugging
-            }
-          }*/
-          if (requestArray[requestArray.length - 1] === `${locationArray[locationArray.length -1]}.json` ||
-              requestArray[requestArray.length - 1] === "user_updates.json") {
+          if (requestArray[requestArray.length - 2] === "conversation" ||
+              requestArray[requestArray.length - 1] === "user_updates.json" ||
+              requestArray[requestArray.length - 1] === "inbox_initial_state.json") {
             //console.log(requestDetails);    // for debugging
             let filter = browser.webRequest.filterResponseData(requestDetails.requestId);
             let decoder = new TextDecoder("utf-8");
