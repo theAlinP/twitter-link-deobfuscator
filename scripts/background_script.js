@@ -159,7 +159,7 @@ TLD_background.onMessageError = function(error) {
  */
 TLD_background.interceptNetworkRequests = function(requestDetails) {
   //console.log(`Loading: " ${requestDetails.url}`);    // for debugging
-  browser.tabs.query({active: true, url: "*://*.twitter.com/*"}).then((tabs) => {
+  browser.tabs.query({url: "*://*.twitter.com/*"}).then((tabs) => {
     //console.log(tabs);    // for debugging
     tabs.forEach(tab => {
       //console.log(tab);    // for debugging
