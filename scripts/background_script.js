@@ -119,6 +119,7 @@ TLD_background.handleMessage = function(request, sender) {
   //console.log(`Iframe location href: ${sender.url}`);    // for debugging
 
   if (request.setBadge) {    // if the message was sent to increase the badge number...
+    //console.log(sender.tab.id);    // for debugging
     /*let gettingBadgeText = browser.browserAction.getBadgeText({tabId: sender.tab.id});    // get the badge text
     gettingBadgeText.then(badgeText => { console.log(`Old badge text: ${badgeText}`); });    // log the badge text*/    //for debugging
     browser.browserAction.setBadgeText({text: request.setBadge, tabId: sender.tab.id});    // update the badge text
@@ -212,7 +213,6 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         url.url = url.expanded_url;
                         //console.log(url.url);    // for debugging
                         TLD_background.messageContentScript(tab.id);    // send a message to the content script
-                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
                       }    // uncloak the links from messages*/
                       if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
                           Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
@@ -221,7 +221,6 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         entry.message.message_data.attachment.card.url = lastURL.expanded_url;
                         entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
                         TLD_background.messageContentScript(tab.id);    // send a message to the content script
-                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
                         //console.log(entry);    // for debugging
                       }    // uncloak the Twitter Cards from messages
                     }
@@ -245,7 +244,6 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         url.url = url.expanded_url;
                         //console.log(url.url);    // for debugging
                         TLD_background.messageContentScript(tab.id);    // send a message to the content script
-                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
                       }    // uncloak the links from messages*/
                       if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
                           Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
@@ -254,7 +252,6 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         entry.message.message_data.attachment.card.url = lastURL.expanded_url;
                         entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
                         TLD_background.messageContentScript(tab.id);    // send a message to the content script
-                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
                         //console.log(entry);    // for debugging
                       }    // uncloak the Twitter Cards from messages
                     }
@@ -278,7 +275,6 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         url.url = url.expanded_url;
                         //console.log(url.url);    // for debugging
                         TLD_background.messageContentScript(tab.id);    // send a message to the content script
-                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
                       }    // uncloak the links from messages*/
                       if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
                           Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
@@ -287,7 +283,6 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         entry.message.message_data.attachment.card.url = lastURL.expanded_url;
                         entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
                         TLD_background.messageContentScript(tab.id);    // send a message to the content script
-                        //console.log(`TLD_background.messageContentScript(${tab.id})`);    // for debugging
                         //console.log(entry);    // for debugging
                       }    // uncloak the Twitter Cards from messages
                     }
@@ -336,6 +331,7 @@ TLD_background.hasJsonStructure = function(str) {
  * @param {number} tabID - The ID of the tab that should have its badge updated
  */
 TLD_background.messageContentScript = function(tabID) {
+  //console.log(tabID);    // for debugging
   browser.tabs.sendMessage(
     tabID,
     {}
