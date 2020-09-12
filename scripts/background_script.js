@@ -162,10 +162,13 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
   //console.log(`Loading: " ${requestDetails.url}`);    // for debugging
   browser.storage.local.get().then((storedSettings) => {
     if (storedSettings.enabled === true) {
-      browser.tabs.query({url: "*://*.twitter.com/*"}).then((tabs) => {
+      browser.tabs.query({discarded: false, url: "*://*.twitter.com/*"}).then((tabs) => {
         //console.log(tabs);    // for debugging
         tabs.forEach(tab => {
           //console.log(tab);    // for debugging
+          if (tab.id !== requestDetails.tabId) {
+            return;
+          }
           let requestURL = new URL(requestDetails.url);
           //console.log(requestURL);    // for debugging
           let requestArray = requestURL.pathname.split("/");
@@ -212,7 +215,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         //console.log(entry.message.message_data.text);    // for debugging
                         url.url = url.expanded_url;
                         //console.log(url.url);    // for debugging
-                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                       }    // uncloak the links from messages*/
                       if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
                           Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
@@ -220,7 +223,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         //console.log(lastURL);    // for debugging
                         entry.message.message_data.attachment.card.url = lastURL.expanded_url;
                         entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
-                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                         //console.log(entry);    // for debugging
                       }    // uncloak the Twitter Cards from messages
                     }
@@ -243,7 +246,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         //console.log(entry.message.message_data.text);    // for debugging
                         url.url = url.expanded_url;
                         //console.log(url.url);    // for debugging
-                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                       }    // uncloak the links from messages*/
                       if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
                           Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
@@ -251,7 +254,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         //console.log(lastURL);    // for debugging
                         entry.message.message_data.attachment.card.url = lastURL.expanded_url;
                         entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
-                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                         //console.log(entry);    // for debugging
                       }    // uncloak the Twitter Cards from messages
                     }
@@ -274,7 +277,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         //console.log(entry.message.message_data.text);    // for debugging
                         url.url = url.expanded_url;
                         //console.log(url.url);    // for debugging
-                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                       }    // uncloak the links from messages*/
                       if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
                           Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
@@ -282,7 +285,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         //console.log(lastURL);    // for debugging
                         entry.message.message_data.attachment.card.url = lastURL.expanded_url;
                         entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
-                        TLD_background.messageContentScript(tab.id);    // send a message to the content script
+                        TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                         //console.log(entry);    // for debugging
                       }    // uncloak the Twitter Cards from messages
                     }
