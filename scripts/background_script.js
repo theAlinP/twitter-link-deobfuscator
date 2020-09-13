@@ -173,8 +173,8 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
           //console.log(requestURL);    // for debugging
           let requestArray = requestURL.pathname.split("/");
           //console.log(requestArray);    // for debugging
-          if (requestArray[requestArray.length - 2] === "conversation" ||
-              requestArray[requestArray.length - 1] === "inbox_initial_state.json") {
+          if (requestArray[requestArray.length - 1] === "inbox_initial_state.json" ||
+              requestArray[requestArray.length - 2] === "conversation") {
             //console.log(requestDetails);    // for debugging
             let filter = browser.webRequest.filterResponseData(requestDetails.requestId);
             let decoder = new TextDecoder("utf-8");
@@ -198,10 +198,10 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                 //console.log(stringResponse);    // for debugging
                 let jsonResponse = JSON.parse(stringResponse);
                 //console.log(jsonResponse);    // for debugging
-                if (jsonResponse.conversation_timeline) {
-                  //console.log(jsonResponse.conversation_timeline.entries);    // for debugging
-                  let conv_entries = jsonResponse.conversation_timeline.entries;
-                  for (let entry of conv_entries) {
+                if (jsonResponse.inbox_initial_state && jsonResponse.inbox_initial_state.entries) {
+                  //console.log(jsonResponse.inbox_initial_state.entries);    // for debugging
+                  let event_entries = jsonResponse.inbox_initial_state.entries;
+                  for (let entry of event_entries) {
                     //console.log(entry);    // for debugging
                     //console.log(entry.message.message_data.text);    // for debugging
                     if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
@@ -228,10 +228,10 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                     }
                     //console.log(entry);    // for debugging
                   }
-                } else if (jsonResponse.inbox_initial_state && jsonResponse.inbox_initial_state.entries) {
-                  //console.log(jsonResponse.inbox_initial_state.entries);    // for debugging
-                  let event_entries = jsonResponse.inbox_initial_state.entries;
-                  for (let entry of event_entries) {
+                } else if (jsonResponse.conversation_timeline) {
+                  //console.log(jsonResponse.conversation_timeline.entries);    // for debugging
+                  let conv_entries = jsonResponse.conversation_timeline.entries;
+                  for (let entry of conv_entries) {
                     //console.log(entry);    // for debugging
                     //console.log(entry.message.message_data.text);    // for debugging
                     if (entry.message &&
