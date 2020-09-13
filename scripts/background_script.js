@@ -121,7 +121,7 @@ TLD_background.handleMessage = function(request, sender) {
   if (request.setBadge) {    // if the message was sent to increase the badge number...
     //console.log(sender.tab.id);    // for debugging
     /*let gettingBadgeText = browser.browserAction.getBadgeText({tabId: sender.tab.id});    // get the badge text
-    gettingBadgeText.then(badgeText => { console.log(`Old badge text: ${badgeText}`); });    // log the badge text*/    //for debugging
+    gettingBadgeText.then(badgeText => { console.log(`Old badge text: ${badgeText}`); });    // log the badge text*/    // for debugging
     browser.browserAction.setBadgeText({text: request.setBadge, tabId: sender.tab.id});    // update the badge text
     //console.log(`The badge text has been updated to ${request.setBadge}.`);    // for debugging
     //sendResponse({response: `The badge text has been updated to ${request.setBadge}.`});    // only useful if handleResponse() is called from notifyBackgroundScript()
@@ -169,6 +169,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
           if (tab.id !== requestDetails.tabId) {
             return;
           }
+          //console.log(requestDetails.url);    // for debugging
           let requestURL = new URL(requestDetails.url);
           //console.log(requestURL);    // for debugging
           let requestArray = requestURL.pathname.split("/");
@@ -197,10 +198,11 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               if (TLD_background.hasJsonStructure(stringResponse)) {
                 //console.log(stringResponse);    // for debugging
                 let jsonResponse = JSON.parse(stringResponse);
+                //console.log(requestDetails.url);    // for debugging
                 //console.log(jsonResponse);    // for debugging
-                if (jsonResponse.inbox_initial_state && jsonResponse.inbox_initial_state.entries) {
-                  //console.log(jsonResponse.inbox_initial_state.entries);    // for debugging
+                if (jsonResponse.inbox_initial_state && jsonResponse.inbox_initial_state.entries) {    // if the JSON contains the initial messages intended for the "Messages" page or the message box...
                   let event_entries = jsonResponse.inbox_initial_state.entries;
+                  //console.log(event_entries);    // for debugging
                   for (let entry of event_entries) {
                     //console.log(entry);    // for debugging
                     //console.log(entry.message.message_data.text);    // for debugging
@@ -218,6 +220,8 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                       }    // uncloak the links from messages*/
                       if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
                           Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
+                        //console.log(requestDetails.requestId);    // for debugging
+                        //console.log(requestDetails.url);    // for debugging
                         let lastURL = urls[urls.length - 1];
                         //console.log(lastURL);    // for debugging
                         entry.message.message_data.attachment.card.url = lastURL.expanded_url;
@@ -228,9 +232,9 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                     }
                     //console.log(entry);    // for debugging
                   }
-                } else if (jsonResponse.conversation_timeline) {
-                  //console.log(jsonResponse.conversation_timeline.entries);    // for debugging
+                } else if (jsonResponse.conversation_timeline) {    // if the JSON contains additional messages intended for the "Messages" page or the message box...
                   let conv_entries = jsonResponse.conversation_timeline.entries;
+                  //console.log(conv_entries);    // for debugging
                   for (let entry of conv_entries) {
                     //console.log(entry);    // for debugging
                     //console.log(entry.message.message_data.text);    // for debugging
@@ -249,6 +253,8 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                       }    // uncloak the links from messages*/
                       if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
                           Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
+                        //console.log(requestDetails.requestId);    // for debugging
+                        //console.log(requestDetails.url);    // for debugging
                         let lastURL = urls[urls.length - 1];
                         //console.log(lastURL);    // for debugging
                         entry.message.message_data.attachment.card.url = lastURL.expanded_url;
