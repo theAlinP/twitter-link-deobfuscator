@@ -207,7 +207,30 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                 if (jsonResponse.inbox_initial_state && jsonResponse.inbox_initial_state.entries ||
                    jsonResponse.conversation_timeline && jsonResponse.conversation_timeline.entries ||
                    jsonResponse.user_events && jsonResponse.user_events.entries) {    // if the JSON contains messages...
-                  let msg_entries = jsonResponse[Object.keys(jsonResponse)[0]].entries;    // unreliable if jsonResponse has integer-like key names
+                  //console.log(requestDetails.url);    // for debugging
+                  let msg_entries;
+                  try {
+                    //console.log("jsonResponse.inbox_initial_state.entries");    // for debugging
+                    msg_entries = jsonResponse.inbox_initial_state.entries;
+                  } catch (err) {
+                    //console.log("An error was caught:");    // for debugging
+                    //console.error(err);    // for debugging
+                    try {
+                      //console.log("jsonResponse.conversation_timeline.entries");    // for debugging
+                      msg_entries = jsonResponse.conversation_timeline.entries;
+                    } catch (err) {
+                      //console.log("An error was caught:");    // for debugging
+                      //console.error(err);    // for debugging
+                      try {
+                        //console.log("jsonResponse.user_events.entries");    // for debugging
+                        msg_entries = jsonResponse.user_events.entries;
+                      } catch (err) {
+                        //console.log("An error was caught:");    // for debugging
+                        console.error(err);    // for debugging
+                        return;
+                      }
+                    }
+                  }
                   //console.log(msg_entries);    // for debugging
                   for (let entry of msg_entries) {
                     //console.log(entry);    // for debugging
