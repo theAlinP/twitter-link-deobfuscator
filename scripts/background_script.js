@@ -176,6 +176,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
           //console.log(requestArray);    // for debugging
           if (requestArray[requestArray.length - 1] === "inbox_initial_state.json" ||    // if the JSON contains the initial batch of Direct Messages...
               requestArray[requestArray.length - 2] === "conversation" ||    // if the JSON contains additional Direct Messages...
+              requestArray[requestArray.length - 1] === "user_updates.json" ||
               requestArray[requestArray.length - 1] === "home.json" ||    // if the JSON contains the initial or additional top tweets requested from the "Home" page...
               requestArray[requestArray.length - 1] === "home_latest.json" ||    // if the JSON contains the initial or additional latest tweets requested from the "Home" page...
               requestArray[requestArray.length - 2] === "profile") {    // if the JSON contains initial or additional tweets requested from a profile page...
@@ -230,6 +231,37 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                           Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
                         //console.log(requestDetails.requestId);    // for debugging
                         //console.log(requestDetails.url);    // for debugging
+                        let lastURL = urls[urls.length - 1];
+                        //console.log(lastURL);    // for debugging
+                        entry.message.message_data.attachment.card.url = lastURL.expanded_url;
+                        entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
+                        TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
+                        //console.log(entry);    // for debugging
+                      }    // uncloak the Twitter Cards from messages
+                    }
+                    //console.log(entry);    // for debugging
+                  }
+                } else if (jsonResponse.user_events && jsonResponse.user_events.entries) {
+                  //console.log(jsonResponse.user_events.entries);    // for debugging
+                  let event_entries = jsonResponse.user_events.entries;
+                  for (let entry of event_entries) {
+                    //console.log(entry);    // for debugging
+                    //console.log(entry.message.message_data.text);    // for debugging
+                    if (entry.message &&
+                        Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
+                        Object.prototype.hasOwnProperty.call(entry.message.message_data.entities, "urls")) {
+                      //console.log(entry);    // for debugging
+                      //console.log(entry.message.message_data.text);    // for debugging
+                      let urls = entry.message.message_data.entities.urls;
+                      /*for (let url of urls) {
+                        //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
+                        //console.log(entry.message.message_data.text);    // for debugging
+                        url.url = url.expanded_url;
+                        //console.log(url.url);    // for debugging
+                        TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
+                      }    // uncloak the links from messages*/
+                      if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
+                          Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
                         let lastURL = urls[urls.length - 1];
                         //console.log(lastURL);    // for debugging
                         entry.message.message_data.attachment.card.url = lastURL.expanded_url;
