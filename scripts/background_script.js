@@ -176,6 +176,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
           //console.log(requestArray);    // for debugging
           if (requestArray[requestArray.length - 1] === "inbox_initial_state.json" ||    // if the JSON contains the initial batch of Direct Messages...
               requestArray[requestArray.length - 2] === "conversation" ||    // if the JSON contains additional Direct Messages...
+              requestArray[requestArray.length - 1] === "user_updates.json" ||    // if the JSON contains additional Direct Messages...
               requestArray[requestArray.length - 1] === "home.json" ||    // if the JSON contains the initial or additional top tweets requested from the "Home" page...
               requestArray[requestArray.length - 1] === "home_latest.json" ||    // if the JSON contains the initial or additional latest tweets requested from the "Home" page...
               requestArray[requestArray.length - 2] === "profile") {    // if the JSON contains initial or additional tweets requested from a profile page...
@@ -204,10 +205,32 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                 //console.log(requestDetails.url);    // for debugging
                 //console.log(jsonResponse);    // for debugging
                 if (jsonResponse.inbox_initial_state && jsonResponse.inbox_initial_state.entries ||
-                   jsonResponse.conversation_timeline && jsonResponse.conversation_timeline.entries) {    // if the JSON contains messages...
-                  let msg_entries = jsonResponse.inbox_initial_state ?
-                    jsonResponse.inbox_initial_state.entries :
-                    jsonResponse.conversation_timeline.entries;
+                   jsonResponse.conversation_timeline && jsonResponse.conversation_timeline.entries ||
+                   jsonResponse.user_events && jsonResponse.user_events.entries) {    // if the JSON contains messages...
+                  //console.log(requestDetails.url);    // for debugging
+                  let msg_entries;
+                  try {
+                    //console.log("jsonResponse.inbox_initial_state.entries");    // for debugging
+                    msg_entries = jsonResponse.inbox_initial_state.entries;
+                  } catch (err) {
+                    //console.log("An error was caught:");    // for debugging
+                    //console.error(err);    // for debugging
+                    try {
+                      //console.log("jsonResponse.conversation_timeline.entries");    // for debugging
+                      msg_entries = jsonResponse.conversation_timeline.entries;
+                    } catch (err) {
+                      //console.log("An error was caught:");    // for debugging
+                      //console.error(err);    // for debugging
+                      try {
+                        //console.log("jsonResponse.user_events.entries");    // for debugging
+                        msg_entries = jsonResponse.user_events.entries;
+                      } catch (err) {
+                        //console.log("An error was caught:");    // for debugging
+                        console.error(err);    // for debugging
+                        return;
+                      }
+                    }
+                  }
                   //console.log(msg_entries);    // for debugging
                   for (let entry of msg_entries) {
                     //console.log(entry);    // for debugging
