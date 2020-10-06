@@ -175,7 +175,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
           let requestArray = requestURL.pathname.split("/");
           //console.log(requestArray);    // for debugging
           if (requestArray[requestArray.length - 1] === "inbox_initial_state.json" ||    // if the JSON contains the initial batch of Direct Messages...
-              requestArray[requestArray.length - 2] === "conversation" ||    // if the JSON contains additional Direct Messages...
+              requestArray[requestArray.length - 2] === "conversation" ||    // if the JSON contains additional Direct Messages or replies to tweets...
               requestArray[requestArray.length - 1] === "user_updates.json" ||    // if the JSON contains additional Direct Messages...
               requestArray[requestArray.length - 1] === "home.json" ||    // if the JSON contains the initial or additional top tweets requested from the "Home" page...
               requestArray[requestArray.length - 1] === "home_latest.json" ||    // if the JSON contains the initial or additional latest tweets requested from the "Home" page...
@@ -242,6 +242,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                       //console.log(entry);    // for debugging
                       //console.log(entry.message.message_data.text);    // for debugging
                       let urls = entry.message.message_data.entities.urls;
+                      //console.log(urls);    // for debugging
                       /*for (let url of urls) {
                         //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
                         //console.log(entry.message.message_data.text);    // for debugging
@@ -264,6 +265,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                     //console.log(entry);    // for debugging
                   }
                 } else if (jsonResponse.globalObjects && jsonResponse.globalObjects.tweets) {    // if the JSON contains tweets...
+                  //console.log(requestDetails.url);    // for debugging
                   let tweet_entries = jsonResponse.globalObjects.tweets;
                   //console.log(tweet_entries);    // for debugging
                   for (let entry of Object.keys(tweet_entries)) {
@@ -274,6 +276,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                       //console.log(tweet_entries[entry]);    // for debugging
                       //console.log(tweet_entries[entry].full_text);    // for debugging
                       let urls = tweet_entries[entry].entities.urls;
+                      //console.log(urls);    // for debugging
                       /*for (let url of urls) {
                         //tweet_entries[entry].full_text = tweet_entries[entry].full_text.replace(url.url, url.expanded_url);
                         //console.log(tweet_entries[entry].full_text);    // for debugging
