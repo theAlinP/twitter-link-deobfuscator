@@ -191,6 +191,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               data.push(event.data);
             };
             filter.onstop = () => {
+              //console.log("The response will be modified");    // for debugging
               let stringResponse = "";
               if (data.length == 1) {
                 stringResponse = decoder.decode(data[0]);
@@ -388,6 +389,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               //console.log(stringResponse);    // for debugging
               filter.write(encoder.encode(stringResponse));
               filter.close();
+              //console.log("The response was modified successfully");    // for debugging
             };
           }
         });
