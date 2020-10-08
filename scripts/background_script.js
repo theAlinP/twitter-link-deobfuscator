@@ -298,6 +298,16 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         continue;
                       }
 
+                      /**
+                       * Detect if the tweet contains a poll, and if it does,
+                       * don't uncloak the Card, wich is in fact the poll itself
+                       */
+                      if (Object.prototype.hasOwnProperty.call(tweet_entries[entry], "card") &&
+                        tweet_entries[entry].card.binding_values.choice1_count !== undefined) {
+                        //console.log("This tweet contains a poll");    // for debugging
+                        continue;
+                      }
+
                       /*for (let url of urls) {
                         //tweet_entries[entry].full_text = tweet_entries[entry].full_text.replace(url.url, url.expanded_url);
                         //console.log(tweet_entries[entry].full_text);    // for debugging
