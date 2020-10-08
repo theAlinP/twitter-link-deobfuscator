@@ -454,6 +454,9 @@ TLD.detectPage = function() {
   } else if (pathArray.length > 1 && pathArray[0] === "messages") {
     //console.log("A conversation from the \"Messages\" page was opened.");    // for debugging
     return "conversation";
+  } else if (pathArray.length === 1 && pathArray[0] === "search") {
+    //console.log("A \"Search\" page was opened.");    // for debugging
+    return "search";
   } else if (pathArray.length === 1) {
     let mainElement = document.body.querySelector("#react-root main");
     if (mainElement.querySelector("div[data-testid=\"UserDescription\"]")
@@ -576,6 +579,7 @@ TLD.modifyReactPages = function() {
       case "tweet":    // if a page with a tweet was opened...
       case "home":    // if the home page was opened...
       case "explore":    // if the "Explore" page was opened...
+      case "search":    // if a "Search" page was opened...
         if (TLD.findReactTimeline() &&
           TLD.findReactTimeline().querySelector("div[style*='min-height']") &&
           TLD.findReactTimeline().querySelector("div[style*='min-height']")
