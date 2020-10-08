@@ -281,6 +281,23 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                       //console.log(tweet_entries[entry].full_text);    // for debugging
                       let urls = tweet_entries[entry].entities.urls;
                       //console.log(urls);    // for debugging
+
+                      /**
+                       * In JSONs with search results, the tweets that don't
+                       * have any links originally shared by the user are
+                       * delivered with an "url" property but with an empty
+                       * array as its value and these tweets should be skipped
+                       */
+                      if (urls.length === 0) {
+                        //console.log(tweet_entries[entry].full_text);    // for debugging
+                        //console.log(tweet_entries[entry]);    // for debugging
+                        //console.log("This tweet has no URLs");    // for debugging
+                        /*if (Object.prototype.hasOwnProperty.call(tweet_entries[entry], "card")) {
+                          console.log("This tweet has no URLs but it has a Card");    // for debugging
+                        }*/
+                        continue;
+                      }
+
                       /*for (let url of urls) {
                         //tweet_entries[entry].full_text = tweet_entries[entry].full_text.replace(url.url, url.expanded_url);
                         //console.log(tweet_entries[entry].full_text);    // for debugging
