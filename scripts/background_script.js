@@ -182,7 +182,12 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               requestArray[requestArray.length - 2] === "profile" ||    // if the JSON contains initial or additional tweets requested from a profile page...
               requestArray[1] === "graphql" &&    // if a GraphQL API call is made to request(1/2)
               requestArray[requestArray.length - 1] === "Conversation" ||    // ...replies to tweets(2/2)
-              requestArray[requestArray.length - 1] === "adaptive.json") {    // if the JSON contains search results...
+              requestArray[requestArray.length - 1] === "adaptive.json" ||    // if the JSON contains search results...
+              requestArray[requestArray.length - 2] === "notifications" &&    // if an API call is made to request(1/2)
+              (requestArray[requestArray.length - 1] === "all.json" ||    // ...notifications for the "Notifications" page(2/2)
+              requestArray[requestArray.length - 1] === "mentions.json") ||    // ...mentions for the "Notifications" page(2/2)
+              requestArray[requestArray.length - 3] === "notifications" &&    // if a tweet(1/2)
+              requestArray[requestArray.length - 2] === "view") {    // ...from the "Notifications" page was opened(2/2)
             //console.log(requestDetails);    // for debugging
             let filter = browser.webRequest.filterResponseData(requestDetails.requestId);
             let decoder = new TextDecoder("utf-8");
