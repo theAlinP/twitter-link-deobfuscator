@@ -118,25 +118,12 @@ TLD_background.handleMessage = function(request, sender) {
   //console.log(sendResponse);    // for debugging
   //console.log(`Iframe location href: ${sender.url}`);    // for debugging
 
-  if (request.setBadge) {    // if the message was sent to increase the badge number...
-    //console.log(sender.tab.id);    // for debugging
-    /*let gettingBadgeText = browser.browserAction.getBadgeText({tabId: sender.tab.id});    // get the badge text
-    gettingBadgeText.then(badgeText => { console.log(`Old badge text: ${badgeText}`); });    // log the badge text*/    // for debugging
-    browser.browserAction.setBadgeText({text: request.setBadge, tabId: sender.tab.id});    // update the badge text
-    //console.log(`The badge text has been updated to ${request.setBadge}.`);    // for debugging
-    //sendResponse({response: `The badge text has been updated to ${request.setBadge}.`});    // only useful if handleResponse() is called from notifyBackgroundScript()
-  } else {    // otherwise, the message must have been sent from the old layout
-    browser.tabs.sendMessage(    /* send a message to the sender's tab. It will reach all the listeners from the content script;
-                                    from the parent window will be passed on to findTwitterCardOriginalDestination()
-                                    and from ALL the iframes will be passed on to restoreTwitterCardOriginalDestination().
-                                    Certain precautions need to be taken to ensure that it will be used by the right function
-                                    from the right window hence the use of the "iframeLocationHref" and "to" properties
-                                    and the checks inside the two functions from the content script. */
-      sender.tab.id, request
-    ).catch(TLD_background.onMessageError);
-
-    //sendResponse({response: "The message was received."});    // only useful if handleResponse() is called from notifyBackgroundScript()
-  }
+  //console.log(sender.tab.id);    // for debugging
+  /*let gettingBadgeText = browser.browserAction.getBadgeText({tabId: sender.tab.id});    // get the badge text
+  gettingBadgeText.then(badgeText => { console.log(`Old badge text: ${badgeText}`); });    // log the badge text*/    // for debugging
+  browser.browserAction.setBadgeText({text: request.setBadge, tabId: sender.tab.id});    // update the badge text
+  //console.log(`The badge text has been updated to ${request.setBadge}.`);    // for debugging
+  //sendResponse({response: `The badge text has been updated to ${request.setBadge}.`});    // only useful if handleResponse() is called from notifyBackgroundScript()
 };
 
 
