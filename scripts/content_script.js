@@ -390,27 +390,23 @@ TLD.modifyReactPages = function() {
 
 
 
-if (window === window.top) {    // add properties to the namespace from the top window, on the first run on the page
-  /**
-   * Properties of the namespace TLD
-   * @property {number} cleanedLinks - The number of links cleaned
-   * @property {string} lastCleanedPage - The URL of the last cleaned page
-   * @property {boolean} DMBoxMOActive - DM_Box_MutationObserver_Active - shows
-   * whether there is a MutationObserver attached to the message box
-   * @memberof TLD
-   */
-  TLD.cleanedLinks;
-  TLD.lastCleanedPage;
-  TLD.DMBoxMOActive = false;
-  //console.log(TLD);    // for debugging
-}
+/**
+ * Properties of the namespace TLD
+ * @property {number} cleanedLinks - The number of links cleaned
+ * @property {string} lastCleanedPage - The URL of the last cleaned page
+ * @property {boolean} DMBoxMOActive - DM_Box_MutationObserver_Active - shows
+ * whether there is a MutationObserver attached to the message box
+ * @memberof TLD
+ */
+TLD.cleanedLinks;
+TLD.lastCleanedPage;
+TLD.DMBoxMOActive = false;
+//console.log(TLD);    // for debugging
 
-if (window === window.top) {
-  browser.runtime.onMessage.addListener(() => {
-    //console.log("A message was received from the background script.");    // for debugging
-    TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
-  });    // listen for messages from the background script and increase the badge number
-}
+browser.runtime.onMessage.addListener(() => {
+  //console.log("A message was received from the background script.");    // for debugging
+  TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
+});    // listen for messages from the background script and increase the badge number
 
 if (document.body.querySelector("#react-root main")) {
   //console.log("The main element was found.");    // for debugging
