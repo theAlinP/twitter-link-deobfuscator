@@ -124,7 +124,14 @@ TLD.cleanReactWebsiteLink = function() {
           //console.log(link);    // for debugging
           if (link.hostname === "t.co") {
             link.setAttribute("data-shortened-url", link.href);
-            link.href = link.innerText;
+            if (link.lastElementChild.innerText === "…") {
+              let badURL = link.innerText;
+              //let goodURL = badURL.substring(0, badURL.length - 1);
+              let goodURL = badURL.slice(0, -1);
+              link.href = goodURL;
+            } else {
+              link.href = link.innerText;
+            }
             //console.log(link);    // for debugging
             TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
           }
