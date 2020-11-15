@@ -21,6 +21,21 @@ TLD_background.config = TLD_background.config || {};
 TLD_background.config.defaultAddonState = TLD_background.config.defaultAddonState || {};
 TLD_background.config.defaultAddonState.enabled = true;    // default add-on state
 TLD_background.config.badgeBackgroundColor = TLD_background.config.badgeBackgroundColor || {color: "green"};
+TLD_background.config.pathRegexPatterns = [
+  "/inbox_initial_state.json$",    // if the JSON contains the initial batch of Direct Messages
+  "/conversation/[0-9]+.json$",    // if the JSON contains replies to tweets
+  "/conversation/[0-9]+-[0-9]+.json$",    // if the JSON contains additional Direct Messages
+  "/user_updates.json$",    // if the JSON contains additional Direct Messages
+  "/home.json$",    // if the JSON contains the initial or additional top tweets requested from the "Home" page
+  "/home_latest.json$",    // if the JSON contains the initial or additional latest tweets requested from the "Home" page
+  "/profile/[0-9]+.json$",    // if the JSON contains initial or additional tweets requested from a profile page
+  "/graphql/.+[^/]/Conversation$",    // if a GraphQL API call is made to request replies to tweets
+  "/adaptive.json$",    // if the JSON contains search results
+  "/notifications/all.json$",    // if an API call is made to request notifications for the "Notifications" page
+  "/notifications/mentions.json$",    // if an API call is made to request mentions for the "Notifications" page
+  "/notifications/view/.+[^/].json$"    // if a tweet from the "Notifications" page was opened
+];
+TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
 
 
@@ -157,24 +172,9 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
             return;
           }
           //console.log(requestDetails.url);    // for debugging
-          let requestURL = new URL(requestDetails.url);
-          //console.log(requestURL);    // for debugging
-          let requestArray = requestURL.pathname.split("/");
-          //console.log(requestArray);    // for debugging
-          if (requestArray[requestArray.length - 1] === "inbox_initial_state.json" ||    // if the JSON contains the initial batch of Direct Messages...
-              requestArray[requestArray.length - 2] === "conversation" ||    // if the JSON contains additional Direct Messages or replies to tweets...
-              requestArray[requestArray.length - 1] === "user_updates.json" ||    // if the JSON contains additional Direct Messages...
-              requestArray[requestArray.length - 1] === "home.json" ||    // if the JSON contains the initial or additional top tweets requested from the "Home" page...
-              requestArray[requestArray.length - 1] === "home_latest.json" ||    // if the JSON contains the initial or additional latest tweets requested from the "Home" page...
-              requestArray[requestArray.length - 2] === "profile" ||    // if the JSON contains initial or additional tweets requested from a profile page...
-              requestArray[requestArray.length - 3] === "graphql" &&    // if a GraphQL API call is made to request(1/2)
-              requestArray[requestArray.length - 1] === "Conversation" ||    // ...replies to tweets(2/2)
-              requestArray[requestArray.length - 1] === "adaptive.json" ||    // if the JSON contains search results...
-              requestArray[requestArray.length - 2] === "notifications" &&    // if an API call is made to request(1/2)
-              (requestArray[requestArray.length - 1] === "all.json" ||    // ...notifications for the "Notifications" page(2/2)
-              requestArray[requestArray.length - 1] === "mentions.json") ||    // ...mentions for the "Notifications" page(2/2)
-              requestArray[requestArray.length - 3] === "notifications" &&    // if a tweet(1/2)
-              requestArray[requestArray.length - 2] === "view") {    // ...from the "Notifications" page was opened(2/2)
+          let cleanUrl = requestDetails.url.replace(/\/?\?.*/, "");    // remove the last "/" and the query strings from the request URL
+          //console.log(cleanUrl);    // for debugging
+          if (TLD_background.pathRegex.test(cleanUrl)) {
             //console.log(requestDetails);    // for debugging
             let filter = browser.webRequest.filterResponseData(requestDetails.requestId);
             let decoder = new TextDecoder("utf-8");
