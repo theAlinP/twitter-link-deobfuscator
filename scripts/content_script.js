@@ -223,41 +223,32 @@ TLD.detectPage = function() {
   //console.log(window.location);    // for debugging
   let locationPathname = window.location.pathname;
   //console.log(locationPathname);    // for debugging
-  let pathArray = locationPathname.split("/");
-  //console.log(pathArray);    // for debugging
-  for (let [index, path] of pathArray.entries()) {    // remove the null elements from the array
-    //console.log(path);
-    if (path === "") {    // if the element is null, like for example the first one...
-      pathArray.splice(index, 1);    // ...remove it from the array
-    }
-  }
-  //console.log(pathArray);    // for debugging
 
-  if (pathArray.length > 2 && pathArray[1] === "status") {
+  if (/^\/[^/]+\/status\/.*/.test(locationPathname)) {
     //console.log("A tweet page was opened.");    // for debugging
     return "tweet";
-  } else if (pathArray.length === 1 && pathArray[0] === "home") {
+  } else if (/^\/home\/*$/.test(locationPathname)) {
     //console.log("The home page was opened.");    // for debugging
     return "home";
-  } else if (pathArray.length === 1 && pathArray[0] === "explore") {
+  } else if (/^\/explore\/*$/.test(locationPathname)) {
     //console.log("The \"Explore\" page was opened.");    // for debugging
     return "explore";
-  } else if (pathArray.length === 1 && pathArray[0] === "messages") {
+  } else if (/^\/messages\/*$/.test(locationPathname)) {
     //console.log("The \"Messages\" page was opened.");    // for debugging
     return "messages";
-  } else if (pathArray.length > 1 && pathArray[0] === "messages") {
+  } else if (/^\/messages\/.+$/.test(locationPathname)) {
     //console.log("A conversation from the \"Messages\" page was opened.");    // for debugging
     return "conversation";
-  } else if (pathArray.length === 1 && pathArray[0] === "search") {
+  } else if (/^\/search\/*$/.test(locationPathname)) {
     //console.log("A \"Search\" page was opened.");    // for debugging
     return "search";
-  } else if ((pathArray.length === 1 || pathArray.length === 2) && pathArray[0] === "notifications") {
+  } else if (/^\/notifications(\/mentions)?$/.test(locationPathname)) {
     //console.log("A \"Notifications\" page was opened.");    // for debugging
     return "notifications";
-  } else if (pathArray.length === 2 && pathArray[0] === "i" && pathArray[1] === "timeline") {
+  } else if (/\/i\/timeline\/*$/.test(locationPathname)) {
     //console.log("A tweet from the \"Notifications\" page was opened.");    // for debugging
     return "timeline";
-  } else if (pathArray.length === 1) {
+  } else if (/\/[^/]+\/*$/.test(locationPathname)) {
     let mainElement = document.body.querySelector("#react-root main");
     if (mainElement.querySelector("div[data-testid=\"UserDescription\"]")
     || mainElement.querySelector("div[data-testid=\"UserProfileHeader_Items\"]")) {
@@ -363,7 +354,7 @@ TLD.modifyReactPages = function() {
             .querySelector("div[style*='min-height']"));    // find the container with tweets or replies and clean them
           TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
         } else {    // if the Timeline can't be found or was deleted...
-          //console.log("The Timeline was not found.");
+          //console.log("The Timeline was not found.");    // for debugging
           TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
         }
         //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
