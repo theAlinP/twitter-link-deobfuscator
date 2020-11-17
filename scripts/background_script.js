@@ -33,7 +33,8 @@ TLD_background.config.pathRegexPatterns = [
   "/adaptive.json$",    // if the JSON contains search results
   "/notifications/all.json$",    // if an API call is made to request notifications for the "Notifications" page
   "/notifications/mentions.json$",    // if an API call is made to request mentions for the "Notifications" page
-  "/notifications/view/.+[^/].json$"    // if a tweet from the "Notifications" page was opened
+  "/notifications/view/.+[^/].json$",    // if a tweet from the "Notifications" page was opened
+  "/timeline/list.json$"    // if an API call is made to request tweets for the "Lists" page
 ];
 TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
