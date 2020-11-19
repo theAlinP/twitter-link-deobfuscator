@@ -251,6 +251,9 @@ TLD.detectPage = function() {
   } else if (/\/i\/lists\/[0-9]+\/*$/.test(locationPathname)) {
     //console.log("A list from the \"Lists\" page was opened.");    // for debugging
     return "list";
+  } else if (/\/i\/bookmarks\/*$/.test(locationPathname)) {
+    //console.log("The \"Bookmarks\" page was opened.");    // for debugging
+    return "bookmarks";
   } else if (/\/[^/]+\/*$/.test(locationPathname)) {
     let mainElement = document.body.querySelector("#react-root main");
     if (mainElement.querySelector("div[data-testid=\"UserDescription\"]")
@@ -349,6 +352,7 @@ TLD.modifyReactPages = function() {
       case "notifications":    // if a "Notifications" page was opened...
       case "timeline":    // if a tweet from the "Notifications" page was opened...
       case "list":    // if a list from the "Lists" page was opened...
+      case "bookmarks":    // if the "Bookmarks" page was opened...
         if (TLD.findReactTimeline() &&
           TLD.findReactTimeline().querySelector("div[style*='min-height']") &&
           TLD.findReactTimeline().querySelector("div[style*='min-height']")
