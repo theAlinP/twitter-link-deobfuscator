@@ -118,36 +118,35 @@ TLD.cleanReactWebsiteLink = function() {
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
         //console.log(userDescription);    // for debugging
-        let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
-        //console.log(userProfileHeader);    // for debugging
         let links = userDescription.querySelectorAll("a[title]");    // in case the links have "title" attributes
         if (links.length === 0) {
           links = userDescription.querySelectorAll("a.css-16my406.r-ad9z0x.r-1qd0xha.r-bcqeeo.r-qvutc0.css-901oao");
         }    // in case the links have no "title" attributes
-        if (links.length === 0) {
-          return;
-        }
-        //console.log(links);    // for debugging
-        for (let link of links) {
-          //console.log(link);    // for debugging
-          if (link.hostname === "t.co") {
-            link.setAttribute("data-shortened-url", link.href);
-            if (link.hasAttribute("title")) {    // use the "title" attribute if the link has one
-              link.href = link.title;
-            } else {
-              if (link.lastElementChild.innerText === "…") {
-                let badURL = link.innerText;
-                //let goodURL = badURL.substring(0, badURL.length - 1);
-                let goodURL = badURL.slice(0, -1);
-                link.href = goodURL;
-              } else {
-                link.href = link.innerText;
-              }
-            }
+        if (links.length !== 0) {
+          //console.log(links);    // for debugging
+          for (let link of links) {
             //console.log(link);    // for debugging
-            TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
+            if (link.hostname === "t.co") {
+              link.setAttribute("data-shortened-url", link.href);
+              if (link.hasAttribute("title")) {    // use the "title" attribute if the link has one
+                link.href = link.title;
+              } else {
+                if (link.lastElementChild.innerText === "…") {
+                  let badURL = link.innerText;
+                  //let goodURL = badURL.substring(0, badURL.length - 1);
+                  let goodURL = badURL.slice(0, -1);
+                  link.href = goodURL;
+                } else {
+                  link.href = link.innerText;
+                }
+              }
+              //console.log(link);    // for debugging
+              TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
+            }
           }
         }
+        let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
+        //console.log(userProfileHeader);    // for debugging
         links = userProfileHeader.querySelectorAll("a");
         //console.log(links);    // for debugging
         for (let link of links) {
