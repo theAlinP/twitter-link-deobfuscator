@@ -65,8 +65,11 @@ TLD.revealReactLinks = function(container) {
         //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
         let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
         if (links.length === 0) {
-          links = container.querySelectorAll("a.css-16my406.r-ad9z0x.r-1qd0xha.r-bcqeeo.r-qvutc0.css-901oao");
+          links = container.querySelectorAll("a.css-4rbku5.css-18t94o4.css-901oao.css-16my406.r-1loqt21.r-poiln3.r-bcqeeo.r-qvutc0");
         }    // in case the links have no "title" attributes
+        if (links.length === 0) {
+          links = container.querySelectorAll("a.css-16my406.r-bcqeeo.r-qvutc0.css-901oao");
+        }    // fallback in case the CSS classes of the links have been changed
         if (links.length === 0) {
           return;
         }
@@ -120,8 +123,11 @@ TLD.cleanReactWebsiteLink = function() {
         //console.log(userDescription);    // for debugging
         let userDescriptionLinks = userDescription.querySelectorAll("a[title]");    // in case the links have "title" attributes
         if (userDescriptionLinks.length === 0) {
-          userDescriptionLinks = userDescription.querySelectorAll("a.css-16my406.r-ad9z0x.r-1qd0xha.r-bcqeeo.r-qvutc0.css-901oao");
+          userDescriptionLinks = userDescription.querySelectorAll("a.css-4rbku5.css-18t94o4.css-901oao.css-16my406.r-1loqt21.r-poiln3.r-bcqeeo.r-qvutc0");
         }    // in case the links have no "title" attributes
+        if (userDescriptionLinks.length === 0) {
+          userDescriptionLinks = userDescription.querySelectorAll("a.css-16my406.r-bcqeeo.r-qvutc0.css-901oao");
+        }    // fallback in case the CSS classes of the links have been changed
         if (userDescriptionLinks.length !== 0) {
           //console.log(userDescriptionLinks);    // for debugging
           for (let link of userDescriptionLinks) {
