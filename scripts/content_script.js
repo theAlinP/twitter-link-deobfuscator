@@ -187,7 +187,7 @@ TLD.listenForReactTweetsAndReplies = function(container) {
   /**
    * Call TLD.revealReactLinks() every time new tweets or replies are added
    */
-  const containerObserver = new MutationObserver(function() {
+  const containerObserver = new MutationObserver(() => {
     //console.log("containerObserver");    // for debugging
     TLD.revealReactLinks(container);
   });
@@ -213,7 +213,7 @@ TLD.listenForReactMessages = function(container) {
   /**
    * Call TLD.revealReactLinks() every time new messages are added
    */
-  const containerObserver = new MutationObserver(function() {
+  const containerObserver = new MutationObserver(() => {
     //console.log("listenForReactMessages() containerObserver");    // for debugging
     TLD.revealReactLinks(container);
   });
@@ -345,7 +345,7 @@ TLD.modifyDMBox = function() {
 TLD.modifyReactPages = function() {
   let mainElement = document.body.querySelector("#react-root main");
   //console.log(mainElement);    // for debugging
-  const mainObserver = new MutationObserver(function() {
+  const mainObserver = new MutationObserver(() => {
     //console.log("mainObserver");    // for debugging
     if (TLD.lastCleanedPage !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
       /**
@@ -435,7 +435,7 @@ if (document.body.querySelector("#react-root main")) {
   //console.log("The main element was found.");    // for debugging
   TLD.modifyReactPages();
 } else {
-  const bodyObserver = new MutationObserver(function() {
+  const bodyObserver = new MutationObserver(() => {
     //console.log("bodyObserver");    // for debugging
     if (document.body.querySelector("#react-root main")) {
       //console.log("The main element was found.");    // for debugging
