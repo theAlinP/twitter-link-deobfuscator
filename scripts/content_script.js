@@ -64,35 +64,7 @@ TLD.revealReactLinks = function(container) {
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         let links = TLD.selectLinks(container);
         //console.log(links);    // for debugging
-        if (links.length === 0) {
-          return;
-        }
-        for (let link of links) {
-        //for (let [index, link] of links.entries()) {    // for debugging
-          if (link.hostname === "t.co" && link.pathname !== "/") {
-            //console.log(link);    // for debugging
-            //console.log(`link.pathname: ${link.pathname}`);    // for debugging
-            /*console.log(`
-${index + 1}.href:             ${link.href}
-${index + 1}.title:            ${link.title}
-${index + 1}.innerText:        ${link.innerText}`);*/    // for debugging
-            link.setAttribute("data-shortened-url", link.href);
-            if (link.hasAttribute("title")) {    // use the "title" attribute if the link has one
-              link.href = link.title;
-            } else {
-              if (link.lastElementChild.innerText === "…") {
-                let badURL = link.innerText;
-                //let goodURL = badURL.substring(0, badURL.length - 1);
-                let goodURL = badURL.slice(0, -1);
-                link.href = goodURL;
-              } else {
-                link.href = link.innerText;
-              }
-            }
-            //console.log(link);    // for debugging
-            TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
-          }
-        }
+        TLD.uncloakLinks(links);
       }
     })
     .catch(() => {
@@ -116,42 +88,12 @@ TLD.cleanReactWebsiteLink = function() {
         //console.log(userDescription);    // for debugging
         let userDescriptionLinks = TLD.selectLinks(userDescription);
         //console.log(userDescriptionLinks);    // for debugging
-        if (userDescriptionLinks.length !== 0) {
-          for (let link of userDescriptionLinks) {
-            //console.log(link);    // for debugging
-            if (link.hostname === "t.co") {
-              link.setAttribute("data-shortened-url", link.href);
-              if (link.hasAttribute("title")) {    // use the "title" attribute if the link has one
-                link.href = link.title;
-              } else {
-                if (link.lastElementChild.innerText === "…") {
-                  let badURL = link.innerText;
-                  //let goodURL = badURL.substring(0, badURL.length - 1);
-                  let goodURL = badURL.slice(0, -1);
-                  link.href = goodURL;
-                } else {
-                  link.href = link.innerText;
-                }
-              }
-              //console.log(link);    // for debugging
-              TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
-            }
-          }
-        }
+        TLD.uncloakLinks(userDescriptionLinks);
         let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
         //console.log(userProfileHeader);    // for debugging
         let userProfileHeaderLinks = TLD.selectLinks(userProfileHeader);
         //console.log(userProfileHeaderLinks);    // for debugging
-        if (userProfileHeaderLinks.length === 0) {
-          return;
-        }
-        for (let link of userProfileHeaderLinks) {
-          //console.log(link);    // for debugging
-          link.setAttribute("data-shortened-url", link.href);
-          link.href = `http://${link.text}`;
-          //console.log(link);    // for debugging
-          TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
-        }
+        TLD.uncloakLinks(userProfileHeaderLinks);
       }
     })
     .catch(() => {
@@ -420,6 +362,48 @@ TLD.selectLinks = function(container) {
     links = container.querySelectorAll("a.css-16my406.r-bcqeeo.r-qvutc0.css-901oao");
   }    // fallback in case the CSS classes of the links have been changed
   return links;
+};
+
+
+/**
+ * A function that uncloaks the text links
+ * @method uncloakLinks
+ * @memberof TLD
+ * @param {NodeList} links - The list of text links. It should be a NodeList
+ * as the one returned by TLD.selectLinks()
+ */
+TLD.uncloakLinks = function(links) {
+  if (links.length === 0) {
+    return;
+  }
+  for (let link of links) {
+    //for (let [index, link] of links.entries()) {    // for debugging
+    //console.log(link);    // for debugging
+    if (link.hostname !== "t.co" ||
+      (link.hostname === "t.co" && link.pathname === "/")) {
+      continue;
+    }    // if the link is not in the form "t.co/abc", skip it
+    /*console.log(`
+${index + 1}.href:             ${link.href}
+${index + 1}.title:            ${link.title}
+${index + 1}.innerText:        ${link.innerText}`);*/    // for debugging
+    link.setAttribute("data-shortened-url", link.href);
+    if (link.hasAttribute("title")) {    // use the "title" attribute if the link has one
+      link.href = link.title;
+    } else {
+      let linkHref = link.innerText;    // link.text and link.textContent works, too
+      if (link.lastElementChild.innerText === "…") {
+        //let linkHref = linkHref.substring(0, linkHref.length - 1);
+        linkHref = linkHref.slice(0, -1);
+      }    // if there is a trailing ellipsis character, remove it
+      if (!/^[a-zA-Z0-9+\-.]+:\/\//.test(linkHref)) {
+        linkHref = `http://${linkHref}`;
+      }    // add a protocol if there isn't one in the link text
+      link.href = linkHref;
+    }
+    //console.log(link);    // for debugging
+    TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
+  }
 };
 
 
