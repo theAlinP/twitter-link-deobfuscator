@@ -10,15 +10,6 @@ var TLD = TLD || {};
 
 
 /**
- * Declare some variables
- */
-var bodyObserver, mainObserver, tweetsAndRepliesContainerObserver,
-  messagesContainerObserver, DMBoxObserver;
-var tweetsAndRepliesContainerMOActive = false;
-var messagesContainerMOActive = false;
-
-
-/**
  * A function that communicates with the background script {@link boolean}
  * @method notifyBackgroundScript
  * @memberof TLD
@@ -128,14 +119,14 @@ TLD.listenForReactTweetsAndReplies = function(container) {
   /**
    * Call TLD.revealReactLinks() every time new tweets or replies are added
    */
-  tweetsAndRepliesContainerObserver = new MutationObserver(() => {
-    //console.log("tweetsAndRepliesContainerObserver");    // for debugging
+  TLD.tweetsAndRepliesContainerObserver = new MutationObserver(() => {
+    //console.log("TLD.tweetsAndRepliesContainerObserver");    // for debugging
     TLD.revealReactLinks(container);
   });
   const tweetsAndRepliesContainerObserverConfig = {childList: true, subtree: false};
-  tweetsAndRepliesContainerObserver.observe(container, tweetsAndRepliesContainerObserverConfig);
-  tweetsAndRepliesContainerMOActive = true;
-  //console.log(tweetsAndRepliesContainerObserver);
+  TLD.tweetsAndRepliesContainerObserver.observe(container, tweetsAndRepliesContainerObserverConfig);
+  TLD.tweetsAndRepliesContainerMOActive = true;
+  //console.log(TLD.tweetsAndRepliesContainerObserver);
 };
 
 
@@ -156,14 +147,14 @@ TLD.listenForReactMessages = function(container) {
   /**
    * Call TLD.revealReactLinks() every time new messages are added
    */
-  messagesContainerObserver = new MutationObserver(() => {
-    //console.log("messagesContainerObserver");    // for debugging
+  TLD.messagesContainerObserver = new MutationObserver(() => {
+    //console.log("TLD.messagesContainerObserver");    // for debugging
     TLD.revealReactLinks(container);
   });
   const messagesContainerObserverConfig = {childList: true, subtree: true};
-  messagesContainerObserver.observe(container, messagesContainerObserverConfig);
+  TLD.messagesContainerObserver.observe(container, messagesContainerObserverConfig);
   TLD.messagesContainerDMBoxMOActive = true;
-  //console.log(messagesContainerObserver);
+  //console.log(TLD.messagesContainerObserver);
 };
 
 
@@ -290,8 +281,8 @@ TLD.modifyDMBox = function() {
 TLD.modifyReactPages = function() {
   let mainElement = document.body.querySelector("#react-root main");
   //console.log(mainElement);    // for debugging
-  mainObserver = new MutationObserver(() => {
-    //console.log("mainObserver");    // for debugging
+  TLD.mainObserver = new MutationObserver(() => {
+    //console.log("TLD.mainObserver");    // for debugging
     if (TLD.lastCleanedPage !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
       /**
        * Clean the tweets or replies on the page which was opened initially
@@ -318,14 +309,14 @@ TLD.modifyReactPages = function() {
           TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
         } else {    // if the Timeline can't be found or was deleted...
           //console.log("The Timeline was not found.");    // for debugging
-          if (tweetsAndRepliesContainerMOActive === true) {
-            tweetsAndRepliesContainerObserver.disconnect();
-            tweetsAndRepliesContainerMOActive = false;
-            tweetsAndRepliesContainerObserver = null;
-          } else if (messagesContainerMOActive === true) {
-            messagesContainerObserver.disconnect();
-            messagesContainerMOActive = false;
-            messagesContainerObserver = null;
+          if (TLD.tweetsAndRepliesContainerMOActive === true) {
+            TLD.tweetsAndRepliesContainerObserver.disconnect();
+            TLD.tweetsAndRepliesContainerMOActive = false;
+            delete TLD.tweetsAndRepliesContainerObserver;
+          } else if (TLD.messagesContainerMOActive === true) {
+            TLD.messagesContainerObserver.disconnect();
+            TLD.messagesContainerMOActive = false;
+            delete TLD.messagesContainerObserver;
           }
           TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
         }
@@ -351,18 +342,18 @@ TLD.modifyReactPages = function() {
     if (DMBox !== null && TLD.DMBoxMOActive === false) {
       //console.log(DMBox);    // for debugging
       TLD.modifyDMBox();
-      DMBoxObserver = new MutationObserver(TLD.modifyDMBox);
+      TLD.DMBoxObserver = new MutationObserver(TLD.modifyDMBox);
       const DMBoxObserverConfig = {childList: true, subtree: true};
-      DMBoxObserver.observe(DMBox, DMBoxObserverConfig);
+      TLD.DMBoxObserver.observe(DMBox, DMBoxObserverConfig);
       TLD.DMBoxMOActive = true;
     } else if (DMBox === null && TLD.DMBoxMOActive === true) {
-      DMBoxObserver.disconnect();
+      TLD.DMBoxObserver.disconnect();
       TLD.DMBoxMOActive = false;
-      DMBoxObserver = null;
+      delete TLD.DMBoxObserver;
     }
   });
   const mainObserverConfig = {childList: true, subtree: true};
-  mainObserver.observe(mainElement, mainObserverConfig);
+  TLD.mainObserver.observe(mainElement, mainObserverConfig);
 };
 
 
@@ -434,12 +425,18 @@ ${index + 1}.innerText:        ${link.innerText}`);*/    // for debugging
  * Properties of the namespace TLD
  * @property {number} cleanedLinks - The number of links cleaned
  * @property {string} lastCleanedPage - The URL of the last cleaned page
+ * @property {boolean} tweetsAndRepliesContainerMOActive - tweets_And_Replies_Container_MutationObserver_Active - shows
+ * whether there is a MutationObserver attached to the tweets and replies container
+ * @property {boolean} messagesContainerMOActive - messages_Container_MutationObserver_Active - shows
+ * whether there is a MutationObserver attached to the message container
  * @property {boolean} DMBoxMOActive - DM_Box_MutationObserver_Active - shows
  * whether there is a MutationObserver attached to the message box
  * @memberof TLD
  */
 TLD.cleanedLinks;
 TLD.lastCleanedPage;
+TLD.tweetsAndRepliesContainerMOActive = false;
+TLD.messagesContainerMOActive = false;
 TLD.DMBoxMOActive = false;
 //console.log(TLD);    // for debugging
 
@@ -452,15 +449,15 @@ if (document.body.querySelector("#react-root main")) {
   //console.log("The main element was found.");    // for debugging
   TLD.modifyReactPages();
 } else {
-  bodyObserver = new MutationObserver(() => {
-    //console.log("bodyObserver");    // for debugging
+  TLD.bodyObserver = new MutationObserver(() => {
+    //console.log("TLD.bodyObserver");    // for debugging
     if (document.body.querySelector("#react-root main")) {
       //console.log("The main element was found.");    // for debugging
-      bodyObserver.disconnect();
-      bodyObserver = null;
+      TLD.bodyObserver.disconnect();
+      delete TLD.bodyObserver;
       TLD.modifyReactPages();
     }
   });
   const bodyObserverConfig = {childList: true, subtree: true};
-  bodyObserver.observe(document.body, bodyObserverConfig);
+  TLD.bodyObserver.observe(document.body, bodyObserverConfig);
 }
