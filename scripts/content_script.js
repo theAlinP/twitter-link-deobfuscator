@@ -62,18 +62,11 @@ TLD.revealReactLinks = function(container) {
     .then((storedSettings) => {
       //console.log(`The add-on state is: ${storedSettings.enabled}`);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
-        //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
-        let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
-        if (links.length === 0) {
-          links = container.querySelectorAll("a.css-4rbku5.css-18t94o4.css-901oao.css-16my406.r-1loqt21.r-poiln3.r-bcqeeo.r-qvutc0");
-        }    // in case the links have no "title" attributes
-        if (links.length === 0) {
-          links = container.querySelectorAll("a.css-16my406.r-bcqeeo.r-qvutc0.css-901oao");
-        }    // fallback in case the CSS classes of the links have been changed
+        let links = TLD.selectLinks(container);
+        //console.log(links);    // for debugging
         if (links.length === 0) {
           return;
         }
-        //console.log(links);    // for debugging
         for (let link of links) {
         //for (let [index, link] of links.entries()) {    // for debugging
           if (link.hostname === "t.co" && link.pathname !== "/") {
@@ -121,15 +114,9 @@ TLD.cleanReactWebsiteLink = function() {
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
         let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
         //console.log(userDescription);    // for debugging
-        let userDescriptionLinks = userDescription.querySelectorAll("a[title]");    // in case the links have "title" attributes
-        if (userDescriptionLinks.length === 0) {
-          userDescriptionLinks = userDescription.querySelectorAll("a.css-4rbku5.css-18t94o4.css-901oao.css-16my406.r-1loqt21.r-poiln3.r-bcqeeo.r-qvutc0");
-        }    // in case the links have no "title" attributes
-        if (userDescriptionLinks.length === 0) {
-          userDescriptionLinks = userDescription.querySelectorAll("a.css-16my406.r-bcqeeo.r-qvutc0.css-901oao");
-        }    // fallback in case the CSS classes of the links have been changed
+        let userDescriptionLinks = TLD.selectLinks(userDescription);
+        //console.log(userDescriptionLinks);    // for debugging
         if (userDescriptionLinks.length !== 0) {
-          //console.log(userDescriptionLinks);    // for debugging
           for (let link of userDescriptionLinks) {
             //console.log(link);    // for debugging
             if (link.hostname === "t.co") {
@@ -153,8 +140,11 @@ TLD.cleanReactWebsiteLink = function() {
         }
         let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
         //console.log(userProfileHeader);    // for debugging
-        let userProfileHeaderLinks = userProfileHeader.querySelectorAll("a");
+        let userProfileHeaderLinks = TLD.selectLinks(userProfileHeader);
         //console.log(userProfileHeaderLinks);    // for debugging
+        if (userProfileHeaderLinks.length === 0) {
+          return;
+        }
         for (let link of userProfileHeaderLinks) {
           //console.log(link);    // for debugging
           link.setAttribute("data-shortened-url", link.href);
@@ -409,6 +399,27 @@ TLD.modifyReactPages = function() {
   });
   const mainObserverConfig = {childList: true, subtree: true};
   mainObserver.observe(mainElement, mainObserverConfig);
+};
+
+
+/**
+ * A function that selects the text links
+ * @method selectLinks
+ * @memberof TLD
+ * @param {HTMLDivElement} container - The element containing the text links. It
+ * should be the type of element returned by getElementById() or
+ * querySelector() or similar methods
+ * @returns {NodeList} Returns the list of text links found in the container
+ */
+TLD.selectLinks = function(container) {
+  let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
+  if (links.length === 0) {
+    links = container.querySelectorAll("a.css-4rbku5.css-18t94o4.css-901oao.css-16my406.r-1loqt21.r-poiln3.r-bcqeeo.r-qvutc0");
+  }    // in case the links have no "title" attributes
+  if (links.length === 0) {
+    links = container.querySelectorAll("a.css-16my406.r-bcqeeo.r-qvutc0.css-901oao");
+  }    // fallback in case the CSS classes of the links have been changed
+  return links;
 };
 
 
