@@ -212,29 +212,12 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
              jsonResponse?.conversation_timeline?.entries ||
              jsonResponse?.user_events?.entries) {    // if the JSON contains messages...
             //console.log(requestDetails.url);    // for debugging
-            let msg_entries;
-            try {
-              //console.log("jsonResponse.inbox_initial_state.entries");    // for debugging
-              msg_entries = jsonResponse.inbox_initial_state.entries;
-            } catch (err) {
-              //console.log("An error was caught:");    // for debugging
-              //console.error(err);    // for debugging
-              try {
-                //console.log("jsonResponse.conversation_timeline.entries");    // for debugging
-                msg_entries = jsonResponse.conversation_timeline.entries;
-              } catch (err) {
-                //console.log("An error was caught:");    // for debugging
-                //console.error(err);    // for debugging
-                try {
-                  //console.log("jsonResponse.user_events.entries");    // for debugging
-                  msg_entries = jsonResponse.user_events.entries;
-                } catch (err) {
-                  //console.log("An error was caught:");    // for debugging
-                  console.error(err);    // for debugging
-                  return;
-                }
-              }
-            }
+            //console.log(jsonResponse?.inbox_initial_state?.entries);    // for debugging
+            //console.log(jsonResponse?.conversation_timeline?.entries);    // for debugging
+            //console.log(jsonResponse?.user_events?.entries);    // for debugging
+            let msg_entries = jsonResponse?.inbox_initial_state?.entries ||
+              jsonResponse?.conversation_timeline?.entries ||
+              jsonResponse?.user_events?.entries;
             //console.log(msg_entries);    // for debugging
             for (let entry of msg_entries) {
               //console.log(entry);    // for debugging
@@ -345,63 +328,56 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
             //console.log(tweet_entries);    // for debugging
             for (let entry of tweet_entries) {
               //console.log(entry);    // for debugging
-              try {
-                //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-                if (!entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
-                  continue;
-                }
-                //console.log(entry);    // for debugging
-                //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-                let urls = entry.item.itemContent.tweet.legacy.entities.urls;
-                //console.log(urls);    // for debugging
-                /*for (let url of urls) {
-                  //entry.item.itemContent.tweet.legacy.full_text = entry.item.itemContent.tweet.legacy.full_text.replace(url.url, url.expanded_url);
-                  //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-                  url.url = url.expanded_url;
-                  //console.log(url.url);    // for debugging
-                  TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
-                }    // uncloak the links from replies*/
-                if (!entry.item.itemContent.tweet.legacy?.card) {
-                  continue;
-                }
-                //console.log(requestDetails.requestId);    // for debugging
-                //console.log(requestDetails.url);    // for debugging
-                let lastURL = urls[urls.length - 1];
-                //console.log(lastURL);    // for debugging
-                entry.item.itemContent.tweet.legacy.card.url = lastURL.expanded_url;
-                //console.log(entry.item.itemContent.tweet.legacy.card.url);    // for debugging
-                //console.log(entry.item.itemContent.tweet.legacy.card.binding_values);    // for debugging
-                if (Object.prototype.toString.call(
-                  entry.item.itemContent.tweet.legacy.card.binding_values === "[object Array]")) {
-                  for (let binding of entry.item.itemContent.tweet.legacy.card.binding_values) {
-                    //console.log(binding);    // for debugging
-                    if (binding.key === "card_url") {
-                      binding.value.string_value = lastURL.expanded_url;
-                      //console.log(binding.value.string_value);    // for debugging
-                    }
-                    //console.log(binding);    // for debugging
-                  }
-                } else if (Object.prototype.toString.call(
-                  entry.item.itemContent.tweet.legacy.card.binding_values === "[object Object]")) {
-                  Object.entries(entry.item.itemContent.tweet.legacy.card.binding_values)
-                    .forEach(([key, value]) => {
-                      //console.log(key);    // for debugging
-                      //console.log(value);    // for debugging
-                      if (key === "card_url") {
-                        value.string_value = lastURL.expanded_url;
-                        //console.log(value.string_value);    // for debugging
-                      }
-                      //console.log(value);    // for debugging
-                    });
-                }
-                //console.log(entry.item.itemContent.tweet.legacy.card.binding_values);    // for debugging
-                TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
-                //console.log(entry);    // for debugging
-              } catch (err) {
-                //console.log("The entry above did not contain a tweet");    // for debugging
-                //console.log("An error was caught:");    // for debugging
-                //console.error(err);    // for debugging
+              //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
+              if (!entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
+                continue;
               }
+              //console.log(entry);    // for debugging
+              //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
+              let urls = entry.item.itemContent.tweet.legacy.entities.urls;
+              //console.log(urls);    // for debugging
+              /*for (let url of urls) {
+                //entry.item.itemContent.tweet.legacy.full_text = entry.item.itemContent.tweet.legacy.full_text.replace(url.url, url.expanded_url);
+                //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
+                url.url = url.expanded_url;
+                //console.log(url.url);    // for debugging
+                TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
+              }    // uncloak the links from replies*/
+              if (!entry.item.itemContent.tweet.legacy?.card) {
+                continue;
+              }
+              //console.log(requestDetails.requestId);    // for debugging
+              //console.log(requestDetails.url);    // for debugging
+              let lastURL = urls[urls.length - 1];
+              //console.log(lastURL);    // for debugging
+              entry.item.itemContent.tweet.legacy.card.url = lastURL.expanded_url;
+              //console.log(entry.item.itemContent.tweet.legacy.card.url);    // for debugging
+              //console.log(entry.item.itemContent.tweet.legacy.card.binding_values);    // for debugging
+              if (Object.prototype.toString.call(
+                entry.item.itemContent.tweet.legacy.card.binding_values === "[object Array]")) {
+                for (let binding of entry.item.itemContent.tweet.legacy.card.binding_values) {
+                  //console.log(binding);    // for debugging
+                  if (binding.key === "card_url") {
+                    binding.value.string_value = lastURL.expanded_url;
+                    //console.log(binding.value.string_value);    // for debugging
+                  }
+                  //console.log(binding);    // for debugging
+                }
+              } else if (Object.prototype.toString.call(
+                entry.item.itemContent.tweet.legacy.card.binding_values === "[object Object]")) {
+                Object.entries(entry.item.itemContent.tweet.legacy.card.binding_values)
+                  .forEach(([key, value]) => {
+                    //console.log(key);    // for debugging
+                    //console.log(value);    // for debugging
+                    if (key === "card_url") {
+                      value.string_value = lastURL.expanded_url;
+                      //console.log(value.string_value);    // for debugging
+                    }
+                    //console.log(value);    // for debugging
+                  });
+              }
+              //console.log(entry.item.itemContent.tweet.legacy.card.binding_values);    // for debugging
+              TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
               //console.log(entry);    // for debugging
             }    // uncloak the Twitter Cards from replies
           }
