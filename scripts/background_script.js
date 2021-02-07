@@ -208,16 +208,14 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
           let jsonResponse = JSON.parse(stringResponse);
           //console.log(requestDetails.url);    // for debugging
           //console.log(jsonResponse);    // for debugging
-          if (jsonResponse?.inbox_initial_state?.entries ||
-             jsonResponse?.conversation_timeline?.entries ||
-             jsonResponse?.user_events?.entries) {    // if the JSON contains messages...
+          let msg_entries = jsonResponse?.inbox_initial_state?.entries ||
+            jsonResponse?.conversation_timeline?.entries ||
+            jsonResponse?.user_events?.entries;
+          if (msg_entries) {    // if the JSON contains messages...
             //console.log(requestDetails.url);    // for debugging
             //console.log(jsonResponse?.inbox_initial_state?.entries);    // for debugging
             //console.log(jsonResponse?.conversation_timeline?.entries);    // for debugging
             //console.log(jsonResponse?.user_events?.entries);    // for debugging
-            let msg_entries = jsonResponse?.inbox_initial_state?.entries ||
-              jsonResponse?.conversation_timeline?.entries ||
-              jsonResponse?.user_events?.entries;
             //console.log(msg_entries);    // for debugging
             for (let entry of msg_entries) {
               //console.log(entry);    // for debugging
