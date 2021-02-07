@@ -202,9 +202,9 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                 let jsonResponse = JSON.parse(stringResponse);
                 //console.log(requestDetails.url);    // for debugging
                 //console.log(jsonResponse);    // for debugging
-                if (jsonResponse.inbox_initial_state && jsonResponse.inbox_initial_state.entries ||
-                   jsonResponse.conversation_timeline && jsonResponse.conversation_timeline.entries ||
-                   jsonResponse.user_events && jsonResponse.user_events.entries) {    // if the JSON contains messages...
+                if (jsonResponse?.inbox_initial_state?.entries ||
+                   jsonResponse?.conversation_timeline?.entries ||
+                   jsonResponse?.user_events?.entries) {    // if the JSON contains messages...
                   //console.log(requestDetails.url);    // for debugging
                   let msg_entries;
                   try {
@@ -233,10 +233,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                   for (let entry of msg_entries) {
                     //console.log(entry);    // for debugging
                     //console.log(entry.message.message_data.text);    // for debugging
-                    if (entry.message &&
-                        Object.prototype.hasOwnProperty.call(entry.message, "message_data") &&
-                        Object.prototype.hasOwnProperty.call(entry.message.message_data, "entities") &&
-                        Object.prototype.hasOwnProperty.call(entry.message.message_data.entities, "urls")) {
+                    if (entry?.message?.message_data?.entities?.urls) {
                       //console.log(entry);    // for debugging
                       //console.log(entry.message.message_data.text);    // for debugging
                       let urls = entry.message.message_data.entities.urls;
@@ -248,8 +245,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         //console.log(url.url);    // for debugging
                         TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                       }    // uncloak the links from messages*/
-                      if (Object.prototype.hasOwnProperty.call(entry.message.message_data, "attachment") &&
-                          Object.prototype.hasOwnProperty.call(entry.message.message_data.attachment, "card")) {
+                      if (entry.message.message_data?.attachment?.card) {
                         //console.log(requestDetails.requestId);    // for debugging
                         //console.log(requestDetails.url);    // for debugging
                         let lastURL = urls[urls.length - 1];
@@ -262,15 +258,14 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                     }
                     //console.log(entry);    // for debugging
                   }
-                } else if (jsonResponse.globalObjects && jsonResponse.globalObjects.tweets) {    // if the JSON contains tweets...
+                } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets...
                   //console.log(requestDetails.url);    // for debugging
                   let tweet_entries = jsonResponse.globalObjects.tweets;
                   //console.log(tweet_entries);    // for debugging
                   for (let entry of Object.keys(tweet_entries)) {
                     //console.log(tweet_entries[entry]);    // for debugging
                     //console.log(tweet_entries[entry].full_text);    // for debugging
-                    if (Object.prototype.hasOwnProperty.call(tweet_entries[entry], "entities") &&
-                        Object.prototype.hasOwnProperty.call(tweet_entries[entry].entities, "urls")) {
+                    if (tweet_entries[entry]?.entities?.urls) {
                       //console.log(tweet_entries[entry]);    // for debugging
                       //console.log(tweet_entries[entry].full_text);    // for debugging
                       let urls = tweet_entries[entry].entities.urls;
@@ -296,8 +291,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                        * Detect if the tweet contains a poll, and if it does,
                        * don't uncloak the Card, wich is in fact the poll itself
                        */
-                      if (Object.prototype.hasOwnProperty.call(tweet_entries[entry], "card") &&
-                        tweet_entries[entry].card.binding_values.choice1_count !== undefined) {
+                      if (tweet_entries[entry]?.card?.binding_values?.choice1_count) {
                         //console.log("This tweet contains a poll");    // for debugging
                         continue;
                       }
@@ -309,7 +303,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                         //console.log(url.url);    // for debugging
                         TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                       }    // uncloak the links from tweets*/
-                      if (Object.prototype.hasOwnProperty.call(tweet_entries[entry], "card")) {
+                      if (tweet_entries[entry]?.card) {
                         //console.log(requestDetails.requestId);    // for debugging
                         //console.log(requestDetails.url);    // for debugging
                         let lastURL = urls[urls.length - 1];
@@ -322,18 +316,16 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                     }
                     //console.log(tweet_entries[entry]);    // for debugging
                   }
-                } else if (jsonResponse.data && jsonResponse.data.conversation_timeline &&
-                           jsonResponse.data.conversation_timeline.instructions &&
-                           jsonResponse.data.conversation_timeline.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
+                } else if (jsonResponse?.data?.conversation_timeline?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
                   //console.log(requestDetails.url);    // for debugging
                   let tweet_entries;
-                  if (jsonResponse.data.conversation_timeline.instructions[0].moduleItems !== undefined) {
+                  if (jsonResponse.data.conversation_timeline.instructions[0].moduleItems) {
                     //console.log("jsonResponse.data.conversation_timeline.instructions[0].moduleItems");    // for debugging
                     //console.log(jsonResponse.data.conversation_timeline.instructions[0].moduleItems);    // for debugging
                     tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].moduleItems;
                     //tweet_entries = Object.keys(jsonResponse.data.conversation_timeline.instructions[0].moduleItems);
                     //console.log(tweet_entries);    // for debugging
-                  } else if (jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items !== undefined) {
+                  } else if (jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items) {
                     //console.log("jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items");    // for debugging
                     //console.log(jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items);    // for debugging
                     tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items;
@@ -347,8 +339,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                     //console.log(entry);    // for debugging
                     try {
                       //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-                      if (Object.prototype.hasOwnProperty.call(entry.item.itemContent.tweet.legacy, "entities") &&
-                          Object.prototype.hasOwnProperty.call(entry.item.itemContent.tweet.legacy.entities, "urls")) {
+                      if (entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
                         //console.log(entry);    // for debugging
                         //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
                         let urls = entry.item.itemContent.tweet.legacy.entities.urls;
@@ -360,7 +351,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                           //console.log(url.url);    // for debugging
                           TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                         }    // uncloak the links from replies*/
-                        if (Object.prototype.hasOwnProperty.call(entry.item.itemContent.tweet.legacy, "card")) {
+                        if (entry.item.itemContent.tweet.legacy?.card) {
                           //console.log(requestDetails.requestId);    // for debugging
                           //console.log(requestDetails.url);    // for debugging
                           let lastURL = urls[urls.length - 1];
@@ -394,7 +385,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                           //console.log(entry.item.itemContent.tweet.legacy.card.binding_values);    // for debugging
                           TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                           //console.log(entry);    // for debugging
-                        }    // uncloak the Twitter Cards from replies
+                        }
                       }
                     } catch (err) {
                       //console.log("The entry above did not contain a tweet");    // for debugging
@@ -402,7 +393,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                       //console.error(err);    // for debugging
                     }
                     //console.log(entry);    // for debugging
-                  }
+                  }    // uncloak the Twitter Cards from replies
                 }
                 //console.log(stringResponse);    // for debugging
                 stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
