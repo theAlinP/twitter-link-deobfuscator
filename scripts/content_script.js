@@ -83,18 +83,19 @@ TLD.cleanReactWebsiteLink = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
       //console.log(`The add-on state is: ${storedSettings.enabled}`);    // for debugging
-      if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
-        let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
-        //console.log(userDescription);    // for debugging
-        let userDescriptionLinks = TLD.selectLinks(userDescription);
-        //console.log(userDescriptionLinks);    // for debugging
-        TLD.uncloakLinks(userDescriptionLinks);
-        let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
-        //console.log(userProfileHeader);    // for debugging
-        let userProfileHeaderLinks = TLD.selectLinks(userProfileHeader);
-        //console.log(userProfileHeaderLinks);    // for debugging
-        TLD.uncloakLinks(userProfileHeaderLinks);
-      }
+      if (storedSettings.enabled !== true) {
+        return;
+      }    // don't clean the links if the add-on is not enabled
+      let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
+      //console.log(userDescription);    // for debugging
+      let userDescriptionLinks = TLD.selectLinks(userDescription);
+      //console.log(userDescriptionLinks);    // for debugging
+      TLD.uncloakLinks(userDescriptionLinks);
+      let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
+      //console.log(userProfileHeader);    // for debugging
+      let userProfileHeaderLinks = TLD.selectLinks(userProfileHeader);
+      //console.log(userProfileHeaderLinks);    // for debugging
+      TLD.uncloakLinks(userProfileHeaderLinks);
     })
     .catch(() => {
       console.error("Error retrieving stored settings");
@@ -283,60 +284,62 @@ TLD.modifyReactPages = function() {
   //console.log(mainElement);    // for debugging
   TLD.mainObserver = new MutationObserver(() => {
     //console.log("TLD.mainObserver");    // for debugging
-    if (TLD.lastCleanedPage !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
-      /**
-       * Clean the tweets or replies on the page which was opened initially
-       */
-      switch (TLD.detectPage()) {    // check what type of page was opened
-      case "profile":    // if a profile page was opened...
-        TLD.cleanReactWebsiteLink();
-        // fall-through (no break statement)
-      case "tweet":    // if a page with a tweet was opened...
-      case "home":    // if the home page was opened...
-      case "explore":    // if the "Explore" page was opened...
-      case "search":    // if a "Search" page was opened...
-      case "notifications":    // if a "Notifications" page was opened...
-      case "timeline":    // if a tweet from the "Notifications" page was opened...
-      case "list":    // if a list from the "Lists" page was opened...
-      case "bookmarks":    // if the "Bookmarks" page was opened...
-        if (TLD.findReactTimeline() &&
-          TLD.findReactTimeline().querySelector("div[style*='min-height']") &&
-          TLD.findReactTimeline().querySelector("div[style*='min-height']")
-            .childElementCount > 1) {
-          //console.log("The Timeline was found.");    // for debugging
-          TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
-            .querySelector("div[style*='min-height']"));    // find the container with tweets or replies and clean them
-          TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
-        } else {    // if the Timeline can't be found or was deleted...
-          //console.log("The Timeline was not found.");    // for debugging
-          if (TLD.tweetsAndRepliesContainerMOActive === true) {
-            TLD.tweetsAndRepliesContainerObserver.disconnect();
-            TLD.tweetsAndRepliesContainerMOActive = false;
-            delete TLD.tweetsAndRepliesContainerObserver;
-          } else if (TLD.messagesContainerMOActive === true) {
-            TLD.messagesContainerObserver.disconnect();
-            TLD.messagesContainerMOActive = false;
-            delete TLD.messagesContainerObserver;
-          }
-          TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
-        }
-        //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
-        break;
-      case "messages":    // if the "Messages" page was opened...
-        TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
-        //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
-        break;
-      case "conversation":    // if a message thread was opened...
-        var sections = document.querySelectorAll("#react-root main section");
-        TLD.listenForReactMessages(sections[sections.length - 1]);    // find the element with messages and clean them
+    if (TLD.lastCleanedPage === window.location.href) {
+      return;
+    }    // return if this page was already cleaned
+    /**
+     * Clean the tweets or replies on the page which was opened initially
+     */
+    switch (TLD.detectPage()) {    // check what type of page was opened
+    case "profile":    // if a profile page was opened...
+      TLD.cleanReactWebsiteLink();
+      // fall-through (no break statement)
+    case "tweet":    // if a page with a tweet was opened...
+    case "home":    // if the home page was opened...
+    case "explore":    // if the "Explore" page was opened...
+    case "search":    // if a "Search" page was opened...
+    case "notifications":    // if a "Notifications" page was opened...
+    case "timeline":    // if a tweet from the "Notifications" page was opened...
+    case "list":    // if a list from the "Lists" page was opened...
+    case "bookmarks":    // if the "Bookmarks" page was opened...
+      if (TLD.findReactTimeline() &&
+        TLD.findReactTimeline().querySelector("div[style*='min-height']") &&
+        TLD.findReactTimeline().querySelector("div[style*='min-height']")
+          .childElementCount > 1) {
+        //console.log("The Timeline was found.");    // for debugging
+        TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
+          .querySelector("div[style*='min-height']"));    // find the container with tweets or replies and clean them
         TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
-        //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
-        break;
-      case "unknown":    // if a unknown page was opened...
+      } else {    // if the Timeline can't be found or was deleted...
+        //console.log("The Timeline was not found.");    // for debugging
+        if (TLD.tweetsAndRepliesContainerMOActive === true) {
+          TLD.tweetsAndRepliesContainerObserver.disconnect();
+          TLD.tweetsAndRepliesContainerMOActive = false;
+          delete TLD.tweetsAndRepliesContainerObserver;
+        } else if (TLD.messagesContainerMOActive === true) {
+          TLD.messagesContainerObserver.disconnect();
+          TLD.messagesContainerMOActive = false;
+          delete TLD.messagesContainerObserver;
+        }
         TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
-        //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
       }
+      //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
+      break;
+    case "messages":    // if the "Messages" page was opened...
+      TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
+      //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
+      break;
+    case "conversation":    // if a message thread was opened...
+      var sections = document.querySelectorAll("#react-root main section");
+      TLD.listenForReactMessages(sections[sections.length - 1]);    // find the element with messages and clean them
+      TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
+      //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
+      break;
+    case "unknown":    // if a unknown page was opened...
+      TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
+      //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
     }
+
     //console.log(TLD.DMBoxMOActive);    // for debugging
     let DMBox = document.querySelector("div[data-testid=\"DMDrawer\"]");
     if (DMBox !== null && TLD.DMBoxMOActive === false) {
@@ -451,12 +454,13 @@ if (document.body.querySelector("#react-root main")) {
 } else {
   TLD.bodyObserver = new MutationObserver(() => {
     //console.log("TLD.bodyObserver");    // for debugging
-    if (document.body.querySelector("#react-root main")) {
-      //console.log("The main element was found.");    // for debugging
-      TLD.bodyObserver.disconnect();
-      delete TLD.bodyObserver;
-      TLD.modifyReactPages();
-    }
+    if (!document.body.querySelector("#react-root main")) {
+      return;
+    }    // return if the <main> element was not created yet
+    //console.log("The main element was found.");    // for debugging
+    TLD.bodyObserver.disconnect();
+    delete TLD.bodyObserver;
+    TLD.modifyReactPages();
   });
   const bodyObserverConfig = {childList: true, subtree: true};
   TLD.bodyObserver.observe(document.body, bodyObserverConfig);
