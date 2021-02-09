@@ -241,15 +241,8 @@ TLD.findReactTimeline = function() {
  * @memberof TLD
  */
 TLD.increaseBadgeNumber = function() {
-  //console.log(`TLD.increaseBadgeNumber() running from this window: ${window.location.href}`);    // for debugging
-  if (TLD.cleanedLinks === undefined || TLD.cleanedLinks === null || TLD.cleanedLinks < 1) {
-    TLD.cleanedLinks = 1;
-  } else {
-    TLD.cleanedLinks += 1;
-  }
-  //console.log(`TLD.cleanedLinks: ${TLD.cleanedLinks}`);    // for debugging
+  TLD.cleanedLinks += 1;
   TLD.notifyBackgroundScript({setBadge: (TLD.cleanedLinks).toString()});    // send a message to the background script to update the badge number
-  //console.log(TLD);    // for debugging
 };
 
 
@@ -436,7 +429,7 @@ ${index + 1}.innerText:        ${link.innerText}`);*/    // for debugging
  * whether there is a MutationObserver attached to the message box
  * @memberof TLD
  */
-TLD.cleanedLinks;
+TLD.cleanedLinks = 0;
 TLD.lastCleanedPage;
 TLD.tweetsAndRepliesContainerMOActive = false;
 TLD.messagesContainerMOActive = false;
