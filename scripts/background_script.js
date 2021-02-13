@@ -220,25 +220,17 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
             for (let entry of msg_entries) {
               //console.log(entry);    // for debugging
               //console.log(entry.message.message_data.text);    // for debugging
-              if (!entry?.message?.message_data?.entities?.urls) {
-                continue;
-              }
-              let urls = entry.message.message_data.entities.urls;
-              //console.log(urls);    // for debugging
-              /*for (let url of urls) {
-                //entry.message.message_data.text = entry.message.message_data.text.replace(url.url, url.expanded_url);
-                //console.log(entry.message.message_data.text);    // for debugging
-                url.url = url.expanded_url;
-                //console.log(url.url);    // for debugging
-                TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
-              }    // uncloak the links from messages*/
               if (!entry.message.message_data?.attachment?.card) {
                 continue;
               }
               //console.log(requestDetails.requestId);    // for debugging
               //console.log(requestDetails.url);    // for debugging
-              let lastURL = urls[urls.length - 1];
+              let lastURL = TLD_background.determineCardURL(entry);
               //console.log(lastURL);    // for debugging
+              if (!lastURL) {
+                //console.log("This tweet has no URLs");    // for debugging
+                continue;
+              }
               entry.message.message_data.attachment.card.url = lastURL.expanded_url;
               entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
               TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
@@ -251,27 +243,6 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
             for (let entry of Object.keys(tweet_entries)) {
               //console.log(tweet_entries[entry]);    // for debugging
               //console.log(tweet_entries[entry].full_text);    // for debugging
-              if (!tweet_entries[entry]?.entities?.urls) {
-                continue;
-              }
-              let urls = tweet_entries[entry].entities.urls;
-              //console.log(urls);    // for debugging
-
-              /**
-               * In JSONs with search results, the tweets that don't
-               * have any links originally shared by the user are
-               * delivered with an "url" property but with an empty
-               * array as its value and these tweets should be skipped
-               */
-              if (urls.length === 0) {
-                //console.log(tweet_entries[entry].full_text);    // for debugging
-                //console.log(tweet_entries[entry]);    // for debugging
-                //console.log("This tweet has no URLs");    // for debugging
-                /*if (Object.prototype.hasOwnProperty.call(tweet_entries[entry], "card")) {
-                  console.log("This tweet has no URLs but it has a Card");    // for debugging
-                }*/
-                continue;
-              }
 
               /**
                * Detect if the tweet contains a poll, and if it does,
@@ -283,20 +254,17 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                 continue;
               }
 
-              /*for (let url of urls) {
-                //tweet_entries[entry].full_text = tweet_entries[entry].full_text.replace(url.url, url.expanded_url);
-                //console.log(tweet_entries[entry].full_text);    // for debugging
-                url.url = url.expanded_url;
-                //console.log(url.url);    // for debugging
-                TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
-              }    // uncloak the links from tweets*/
               if (!tweet_entries[entry]?.card) {
                 continue;
               }
               //console.log(requestDetails.requestId);    // for debugging
               //console.log(requestDetails.url);    // for debugging
-              let lastURL = urls[urls.length - 1];
+              let lastURL = TLD_background.determineCardURL(tweet_entries[entry]);
               //console.log(lastURL);    // for debugging
+              if (!lastURL) {
+                //console.log("This tweet has no URLs");    // for debugging
+                continue;
+              }
               tweet_entries[entry].card.url = lastURL.expanded_url;
               tweet_entries[entry].card.binding_values.card_url.string_value = lastURL.expanded_url;
               TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
@@ -324,25 +292,17 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
             for (let entry of tweet_entries) {
               //console.log(entry);    // for debugging
               //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-              if (!entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
-                continue;
-              }
-              let urls = entry.item.itemContent.tweet.legacy.entities.urls;
-              //console.log(urls);    // for debugging
-              /*for (let url of urls) {
-                //entry.item.itemContent.tweet.legacy.full_text = entry.item.itemContent.tweet.legacy.full_text.replace(url.url, url.expanded_url);
-                //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-                url.url = url.expanded_url;
-                //console.log(url.url);    // for debugging
-                TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
-              }    // uncloak the links from replies*/
               if (!entry.item.itemContent.tweet.legacy?.card) {
                 continue;
               }
               //console.log(requestDetails.requestId);    // for debugging
               //console.log(requestDetails.url);    // for debugging
-              let lastURL = urls[urls.length - 1];
+              let lastURL = TLD_background.determineCardURL(entry);
               //console.log(lastURL);    // for debugging
+              if (!lastURL) {
+                //console.log("This tweet has no URLs");    // for debugging
+                continue;
+              }
               entry.item.itemContent.tweet.legacy.card.url = lastURL.expanded_url;
               //console.log(entry.item.itemContent.tweet.legacy.card.url);    // for debugging
               //console.log(entry.item.itemContent.tweet.legacy.card.binding_values);    // for debugging
@@ -421,6 +381,37 @@ TLD_background.messageContentScript = function(tabID) {
     tabID,
     {}
   ).catch(TLD_background.onMessageError);
+};
+
+
+/**
+ * A function that determines the Twitter Card's URL from the provided tweet
+ * @method determineCardURL
+ * @memberof TLD_background
+ * @param {object} entry - An object containing a tweet
+ * @returns {object} - Returns an object that is a property of the "entry"
+ * argument which contains the original URL that should be used when
+ * uncloaking the Twitter Card
+ */
+TLD_background.determineCardURL = function(entry) {
+  let urls;
+  if (entry?.message?.message_data?.entities?.urls) {
+    urls = entry.message.message_data.entities.urls;
+  } else if (entry?.entities?.urls) {
+    urls = entry.entities.urls;
+  } else if (entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
+    urls = entry.item.itemContent.tweet.legacy.entities.urls;
+  } else {
+    return null;
+  }
+  //console.log(urls);    // for debugging
+  if (urls.length === 0) {
+    //console.error("No URLs found");    // for debugging
+    return null;
+  }
+  let lastURL = urls[urls.length - 1];
+  //console.log(lastURL);    // for debugging
+  return lastURL;
 };
 
 
