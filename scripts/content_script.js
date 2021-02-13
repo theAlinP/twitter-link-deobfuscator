@@ -163,7 +163,7 @@ TLD.listenForReactMessages = function(container) {
  * A function that detects what type of page was opened
  * @method detectPage
  * @memberof TLD
- * @returns {string} Returns the type of page detected, or "unknown"
+ * @returns {string} - Returns the type of page detected, or "unknown"
  * if TLD should not try to clean the page
  */
 TLD.detectPage = function() {
@@ -220,7 +220,7 @@ TLD.detectPage = function() {
  * A function that finds the Timeline on React pages
  * @method findReactTimeline
  * @memberof TLD
- * @returns {HTMLDivElement} Returns the Timeline, or "null" if was not found
+ * @returns {HTMLDivElement} - Returns the Timeline, or "null" if was not found
  */
 TLD.findReactTimeline = function() {
   if (document.body.querySelector("#react-root main div[data-testid=\"primaryColumn\"] section > div[aria-label]")) {
@@ -360,7 +360,7 @@ TLD.modifyReactPages = function() {
  * @param {HTMLDivElement} container - The element containing the text links. It
  * should be the type of element returned by getElementById() or
  * querySelector() or similar methods
- * @returns {NodeList} Returns the list of text links found in the container
+ * @returns {NodeList} - Returns the list of text links found in the container
  */
 TLD.selectLinks = function(container) {
   let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
@@ -405,7 +405,7 @@ ${index + 1}.innerText:        ${link.innerText}`);*/    // for debugging
         //let linkHref = linkHref.substring(0, linkHref.length - 1);
         linkHref = linkHref.slice(0, -1);
       }    // if there is a trailing ellipsis character, remove it
-      if (!/^[a-zA-Z0-9+\-.]+:\/\//.test(linkHref)) {
+      if (!/^[a-zA-Z0-9.+-]+:\/\//.test(linkHref)) {
         linkHref = `http://${linkHref}`;
       }    // add a protocol if there isn't one in the link text
       link.href = linkHref;

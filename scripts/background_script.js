@@ -223,8 +223,6 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               if (!entry?.message?.message_data?.entities?.urls) {
                 continue;
               }
-              //console.log(entry);    // for debugging
-              //console.log(entry.message.message_data.text);    // for debugging
               let urls = entry.message.message_data.entities.urls;
               //console.log(urls);    // for debugging
               /*for (let url of urls) {
@@ -256,8 +254,6 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               if (!tweet_entries[entry]?.entities?.urls) {
                 continue;
               }
-              //console.log(tweet_entries[entry]);    // for debugging
-              //console.log(tweet_entries[entry].full_text);    // for debugging
               let urls = tweet_entries[entry].entities.urls;
               //console.log(urls);    // for debugging
 
@@ -279,7 +275,8 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
 
               /**
                * Detect if the tweet contains a poll, and if it does,
-               * don't uncloak the Card, wich is in fact the poll itself
+               * don't uncloak the Card, wich is in fact the poll itself.
+               * It can be detected only if the user is not logged in
                */
               if (tweet_entries[entry]?.card?.binding_values?.choice1_count) {
                 //console.log("This tweet contains a poll");    // for debugging
@@ -308,13 +305,13 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
           } else if (jsonResponse?.data?.conversation_timeline?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
             //console.log(requestDetails.url);    // for debugging
             let tweet_entries;
-            if (jsonResponse.data.conversation_timeline.instructions[0].moduleItems) {
+            if (jsonResponse.data.conversation_timeline.instructions[0]?.moduleItems) {
               //console.log("jsonResponse.data.conversation_timeline.instructions[0].moduleItems");    // for debugging
               //console.log(jsonResponse.data.conversation_timeline.instructions[0].moduleItems);    // for debugging
               tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].moduleItems;
               //tweet_entries = Object.keys(jsonResponse.data.conversation_timeline.instructions[0].moduleItems);
               //console.log(tweet_entries);    // for debugging
-            } else if (jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items) {
+            } else if (jsonResponse.data.conversation_timeline.instructions[0]?.entries[0]?.content.items) {
               //console.log("jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items");    // for debugging
               //console.log(jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items);    // for debugging
               tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items;
@@ -330,8 +327,6 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               if (!entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
                 continue;
               }
-              //console.log(entry);    // for debugging
-              //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
               let urls = entry.item.itemContent.tweet.legacy.entities.urls;
               //console.log(urls);    // for debugging
               /*for (let url of urls) {
@@ -352,7 +347,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               //console.log(entry.item.itemContent.tweet.legacy.card.url);    // for debugging
               //console.log(entry.item.itemContent.tweet.legacy.card.binding_values);    // for debugging
               if (Object.prototype.toString.call(
-                entry.item.itemContent.tweet.legacy.card.binding_values === "[object Array]")) {
+                entry.item.itemContent.tweet.legacy.card.binding_values) === "[object Array]") {
                 for (let binding of entry.item.itemContent.tweet.legacy.card.binding_values) {
                   //console.log(binding);    // for debugging
                   if (binding.key === "card_url") {
@@ -362,7 +357,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                   //console.log(binding);    // for debugging
                 }
               } else if (Object.prototype.toString.call(
-                entry.item.itemContent.tweet.legacy.card.binding_values === "[object Object]")) {
+                entry.item.itemContent.tweet.legacy.card.binding_values) === "[object Object]") {
                 Object.entries(entry.item.itemContent.tweet.legacy.card.binding_values)
                   .forEach(([key, value]) => {
                     //console.log(key);    // for debugging
@@ -398,6 +393,8 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
  * @method hasJsonStructure
  * @memberof TLD_background
  * @param {string} str - The string that should be checked if is valid JSON
+ * @returns {boolean} - Returns true or false if the provided string
+ * is valid JSON or not
  */
 TLD_background.hasJsonStructure = function(str) {
   if (typeof str !== "string") return false;
