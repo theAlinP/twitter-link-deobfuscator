@@ -351,15 +351,16 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
 
             for (let entry of tweet_entries) {
               //console.log(entry);    // for debugging
+
+              let lastURL = TLD_background.determineCardURL(entry);
+              //console.log(lastURL);    // for debugging
+              if (!lastURL) {
+                //console.log("This tweet has no URLs");    // for debugging
+                continue;
+              }
+
               if (entry?.content?.itemContent?.tweet?.legacy?.card) {
                 //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
-
-                let lastURL = TLD_background.determineCardURL(entry);
-                //console.log(lastURL);    // for debugging
-                if (!lastURL) {
-                  //console.log("This tweet has no URLs");    // for debugging
-                  continue;
-                }
 
                 entry.content.itemContent.tweet.legacy.card.url = lastURL.expanded_url;
                 //console.log(entry.content.itemContent.tweet.legacy.card.url);    // for debugging
@@ -376,6 +377,19 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                 TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
                 //console.log(entry);    // for debugging
               }    // uncloak the Twitter Cards from regular tweets
+
+              if (entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card) {
+                //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
+
+                entry.content.itemContent.tweet.legacy.retweeted_status.legacy.card.url = lastURL.expanded_url;
+                for (let binding of entry.content.itemContent.tweet.legacy.retweeted_status.legacy.card.binding_values) {
+                  if (binding.key === "card_url") {
+                    binding.value.string_value = lastURL.expanded_url;
+                  }
+                }
+                TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
+                //console.log(entry);    // for debugging
+              }    // uncloak the Twitter Cards from retweets
             }    // uncloak the Twitter Cards from profile pages
           }
           //console.log(stringResponse);    // for debugging
@@ -447,6 +461,10 @@ TLD_background.determineCardURL = function(entry) {
     urls = entry.item.itemContent.tweet.legacy.entities.urls;
   } else if (entry?.content?.itemContent?.tweet?.legacy?.entities?.urls) {
     urls = entry.content.itemContent.tweet.legacy.entities.urls;
+    if (urls.length === 0 &&
+      entry.content.itemContent.tweet.legacy?.retweeted_status?.legacy?.entities?.urls) {
+      urls = entry.content.itemContent.tweet.legacy.retweeted_status.legacy.entities.urls;
+    }
   } else {
     return null;
   }
