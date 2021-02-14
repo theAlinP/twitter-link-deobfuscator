@@ -344,9 +344,16 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
             if (!jsonResponse.data.user.result.timeline.timeline.instructions[0]?.entries) {
               return;
             }
-            //console.log("jsonResponse.data.user.result.timeline.timeline.instructions[0].entries");    // for debugging
+
+            /**
+             * Collect all the tweet entries into one array
+             */
             //console.log(jsonResponse.data.user.result.timeline.timeline.instructions[0].entries);    // for debugging
             let tweet_entries = jsonResponse.data.user.result.timeline.timeline.instructions[0].entries;
+            if (jsonResponse.data.user.result.timeline.timeline?.instructions[1]) {
+              //console.log(jsonResponse.data.user.result.timeline.timeline?.instructions[1]);
+              tweet_entries.unshift(jsonResponse.data.user.result.timeline.timeline?.instructions[1].entry);
+            }    // add the pinned tweet to the array of tweets
             //console.log(tweet_entries);    // for debugging
 
             for (let entry of tweet_entries) {
