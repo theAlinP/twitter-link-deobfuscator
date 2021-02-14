@@ -35,7 +35,8 @@ TLD_background.config.pathRegexPatterns = [
   "/notifications/mentions.json$",    // if an API call is made to request mentions for the "Notifications" page
   "/notifications/view/.+[^/].json$",    // if a tweet from the "Notifications" page was opened
   "/timeline/list.json$",    // if an API call is made to request tweets for the "Lists" page
-  "/timeline/bookmark.json$"    // if an API call is made to request tweets for the "Bookmarks" page
+  "/timeline/bookmark.json$",    // if an API call is made to request tweets for the "Bookmarks" page
+  "/graphql/[a-zA-Z0-9_.+-]+/UserTweets$"    // if a GraphQL API call is made to request tweets from a profile page
 ];
 TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
@@ -333,6 +334,49 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
               //console.log(entry);    // for debugging
             }    // uncloak the Twitter Cards from replies
+          } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {
+            /**
+             * This code block is ran after a response to an API call like
+             * "https://twitter.com/i/api/graphql/9u_4RUcGtdogbSPhyuMfmw/UserTweets"
+             * containing tweets for profile pages, while logged in to Twitter.
+             */
+
+            if (!jsonResponse.data.user.result.timeline.timeline.instructions[0]?.entries) {
+              return;
+            }
+            //console.log("jsonResponse.data.user.result.timeline.timeline.instructions[0].entries");    // for debugging
+            //console.log(jsonResponse.data.user.result.timeline.timeline.instructions[0].entries);    // for debugging
+            let tweet_entries = jsonResponse.data.user.result.timeline.timeline.instructions[0].entries;
+            //console.log(tweet_entries);    // for debugging
+
+            for (let entry of tweet_entries) {
+              //console.log(entry);    // for debugging
+              if (entry?.content?.itemContent?.tweet?.legacy?.card) {
+                //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
+
+                let lastURL = TLD_background.determineCardURL(entry);
+                //console.log(lastURL);    // for debugging
+                if (!lastURL) {
+                  //console.log("This tweet has no URLs");    // for debugging
+                  continue;
+                }
+
+                entry.content.itemContent.tweet.legacy.card.url = lastURL.expanded_url;
+                //console.log(entry.content.itemContent.tweet.legacy.card.url);    // for debugging
+                //console.log(entry.content.itemContent.tweet.legacy.card.binding_values);    // for debugging
+                for (let binding of entry.content.itemContent.tweet.legacy.card.binding_values) {
+                  //console.log(binding);    // for debugging
+                  if (binding.key === "card_url") {
+                    binding.value.string_value = lastURL.expanded_url;
+                    //console.log(binding.value.string_value);    // for debugging
+                  }
+                  //console.log(binding);    // for debugging
+                }
+                //console.log(entry.content.itemContent.tweet.legacy.card.binding_values);    // for debugging
+                TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
+                //console.log(entry);    // for debugging
+              }    // uncloak the Twitter Cards from regular tweets
+            }    // uncloak the Twitter Cards from profile pages
           }
           //console.log(stringResponse);    // for debugging
           stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
@@ -401,6 +445,8 @@ TLD_background.determineCardURL = function(entry) {
     urls = entry.entities.urls;
   } else if (entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
     urls = entry.item.itemContent.tweet.legacy.entities.urls;
+  } else if (entry?.content?.itemContent?.tweet?.legacy?.entities?.urls) {
+    urls = entry.content.itemContent.tweet.legacy.entities.urls;
   } else {
     return null;
   }
