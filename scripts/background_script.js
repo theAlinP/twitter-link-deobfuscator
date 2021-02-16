@@ -378,6 +378,38 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
                 TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
                 //console.log(entry);    // for debugging
               }    // uncloak the Twitter Cards from retweets
+
+              /**
+               * Uncloak the Twitter Cards from threads
+               */
+              if (entry?.content?.items) {
+                //console.log(entry.content.items);    // for debugging
+                for (let threadEntry of entry.content.items) {
+                  /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
+                    console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
+                  }*/
+
+                  /**
+                   * Uncloak the Twitter Cards from regular tweets
+                   */
+                  if (threadEntry?.item?.itemContent?.tweet?.legacy?.card) {
+                    //console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
+                    let cardObject = threadEntry.item.itemContent.tweet.legacy.card;
+                    TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
+                    //console.log(entry);    // for debugging
+                  }    // uncloak the Twitter Cards from regular tweets
+
+                  /**
+                   * Uncloak the Twitter Cards from retweets
+                   */
+                  if (threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card) {
+                    //console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
+                    let cardObject = threadEntry.item.itemContent.tweet.legacy.retweeted_status.legacy.card;
+                    TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
+                    //console.log(entry);    // for debugging
+                  }    // uncloak the Twitter Cards from retweets
+                }
+              }    // uncloak the Twitter Cards from threads
             }    // uncloak the Twitter Cards from profile pages
           }
           //console.log(stringResponse);    // for debugging
@@ -447,6 +479,10 @@ TLD_background.determineCardURL = function(entry) {
     urls = entry.entities.urls;
   } else if (entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
     urls = entry.item.itemContent.tweet.legacy.entities.urls;
+    if (urls.length === 0 &&
+      entry.item.itemContent.tweet.legacy?.retweeted_status?.legacy?.entities?.urls) {
+      urls = entry.item.itemContent.tweet.legacy.retweeted_status.legacy.entities.urls;
+    }
   } else if (entry?.content?.itemContent?.tweet?.legacy?.entities?.urls) {
     urls = entry.content.itemContent.tweet.legacy.entities.urls;
     if (urls.length === 0 &&
