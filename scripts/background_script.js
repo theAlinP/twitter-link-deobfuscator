@@ -359,42 +359,23 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
             for (let entry of tweet_entries) {
               //console.log(entry);    // for debugging
 
-              let lastURL = TLD_background.determineCardURL(entry);
-              //console.log(lastURL);    // for debugging
-              if (!lastURL) {
-                //console.log("This tweet has no URLs");    // for debugging
-                continue;
-              }
-
+              /**
+               * Uncloak the Twitter Cards from regular tweets
+               */
               if (entry?.content?.itemContent?.tweet?.legacy?.card) {
                 //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
-
-                entry.content.itemContent.tweet.legacy.card.url = lastURL.expanded_url;
-                //console.log(entry.content.itemContent.tweet.legacy.card.url);    // for debugging
-                //console.log(entry.content.itemContent.tweet.legacy.card.binding_values);    // for debugging
-                for (let binding of entry.content.itemContent.tweet.legacy.card.binding_values) {
-                  //console.log(binding);    // for debugging
-                  if (binding.key === "card_url") {
-                    binding.value.string_value = lastURL.expanded_url;
-                    //console.log(binding.value.string_value);    // for debugging
-                  }
-                  //console.log(binding);    // for debugging
-                }
-                //console.log(entry.content.itemContent.tweet.legacy.card.binding_values);    // for debugging
-                TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
+                let cardObject = entry.content.itemContent.tweet.legacy.card;
+                TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
                 //console.log(entry);    // for debugging
               }    // uncloak the Twitter Cards from regular tweets
 
+              /**
+               * Uncloak the Twitter Cards from retweets
+               */
               if (entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card) {
                 //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
-
-                entry.content.itemContent.tweet.legacy.retweeted_status.legacy.card.url = lastURL.expanded_url;
-                for (let binding of entry.content.itemContent.tweet.legacy.retweeted_status.legacy.card.binding_values) {
-                  if (binding.key === "card_url") {
-                    binding.value.string_value = lastURL.expanded_url;
-                  }
-                }
-                TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
+                let cardObject = entry.content.itemContent.tweet.legacy.retweeted_status.legacy.card;
+                TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
                 //console.log(entry);    // for debugging
               }    // uncloak the Twitter Cards from retweets
             }    // uncloak the Twitter Cards from profile pages
@@ -483,6 +464,41 @@ TLD_background.determineCardURL = function(entry) {
   let lastURL = urls[urls.length - 1];
   //console.log(lastURL);    // for debugging
   return lastURL;
+};
+
+
+/**
+ * A function that restores a Twitter Card's original URL
+ * @method uncloakTwitterCard
+ * @memberof TLD_background
+ * @param {object} entry - An object containing a tweet
+ * @param {object} card - An object containing a Twitter Card
+ * @param {number} tabId - The ID of the tab whose badge text must be updated
+ */
+TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
+
+  /**
+   * Determine the Twitter Card's original URL
+   */
+  let lastURL = TLD_background.determineCardURL(entry);
+  if (!lastURL) {
+    return;
+  }
+
+  /**
+   * Uncloak the Twitter Card
+   */
+  card.url = lastURL.expanded_url;
+  for (let binding of card.binding_values) {
+    if (binding.key === "card_url") {
+      binding.value.string_value = lastURL.expanded_url;
+    }
+  }
+
+  /**
+   * Update the badge text
+   */
+  TLD_background.messageContentScript(tabId);
 };
 
 
