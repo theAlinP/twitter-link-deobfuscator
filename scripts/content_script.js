@@ -62,44 +62,9 @@ TLD.revealReactLinks = function(container) {
     .then((storedSettings) => {
       //console.log(`The add-on state is: ${storedSettings.enabled}`);    // for debugging
       if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
-        //let links = document.querySelectorAll("#react-root main section > div[aria-label] > div > div > div a[title]");
-        let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
-        if (links.length === 0) {
-          links = container.querySelectorAll("a.css-4rbku5.css-18t94o4.css-901oao.css-16my406.r-1loqt21.r-poiln3.r-bcqeeo.r-qvutc0");
-        }    // in case the links have no "title" attributes
-        if (links.length === 0) {
-          links = container.querySelectorAll("a.css-16my406.r-bcqeeo.r-qvutc0.css-901oao");
-        }    // fallback in case the CSS classes of the links have been changed
-        if (links.length === 0) {
-          return;
-        }
+        let links = TLD.selectLinks(container);
         //console.log(links);    // for debugging
-        for (let link of links) {
-        //for (let [index, link] of links.entries()) {    // for debugging
-          if (link.hostname === "t.co" && link.pathname !== "/") {
-            //console.log(link);    // for debugging
-            //console.log(`link.pathname: ${link.pathname}`);    // for debugging
-            /*console.log(`
-${index + 1}.href:             ${link.href}
-${index + 1}.title:            ${link.title}
-${index + 1}.innerText:        ${link.innerText}`);*/    // for debugging
-            link.setAttribute("data-shortened-url", link.href);
-            if (link.hasAttribute("title")) {    // use the "title" attribute if the link has one
-              link.href = link.title;
-            } else {
-              if (link.lastElementChild.innerText === "…") {
-                let badURL = link.innerText;
-                //let goodURL = badURL.substring(0, badURL.length - 1);
-                let goodURL = badURL.slice(0, -1);
-                link.href = goodURL;
-              } else {
-                link.href = link.innerText;
-              }
-            }
-            //console.log(link);    // for debugging
-            TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
-          }
-        }
+        TLD.uncloakLinks(links);
       }
     })
     .catch(() => {
@@ -118,51 +83,19 @@ TLD.cleanReactWebsiteLink = function() {
   browser.storage.local.get()    // check if the add-on is enabled
     .then((storedSettings) => {
       //console.log(`The add-on state is: ${storedSettings.enabled}`);    // for debugging
-      if (storedSettings.enabled === true) {    // clean the links only if the add-on is enabled
-        let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
-        //console.log(userDescription);    // for debugging
-        let userDescriptionLinks = userDescription.querySelectorAll("a[title]");    // in case the links have "title" attributes
-        if (userDescriptionLinks.length === 0) {
-          userDescriptionLinks = userDescription.querySelectorAll("a.css-4rbku5.css-18t94o4.css-901oao.css-16my406.r-1loqt21.r-poiln3.r-bcqeeo.r-qvutc0");
-        }    // in case the links have no "title" attributes
-        if (userDescriptionLinks.length === 0) {
-          userDescriptionLinks = userDescription.querySelectorAll("a.css-16my406.r-bcqeeo.r-qvutc0.css-901oao");
-        }    // fallback in case the CSS classes of the links have been changed
-        if (userDescriptionLinks.length !== 0) {
-          //console.log(userDescriptionLinks);    // for debugging
-          for (let link of userDescriptionLinks) {
-            //console.log(link);    // for debugging
-            if (link.hostname === "t.co") {
-              link.setAttribute("data-shortened-url", link.href);
-              if (link.hasAttribute("title")) {    // use the "title" attribute if the link has one
-                link.href = link.title;
-              } else {
-                if (link.lastElementChild.innerText === "…") {
-                  let badURL = link.innerText;
-                  //let goodURL = badURL.substring(0, badURL.length - 1);
-                  let goodURL = badURL.slice(0, -1);
-                  link.href = goodURL;
-                } else {
-                  link.href = link.innerText;
-                }
-              }
-              //console.log(link);    // for debugging
-              TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
-            }
-          }
-        }
-        let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
-        //console.log(userProfileHeader);    // for debugging
-        let userProfileHeaderLinks = userProfileHeader.querySelectorAll("a");
-        //console.log(userProfileHeaderLinks);    // for debugging
-        for (let link of userProfileHeaderLinks) {
-          //console.log(link);    // for debugging
-          link.setAttribute("data-shortened-url", link.href);
-          link.href = `http://${link.text}`;
-          //console.log(link);    // for debugging
-          TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
-        }
-      }
+      if (storedSettings.enabled !== true) {
+        return;
+      }    // don't clean the links if the add-on is not enabled
+      let userDescription = document.querySelector("div[data-testid=\"UserDescription\"]");
+      //console.log(userDescription);    // for debugging
+      let userDescriptionLinks = TLD.selectLinks(userDescription);
+      //console.log(userDescriptionLinks);    // for debugging
+      TLD.uncloakLinks(userDescriptionLinks);
+      let userProfileHeader = document.querySelector("div[data-testid=\"UserProfileHeader_Items\"]");
+      //console.log(userProfileHeader);    // for debugging
+      let userProfileHeaderLinks = TLD.selectLinks(userProfileHeader);
+      //console.log(userProfileHeaderLinks);    // for debugging
+      TLD.uncloakLinks(userProfileHeaderLinks);
     })
     .catch(() => {
       console.error("Error retrieving stored settings");
@@ -187,12 +120,14 @@ TLD.listenForReactTweetsAndReplies = function(container) {
   /**
    * Call TLD.revealReactLinks() every time new tweets or replies are added
    */
-  const containerObserver = new MutationObserver(function() {
-    //console.log("containerObserver");    // for debugging
+  TLD.tweetsAndRepliesContainerObserver = new MutationObserver(() => {
+    //console.log("TLD.tweetsAndRepliesContainerObserver");    // for debugging
     TLD.revealReactLinks(container);
   });
-  const containerObserverConfig = {childList: true, subtree: false};
-  containerObserver.observe(container, containerObserverConfig);
+  const tweetsAndRepliesContainerObserverConfig = {childList: true, subtree: false};
+  TLD.tweetsAndRepliesContainerObserver.observe(container, tweetsAndRepliesContainerObserverConfig);
+  TLD.tweetsAndRepliesContainerMOActive = true;
+  //console.log(TLD.tweetsAndRepliesContainerObserver);
 };
 
 
@@ -213,12 +148,14 @@ TLD.listenForReactMessages = function(container) {
   /**
    * Call TLD.revealReactLinks() every time new messages are added
    */
-  const containerObserver = new MutationObserver(function() {
-    //console.log("listenForReactMessages() containerObserver");    // for debugging
+  TLD.messagesContainerObserver = new MutationObserver(() => {
+    //console.log("TLD.messagesContainerObserver");    // for debugging
     TLD.revealReactLinks(container);
   });
-  const containerObserverConfig = {childList: true, subtree: true};
-  containerObserver.observe(container, containerObserverConfig);
+  const messagesContainerObserverConfig = {childList: true, subtree: true};
+  TLD.messagesContainerObserver.observe(container, messagesContainerObserverConfig);
+  TLD.messagesContainerDMBoxMOActive = true;
+  //console.log(TLD.messagesContainerObserver);
 };
 
 
@@ -226,7 +163,7 @@ TLD.listenForReactMessages = function(container) {
  * A function that detects what type of page was opened
  * @method detectPage
  * @memberof TLD
- * @returns {string} Returns the type of page detected, or "unknown"
+ * @returns {string} - Returns the type of page detected, or "unknown"
  * if TLD should not try to clean the page
  */
 TLD.detectPage = function() {
@@ -283,7 +220,7 @@ TLD.detectPage = function() {
  * A function that finds the Timeline on React pages
  * @method findReactTimeline
  * @memberof TLD
- * @returns {HTMLDivElement} Returns the Timeline, or "null" if was not found
+ * @returns {HTMLDivElement} - Returns the Timeline, or "null" if was not found
  */
 TLD.findReactTimeline = function() {
   if (document.body.querySelector("#react-root main div[data-testid=\"primaryColumn\"] section > div[aria-label]")) {
@@ -304,15 +241,8 @@ TLD.findReactTimeline = function() {
  * @memberof TLD
  */
 TLD.increaseBadgeNumber = function() {
-  //console.log(`TLD.increaseBadgeNumber() running from this window: ${window.location.href}`);    // for debugging
-  if (TLD.cleanedLinks === undefined || TLD.cleanedLinks === null || TLD.cleanedLinks < 1) {
-    TLD.cleanedLinks = 1;
-  } else {
-    TLD.cleanedLinks += 1;
-  }
-  //console.log(`TLD.cleanedLinks: ${TLD.cleanedLinks}`);    // for debugging
+  TLD.cleanedLinks += 1;
   TLD.notifyBackgroundScript({setBadge: (TLD.cleanedLinks).toString()});    // send a message to the background script to update the badge number
-  //console.log(TLD);    // for debugging
 };
 
 
@@ -345,70 +275,144 @@ TLD.modifyDMBox = function() {
 TLD.modifyReactPages = function() {
   let mainElement = document.body.querySelector("#react-root main");
   //console.log(mainElement);    // for debugging
-  const mainObserver = new MutationObserver(function() {
-    //console.log("mainObserver");    // for debugging
-    if (TLD.lastCleanedPage !== window.location.href) {    // if the URL in the address bar changed and this page was not already cleaned...
-      /**
-       * Clean the tweets or replies on the page which was opened initially
-       */
-      switch (TLD.detectPage()) {    // check what type of page was opened
-      case "profile":    // if a profile page was opened...
-        TLD.cleanReactWebsiteLink();
-        // fall-through (no break statement)
-      case "tweet":    // if a page with a tweet was opened...
-      case "home":    // if the home page was opened...
-      case "explore":    // if the "Explore" page was opened...
-      case "search":    // if a "Search" page was opened...
-      case "notifications":    // if a "Notifications" page was opened...
-      case "timeline":    // if a tweet from the "Notifications" page was opened...
-      case "list":    // if a list from the "Lists" page was opened...
-      case "bookmarks":    // if the "Bookmarks" page was opened...
-        if (TLD.findReactTimeline() &&
-          TLD.findReactTimeline().querySelector("div[style*='min-height']") &&
-          TLD.findReactTimeline().querySelector("div[style*='min-height']")
-            .childElementCount > 1) {
-          //console.log("The Timeline was found.");    // for debugging
-          TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
-            .querySelector("div[style*='min-height']"));    // find the container with tweets or replies and clean them
-          TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
-        } else {    // if the Timeline can't be found or was deleted...
-          //console.log("The Timeline was not found.");    // for debugging
-          TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
-        }
-        //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
-        break;
-      case "messages":    // if the "Messages" page was opened...
-        TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
-        //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
-        break;
-      case "conversation":    // if a message thread was opened...
-        var sections = document.querySelectorAll("#react-root main section");
-        TLD.listenForReactMessages(sections[sections.length - 1]);    // find the element with messages and clean them
+  TLD.mainObserver = new MutationObserver(() => {
+    //console.log("TLD.mainObserver");    // for debugging
+    if (TLD.lastCleanedPage === window.location.href) {
+      return;
+    }    // return if this page was already cleaned
+    /**
+     * Clean the tweets or replies on the page which was opened initially
+     */
+    switch (TLD.detectPage()) {    // check what type of page was opened
+    case "profile":    // if a profile page was opened...
+      TLD.cleanReactWebsiteLink();
+      // fall-through (no break statement)
+    case "tweet":    // if a page with a tweet was opened...
+    case "home":    // if the home page was opened...
+    case "explore":    // if the "Explore" page was opened...
+    case "search":    // if a "Search" page was opened...
+    case "notifications":    // if a "Notifications" page was opened...
+    case "timeline":    // if a tweet from the "Notifications" page was opened...
+    case "list":    // if a list from the "Lists" page was opened...
+    case "bookmarks":    // if the "Bookmarks" page was opened...
+      if (TLD.findReactTimeline() &&
+        TLD.findReactTimeline().querySelector("div[style*='min-height']") &&
+        TLD.findReactTimeline().querySelector("div[style*='min-height']")
+          .childElementCount > 1) {
+        //console.log("The Timeline was found.");    // for debugging
+        TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
+          .querySelector("div[style*='min-height']"));    // find the container with tweets or replies and clean them
         TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
-        //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
-        break;
-      case "unknown":    // if a unknown page was opened...
+      } else {    // if the Timeline can't be found or was deleted...
+        //console.log("The Timeline was not found.");    // for debugging
+        if (TLD.tweetsAndRepliesContainerMOActive === true) {
+          TLD.tweetsAndRepliesContainerObserver.disconnect();
+          TLD.tweetsAndRepliesContainerMOActive = false;
+          delete TLD.tweetsAndRepliesContainerObserver;
+        } else if (TLD.messagesContainerMOActive === true) {
+          TLD.messagesContainerObserver.disconnect();
+          TLD.messagesContainerMOActive = false;
+          delete TLD.messagesContainerObserver;
+        }
         TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
-        //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
       }
+      //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
+      break;
+    case "messages":    // if the "Messages" page was opened...
+      TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
+      //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
+      break;
+    case "conversation":    // if a message thread was opened...
+      var sections = document.querySelectorAll("#react-root main section");
+      TLD.listenForReactMessages(sections[sections.length - 1]);    // find the element with messages and clean them
+      TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
+      //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
+      break;
+    case "unknown":    // if a unknown page was opened...
+      TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
+      //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
     }
+
     //console.log(TLD.DMBoxMOActive);    // for debugging
     let DMBox = document.querySelector("div[data-testid=\"DMDrawer\"]");
     if (DMBox !== null && TLD.DMBoxMOActive === false) {
       //console.log(DMBox);    // for debugging
       TLD.modifyDMBox();
-      const DMBoxObserver = new MutationObserver(TLD.modifyDMBox);
+      TLD.DMBoxObserver = new MutationObserver(TLD.modifyDMBox);
       const DMBoxObserverConfig = {childList: true, subtree: true};
-      DMBoxObserver.observe(DMBox, DMBoxObserverConfig);
+      TLD.DMBoxObserver.observe(DMBox, DMBoxObserverConfig);
       TLD.DMBoxMOActive = true;
-      //console.log("TLD.DMBoxMOActive = true;");    // for debugging
     } else if (DMBox === null && TLD.DMBoxMOActive === true) {
+      TLD.DMBoxObserver.disconnect();
       TLD.DMBoxMOActive = false;
-      //console.log("TLD.DMBoxMOActive = false;");    // for debugging
+      delete TLD.DMBoxObserver;
     }
   });
   const mainObserverConfig = {childList: true, subtree: true};
-  mainObserver.observe(mainElement, mainObserverConfig);
+  TLD.mainObserver.observe(mainElement, mainObserverConfig);
+};
+
+
+/**
+ * A function that selects the text links
+ * @method selectLinks
+ * @memberof TLD
+ * @param {HTMLDivElement} container - The element containing the text links. It
+ * should be the type of element returned by getElementById() or
+ * querySelector() or similar methods
+ * @returns {NodeList} - Returns the list of text links found in the container
+ */
+TLD.selectLinks = function(container) {
+  let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
+  if (links.length === 0) {
+    links = container.querySelectorAll("a.css-4rbku5.css-18t94o4.css-901oao.css-16my406.r-1loqt21.r-poiln3.r-bcqeeo.r-qvutc0");
+  }    // in case the links have no "title" attributes
+  if (links.length === 0) {
+    links = container.querySelectorAll("a.css-16my406.r-bcqeeo.r-qvutc0.css-901oao");
+  }    // fallback in case the CSS classes of the links have been changed
+  return links;
+};
+
+
+/**
+ * A function that uncloaks the text links
+ * @method uncloakLinks
+ * @memberof TLD
+ * @param {NodeList} links - The list of text links. It should be a NodeList
+ * as the one returned by TLD.selectLinks()
+ */
+TLD.uncloakLinks = function(links) {
+  if (links.length === 0) {
+    return;
+  }
+  for (let link of links) {
+    //for (let [index, link] of links.entries()) {    // for debugging
+    //console.log(link);    // for debugging
+    if (link.hostname !== "t.co" ||
+      (link.hostname === "t.co" && link.pathname === "/")) {
+      continue;
+    }    // if the link is not in the form "t.co/abc", skip it
+    /*console.log(`
+${index + 1}.href:             ${link.href}
+${index + 1}.title:            ${link.title}
+${index + 1}.innerText:        ${link.innerText}`);*/    // for debugging
+    link.setAttribute("data-shortened-url", link.href);
+    if (link.hasAttribute("title")) {    // use the "title" attribute if the link has one
+      link.href = link.title;
+    } else {
+      let linkHref = link.innerText;    // link.text and link.textContent works, too
+      if (link.lastElementChild.innerText === "…") {
+        //let linkHref = linkHref.substring(0, linkHref.length - 1);
+        linkHref = linkHref.slice(0, -1);
+      }    // if there is a trailing ellipsis character, remove it
+      if (!/^[a-zA-Z0-9.+-]+:\/\//.test(linkHref)) {
+        linkHref = `http://${linkHref}`;
+      }    // add a protocol if there isn't one in the link text
+      link.href = linkHref;
+    }
+    //console.log(link);    // for debugging
+    TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
+  }
 };
 
 
@@ -417,12 +421,18 @@ TLD.modifyReactPages = function() {
  * Properties of the namespace TLD
  * @property {number} cleanedLinks - The number of links cleaned
  * @property {string} lastCleanedPage - The URL of the last cleaned page
+ * @property {boolean} tweetsAndRepliesContainerMOActive - tweets_And_Replies_Container_MutationObserver_Active - shows
+ * whether there is a MutationObserver attached to the tweets and replies container
+ * @property {boolean} messagesContainerMOActive - messages_Container_MutationObserver_Active - shows
+ * whether there is a MutationObserver attached to the message container
  * @property {boolean} DMBoxMOActive - DM_Box_MutationObserver_Active - shows
  * whether there is a MutationObserver attached to the message box
  * @memberof TLD
  */
-TLD.cleanedLinks;
+TLD.cleanedLinks = 0;
 TLD.lastCleanedPage;
+TLD.tweetsAndRepliesContainerMOActive = false;
+TLD.messagesContainerMOActive = false;
 TLD.DMBoxMOActive = false;
 //console.log(TLD);    // for debugging
 
@@ -435,14 +445,16 @@ if (document.body.querySelector("#react-root main")) {
   //console.log("The main element was found.");    // for debugging
   TLD.modifyReactPages();
 } else {
-  const bodyObserver = new MutationObserver(function() {
-    //console.log("bodyObserver");    // for debugging
-    if (document.body.querySelector("#react-root main")) {
-      //console.log("The main element was found.");    // for debugging
-      bodyObserver.disconnect();
-      TLD.modifyReactPages();
-    }
+  TLD.bodyObserver = new MutationObserver(() => {
+    //console.log("TLD.bodyObserver");    // for debugging
+    if (!document.body.querySelector("#react-root main")) {
+      return;
+    }    // return if the <main> element was not created yet
+    //console.log("The main element was found.");    // for debugging
+    TLD.bodyObserver.disconnect();
+    delete TLD.bodyObserver;
+    TLD.modifyReactPages();
   });
   const bodyObserverConfig = {childList: true, subtree: true};
-  bodyObserver.observe(document.body, bodyObserverConfig);
+  TLD.bodyObserver.observe(document.body, bodyObserverConfig);
 }
