@@ -226,15 +226,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               }
               //console.log(requestDetails.requestId);    // for debugging
               //console.log(requestDetails.url);    // for debugging
-              let lastURL = TLD_background.determineCardURL(entry);
-              //console.log(lastURL);    // for debugging
-              if (!lastURL) {
-                //console.log("This tweet has no URLs");    // for debugging
-                continue;
-              }
-              entry.message.message_data.attachment.card.url = lastURL.expanded_url;
-              entry.message.message_data.attachment.card.binding_values.card_url.string_value = lastURL.expanded_url;
-              TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
+              TLD_background.uncloakTwitterCard(entry, entry.message.message_data.attachment.card, requestDetails.tabId);
               //console.log(entry);    // for debugging
             }    // uncloak the Twitter Cards from messages
           } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets...
@@ -260,15 +252,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               }
               //console.log(requestDetails.requestId);    // for debugging
               //console.log(requestDetails.url);    // for debugging
-              let lastURL = TLD_background.determineCardURL(tweet_entries[entry]);
-              //console.log(lastURL);    // for debugging
-              if (!lastURL) {
-                //console.log("This tweet has no URLs");    // for debugging
-                continue;
-              }
-              tweet_entries[entry].card.url = lastURL.expanded_url;
-              tweet_entries[entry].card.binding_values.card_url.string_value = lastURL.expanded_url;
-              TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
+              TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId);
               //console.log(tweet_entries[entry]);    // for debugging
             }    // uncloak the Twitter Cards from tweets
           } else if (jsonResponse?.data?.conversation_timeline?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
@@ -298,40 +282,7 @@ TLD_background.interceptNetworkRequests = function(requestDetails) {
               }
               //console.log(requestDetails.requestId);    // for debugging
               //console.log(requestDetails.url);    // for debugging
-              let lastURL = TLD_background.determineCardURL(entry);
-              //console.log(lastURL);    // for debugging
-              if (!lastURL) {
-                //console.log("This tweet has no URLs");    // for debugging
-                continue;
-              }
-              entry.item.itemContent.tweet.legacy.card.url = lastURL.expanded_url;
-              //console.log(entry.item.itemContent.tweet.legacy.card.url);    // for debugging
-              //console.log(entry.item.itemContent.tweet.legacy.card.binding_values);    // for debugging
-              if (Object.prototype.toString.call(
-                entry.item.itemContent.tweet.legacy.card.binding_values) === "[object Array]") {
-                for (let binding of entry.item.itemContent.tweet.legacy.card.binding_values) {
-                  //console.log(binding);    // for debugging
-                  if (binding.key === "card_url") {
-                    binding.value.string_value = lastURL.expanded_url;
-                    //console.log(binding.value.string_value);    // for debugging
-                  }
-                  //console.log(binding);    // for debugging
-                }
-              } else if (Object.prototype.toString.call(
-                entry.item.itemContent.tweet.legacy.card.binding_values) === "[object Object]") {
-                Object.entries(entry.item.itemContent.tweet.legacy.card.binding_values)
-                  .forEach(([key, value]) => {
-                    //console.log(key);    // for debugging
-                    //console.log(value);    // for debugging
-                    if (key === "card_url") {
-                      value.string_value = lastURL.expanded_url;
-                      //console.log(value.string_value);    // for debugging
-                    }
-                    //console.log(value);    // for debugging
-                  });
-              }
-              //console.log(entry.item.itemContent.tweet.legacy.card.binding_values);    // for debugging
-              TLD_background.messageContentScript(requestDetails.tabId);    // send a message to the content script from the tab the network request was made
+              TLD_background.uncloakTwitterCard(entry, entry.item.itemContent.tweet.legacy.card, requestDetails.tabId);
               //console.log(entry);    // for debugging
             }    // uncloak the Twitter Cards from replies
           } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {
