@@ -522,13 +522,19 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
   }
 
   /**
-   * Uncloak the Twitter Card
+   * Restore the original URL of the Twitter Card
    */
   card.url = lastURL.expanded_url;
-  for (let binding of card.binding_values) {
-    if (binding.key === "card_url") {
-      binding.value.string_value = lastURL.expanded_url;
+  if (Object.prototype.toString.call(
+    card.binding_values) === "[object Array]") {
+    for (let binding of card.binding_values) {
+      if (binding.key === "card_url") {
+        binding.value.string_value = lastURL.expanded_url;
+      }
     }
+  } else if (Object.prototype.toString.call(
+    card.binding_values) === "[object Object]") {
+    card.binding_values.card_url.string_value = lastURL.expanded_url;
   }
 
   /**
