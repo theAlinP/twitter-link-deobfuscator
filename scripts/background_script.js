@@ -94,19 +94,10 @@ TLD_background.updateAddonIcon = function(state) {
  */
 TLD_background.toggleStatus = async function() {
   let storedSettings = await browser.storage.local.get();
-  if (storedSettings.enabled === true) {
-    //console.log(`Old value: ${storedSettings.enabled}`);    // for debugging
-    browser.storage.local.set({ enabled : false });
-    //console.log("The add-on has been disabled.");    // for debugging
-  } else {
-    //console.log(`Old value: ${storedSettings.enabled}`);    // for debugging
-    browser.storage.local.set({ enabled : true });
-    //console.log("The add-on has been enabled.");    // for debugging
-  }
-  storedSettings = await browser.storage.local.get();
-  //console.log(`New value: ${storedSettings.enabled}`);    // for debugging
-  TLD_background.updateAddonTitle (storedSettings.enabled);
-  TLD_background.updateAddonIcon (storedSettings.enabled);
+  browser.storage.local.set({ enabled : !storedSettings.enabled });
+
+  TLD_background.updateAddonTitle(!storedSettings.enabled);
+  TLD_background.updateAddonIcon(!storedSettings.enabled);
 };
 
 
