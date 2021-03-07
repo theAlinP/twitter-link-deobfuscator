@@ -196,22 +196,7 @@ TLD_background.interceptNetworkRequests = async function(requestDetails) {
         jsonResponse?.conversation_timeline?.entries ||
         jsonResponse?.user_events?.entries;
       if (msg_entries) {    // if the JSON contains messages...
-        //console.log(requestDetails.url);    // for debugging
-        //console.log(jsonResponse?.inbox_initial_state?.entries);    // for debugging
-        //console.log(jsonResponse?.conversation_timeline?.entries);    // for debugging
-        //console.log(jsonResponse?.user_events?.entries);    // for debugging
-        //console.log(msg_entries);    // for debugging
-        for (let entry of msg_entries) {
-          //console.log(entry);    // for debugging
-          //console.log(entry.message.message_data.text);    // for debugging
-          if (!entry.message.message_data?.attachment?.card) {
-            continue;
-          }
-          //console.log(requestDetails.requestId);    // for debugging
-          //console.log(requestDetails.url);    // for debugging
-          TLD_background.uncloakTwitterCard(entry, entry.message.message_data.attachment.card, requestDetails.tabId);
-          //console.log(entry);    // for debugging
-        }    // uncloak the Twitter Cards from messages
+        TLD_background.cleanDirectMessages(msg_entries, requestDetails);
       } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets...
         //console.log(requestDetails.url);    // for debugging
         let tweet_entries = jsonResponse.globalObjects.tweets;
@@ -473,6 +458,24 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
    * Update the badge text
    */
   TLD_background.messageContentScript(tabId);
+};
+
+
+/**
+ * A function that uncloaks the Twitter Cards from Direct Messages
+ * @method cleanDirectMessages
+ * @memberof TLD_background
+ * @param {array} msg_entries - An array containing Direct Messages
+ * @param {object} requestDetails - An object passed over by the event listener
+ */
+TLD_background.cleanDirectMessages = function(msg_entries, requestDetails) {
+  for (let entry of msg_entries) {
+    //console.log(entry.message.message_data.text);    // for debugging
+    if (!entry.message.message_data?.attachment?.card) {
+      continue;
+    }
+    TLD_background.uncloakTwitterCard(entry, entry.message.message_data.attachment.card, requestDetails.tabId);
+  }
 };
 
 
