@@ -202,82 +202,7 @@ TLD_background.interceptNetworkRequests = async function(requestDetails) {
       } else if (jsonResponse?.data?.conversation_timeline?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
         TLD_background.cleanGraphQLReplies(jsonResponse, requestDetails);
       } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {
-        /**
-         * This code block is ran after a response to an API call like
-         * "https://twitter.com/i/api/graphql/9u_4RUcGtdogbSPhyuMfmw/UserTweets"
-         * containing tweets for profile pages, while logged in to Twitter.
-         */
-
-        if (!jsonResponse.data.user.result.timeline.timeline.instructions[0]?.entries) {
-          return;
-        }
-
-        /**
-         * Collect all the tweet entries into one array
-         */
-        //console.log(jsonResponse.data.user.result.timeline.timeline.instructions[0].entries);    // for debugging
-        let tweet_entries = jsonResponse.data.user.result.timeline.timeline.instructions[0].entries;
-        if (jsonResponse.data.user.result.timeline.timeline?.instructions[1]) {
-          //console.log(jsonResponse.data.user.result.timeline.timeline?.instructions[1]);
-          tweet_entries.unshift(jsonResponse.data.user.result.timeline.timeline?.instructions[1].entry);
-        }    // add the pinned tweet to the array of tweets
-        //console.log(tweet_entries);    // for debugging
-
-        for (let entry of tweet_entries) {
-          //console.log(entry);    // for debugging
-
-          /**
-           * Uncloak the Twitter Cards from regular tweets
-           */
-          if (entry?.content?.itemContent?.tweet?.legacy?.card) {
-            //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
-            let cardObject = entry.content.itemContent.tweet.legacy.card;
-            TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
-            //console.log(entry);    // for debugging
-          }    // uncloak the Twitter Cards from regular tweets
-
-          /**
-           * Uncloak the Twitter Cards from retweets
-           */
-          if (entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card) {
-            //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
-            let cardObject = entry.content.itemContent.tweet.legacy.retweeted_status.legacy.card;
-            TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
-            //console.log(entry);    // for debugging
-          }    // uncloak the Twitter Cards from retweets
-
-          /**
-           * Uncloak the Twitter Cards from threads
-           */
-          if (entry?.content?.items) {
-            //console.log(entry.content.items);    // for debugging
-            for (let threadEntry of entry.content.items) {
-              /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
-                console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
-              }*/
-
-              /**
-               * Uncloak the Twitter Cards from regular tweets
-               */
-              if (threadEntry?.item?.itemContent?.tweet?.legacy?.card) {
-                //console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
-                let cardObject = threadEntry.item.itemContent.tweet.legacy.card;
-                TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
-                //console.log(entry);    // for debugging
-              }    // uncloak the Twitter Cards from regular tweets
-
-              /**
-               * Uncloak the Twitter Cards from retweets
-               */
-              if (threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card) {
-                //console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
-                let cardObject = threadEntry.item.itemContent.tweet.legacy.retweeted_status.legacy.card;
-                TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
-                //console.log(entry);    // for debugging
-              }    // uncloak the Twitter Cards from retweets
-            }
-          }    // uncloak the Twitter Cards from threads
-        }    // uncloak the Twitter Cards from profile pages
+        TLD_background.cleanProfileTweets(jsonResponse, requestDetails);
       }
       //console.log(stringResponse);    // for debugging
       stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
@@ -481,6 +406,84 @@ TLD_background.cleanGraphQLReplies = function(jsonResponse, requestDetails) {
       continue;
     }
     TLD_background.uncloakTwitterCard(entry, entry.item.itemContent.tweet.legacy.card, requestDetails.tabId);
+  }
+};
+
+
+/**
+ * A function that uncloaks the Twitter Cards from tweets from profile pages
+ * @method cleanProfileTweets
+ * @memberof TLD_background
+ * @param {object} jsonResponse - A JSON containing tweets
+ * @param {object} requestDetails - An object passed over by the event listener
+ */
+TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
+  /**
+   * This code block is ran after a response to an API call like
+   * "https://twitter.com/i/api/graphql/9u_4RUcGtdogbSPhyuMfmw/UserTweets"
+   * containing tweets for profile pages, while logged in to Twitter.
+   */
+
+  if (!jsonResponse.data.user.result.timeline.timeline.instructions[0]?.entries) {
+    return;
+  }
+
+  /**
+   * Collect all the tweet entries into one array
+   */
+  let tweet_entries = jsonResponse.data.user.result.timeline.timeline.instructions[0].entries;
+  if (jsonResponse.data.user.result.timeline.timeline?.instructions[1]) {
+    tweet_entries.unshift(jsonResponse.data.user.result.timeline.timeline?.instructions[1].entry);
+  }    // add the pinned tweet to the array of tweets
+
+  for (let entry of tweet_entries) {
+
+    /**
+     * Uncloak the Twitter Cards from regular tweets
+     */
+    if (entry?.content?.itemContent?.tweet?.legacy?.card) {
+      //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
+      let cardObject = entry.content.itemContent.tweet.legacy.card;
+      TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
+    }
+
+    /**
+     * Uncloak the Twitter Cards from retweets
+     */
+    if (entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card) {
+      //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
+      let cardObject = entry.content.itemContent.tweet.legacy.retweeted_status.legacy.card;
+      TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
+    }
+
+    /**
+     * Uncloak the Twitter Cards from threads
+     */
+    if (entry?.content?.items) {
+      for (let threadEntry of entry.content.items) {
+        /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
+          console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
+        }*/
+
+        /**
+         * Uncloak the Twitter Cards from regular tweets
+         */
+        if (threadEntry?.item?.itemContent?.tweet?.legacy?.card) {
+          //console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
+          let cardObject = threadEntry.item.itemContent.tweet.legacy.card;
+          TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
+        }
+
+        /**
+         * Uncloak the Twitter Cards from retweets
+         */
+        if (threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card) {
+          //console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
+          let cardObject = threadEntry.item.itemContent.tweet.legacy.retweeted_status.legacy.card;
+          TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
+        }
+      }
+    }
   }
 };
 
