@@ -200,35 +200,7 @@ TLD_background.interceptNetworkRequests = async function(requestDetails) {
       } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets...
         TLD_background.cleanRegularTweets(jsonResponse, requestDetails);
       } else if (jsonResponse?.data?.conversation_timeline?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
-        //console.log(requestDetails.url);    // for debugging
-        let tweet_entries;
-        if (jsonResponse.data.conversation_timeline.instructions[0]?.moduleItems) {
-          //console.log("jsonResponse.data.conversation_timeline.instructions[0].moduleItems");    // for debugging
-          //console.log(jsonResponse.data.conversation_timeline.instructions[0].moduleItems);    // for debugging
-          tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].moduleItems;
-          //tweet_entries = Object.keys(jsonResponse.data.conversation_timeline.instructions[0].moduleItems);
-          //console.log(tweet_entries);    // for debugging
-        } else if (jsonResponse.data.conversation_timeline.instructions[0]?.entries[0]?.content.items) {
-          //console.log("jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items");    // for debugging
-          //console.log(jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items);    // for debugging
-          tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items;
-          //console.log(tweet_entries);    // for debugging
-        } else {
-          //console.log("No tweet entries were found");    // for debugging
-          return;
-        }
-        //console.log(tweet_entries);    // for debugging
-        for (let entry of tweet_entries) {
-          //console.log(entry);    // for debugging
-          //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-          if (!entry.item.itemContent.tweet.legacy?.card) {
-            continue;
-          }
-          //console.log(requestDetails.requestId);    // for debugging
-          //console.log(requestDetails.url);    // for debugging
-          TLD_background.uncloakTwitterCard(entry, entry.item.itemContent.tweet.legacy.card, requestDetails.tabId);
-          //console.log(entry);    // for debugging
-        }    // uncloak the Twitter Cards from replies
+        TLD_background.cleanGraphQLReplies(jsonResponse, requestDetails);
       } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {
         /**
          * This code block is ran after a response to an API call like
@@ -481,6 +453,34 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
       continue;
     }
     TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId);
+  }
+};
+
+
+/**
+ * A function that uncloaks the Twitter Cards from replies to tweets
+ * from GraphQL API calls
+ * @method cleanGraphQLReplies
+ * @memberof TLD_background
+ * @param {object} jsonResponse - A JSON containing replies to tweets
+ * @param {object} requestDetails - An object passed over by the event listener
+ */
+TLD_background.cleanGraphQLReplies = function(jsonResponse, requestDetails) {
+  let tweet_entries;
+  if (jsonResponse.data.conversation_timeline.instructions[0]?.moduleItems) {
+    tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].moduleItems;
+  } else if (jsonResponse.data.conversation_timeline.instructions[0]?.entries[0]?.content.items) {
+    tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items;
+  } else {
+    //console.log("No tweet entries were found");    // for debugging
+    return;
+  }
+  for (let entry of tweet_entries) {
+    //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
+    if (!entry.item.itemContent.tweet.legacy?.card) {
+      continue;
+    }
+    TLD_background.uncloakTwitterCard(entry, entry.item.itemContent.tweet.legacy.card, requestDetails.tabId);
   }
 };
 
