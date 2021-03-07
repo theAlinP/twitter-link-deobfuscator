@@ -198,31 +198,7 @@ TLD_background.interceptNetworkRequests = async function(requestDetails) {
       if (msg_entries) {    // if the JSON contains messages...
         TLD_background.cleanDirectMessages(msg_entries, requestDetails);
       } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets...
-        //console.log(requestDetails.url);    // for debugging
-        let tweet_entries = jsonResponse.globalObjects.tweets;
-        //console.log(tweet_entries);    // for debugging
-        for (let entry of Object.keys(tweet_entries)) {
-          //console.log(tweet_entries[entry]);    // for debugging
-          //console.log(tweet_entries[entry].full_text);    // for debugging
-
-          /**
-           * Detect if the tweet contains a poll, and if it does,
-           * don't uncloak the Card, wich is in fact the poll itself.
-           * It can be detected only if the user is not logged in
-           */
-          if (tweet_entries[entry]?.card?.binding_values?.choice1_count) {
-            //console.log("This tweet contains a poll");    // for debugging
-            continue;
-          }
-
-          if (!tweet_entries[entry]?.card) {
-            continue;
-          }
-          //console.log(requestDetails.requestId);    // for debugging
-          //console.log(requestDetails.url);    // for debugging
-          TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId);
-          //console.log(tweet_entries[entry]);    // for debugging
-        }    // uncloak the Twitter Cards from tweets
+        TLD_background.cleanRegularTweets(jsonResponse, requestDetails);
       } else if (jsonResponse?.data?.conversation_timeline?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
         //console.log(requestDetails.url);    // for debugging
         let tweet_entries;
@@ -475,6 +451,36 @@ TLD_background.cleanDirectMessages = function(msg_entries, requestDetails) {
       continue;
     }
     TLD_background.uncloakTwitterCard(entry, entry.message.message_data.attachment.card, requestDetails.tabId);
+  }
+};
+
+
+/**
+ * A function that uncloaks the Twitter Cards from tweets
+ * @method cleanRegularTweets
+ * @memberof TLD_background
+ * @param {object} jsonResponse - A JSON containing tweets
+ * @param {object} requestDetails - An object passed over by the event listener
+ */
+TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
+  let tweet_entries = jsonResponse.globalObjects.tweets;
+  for (let entry of Object.keys(tweet_entries)) {
+    //console.log(tweet_entries[entry].full_text);    // for debugging
+
+    /**
+     * Detect if the tweet contains a poll, and if it does,
+     * don't uncloak the Card, wich is in fact the poll itself.
+     * It can be detected only if the user is not logged in
+     */
+    if (tweet_entries[entry]?.card?.binding_values?.choice1_count) {
+      //console.log("This tweet contains a poll");    // for debugging
+      continue;
+    }
+
+    if (!tweet_entries[entry]?.card) {
+      continue;
+    }
+    TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId);
   }
 };
 
