@@ -140,15 +140,18 @@ TLD_background.onMessageError = function(error) {
 
 
 /**
- * A function that intercepts and modifies the network requests
+ * A function that intercepts the network requests
  * @async
  * @method interceptNetworkRequests
  * @memberof TLD_background
- * @param {object} requestDetails - An object passed over by the event listener
+ * @param {object} requestDetails - An object passed over to the listener
+ * function with detailed information about the request
+ * @returns {object} - Returns a webRequest.StreamFilter object - or undefined
  */
 TLD_background.interceptNetworkRequests = async function(requestDetails) {
   //console.log(`Loading: " ${requestDetails.url}`);    // for debugging
   let storedSettings = await browser.storage.local.get();
+  var filter;
   if (storedSettings.enabled !== true) {
     return;
   }    // don't clean the links if the add-on is not enabled
@@ -166,53 +169,81 @@ TLD_background.interceptNetworkRequests = async function(requestDetails) {
       return;
     }
     //console.log(requestDetails);    // for debugging
-    let filter = browser.webRequest.filterResponseData(requestDetails.requestId);
-    let decoder = new TextDecoder("utf-8");
-    let encoder = new TextEncoder();
-    let data = [];
-    filter.ondata = event => {
-      data.push(event.data);
-    };
-    filter.onstop = () => {
-      //console.log("The response will be modified");    // for debugging
-      let stringResponse = "";
-      if (data.length == 1) {
-        stringResponse = decoder.decode(data[0]);
-      } else {
-        for (let i = 0; i < data.length; i++){
-          let stream = (i == data.length - 1) ? false : true;
-          stringResponse += decoder.decode(data[i], {stream});
-        }
-      }
-      //console.log(stringResponse);    // for debugging
-      if (!TLD_background.hasJsonStructure(stringResponse)) {
-        return;
-      }
-      //console.log(stringResponse);    // for debugging
-      let jsonResponse = JSON.parse(stringResponse);
-      //console.log(requestDetails.url);    // for debugging
-      //console.log(jsonResponse);    // for debugging
-      let msg_entries = jsonResponse?.inbox_initial_state?.entries ||
-        jsonResponse?.conversation_timeline?.entries ||
-        jsonResponse?.user_events?.entries;
-      if (msg_entries) {    // if the JSON contains messages...
-        TLD_background.cleanDirectMessages(msg_entries, requestDetails);
-      } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets...
-        TLD_background.cleanRegularTweets(jsonResponse, requestDetails);
-      } else if (jsonResponse?.data?.conversation_timeline?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
-        TLD_background.cleanGraphQLReplies(jsonResponse, requestDetails);
-      } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {
-        TLD_background.cleanProfileTweets(jsonResponse, requestDetails);
-      }
-      //console.log(stringResponse);    // for debugging
-      stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
-      //console.log(stringResponse);    // for debugging
-      //console.log(stringResponse);    // for debugging
-      filter.write(encoder.encode(stringResponse));
-      filter.close();
-      //console.log("The response was modified successfully");    // for debugging
-    };
+    filter = browser.webRequest.filterResponseData(requestDetails.requestId);
   });
+  return filter;
+};
+
+
+/**
+ * A function that modifies the network requests
+ * @async
+ * @method modifyNetworkRequests
+ * @memberof TLD_background
+ * @param {object} requestDetails - An object passed over to the listener
+ * function with detailed information about the request
+ * @returns {object} - Returns an empty blockingResponse object
+ */
+TLD_background.modifyNetworkRequests = async function(requestDetails) {
+  let filter = await TLD_background.interceptNetworkRequests(requestDetails);
+
+  if (filter === undefined) {
+  // Resolve with an empty Object, which is a valid BlockingResponse that permits
+  // the webRequest to complete normally, after it is resolved.
+    return {};
+  }
+
+  let decoder = new TextDecoder("utf-8");
+  let encoder = new TextEncoder();
+  let data = [];
+  filter.ondata = event => {
+    data.push(event.data);
+  };
+  filter.onstop = () => {
+    //console.log("The response will be modified");    // for debugging
+    let stringResponse = "";
+    if (data.length == 1) {
+      stringResponse = decoder.decode(data[0]);
+    } else {
+      for (let i = 0; i < data.length; i++){
+        let stream = (i == data.length - 1) ? false : true;
+        stringResponse += decoder.decode(data[i], {stream});
+      }
+    }
+    //console.log(stringResponse);    // for debugging
+    if (!TLD_background.hasJsonStructure(stringResponse)) {
+      // Resolve with an empty Object, which is a valid BlockingResponse that permits
+      // the webRequest to complete normally, after it is resolved.
+      return {};
+    }
+    //console.log(stringResponse);    // for debugging
+    let jsonResponse = JSON.parse(stringResponse);
+    //console.log(requestDetails.url);    // for debugging
+    //console.log(jsonResponse);    // for debugging
+    let msg_entries = jsonResponse?.inbox_initial_state?.entries ||
+      jsonResponse?.conversation_timeline?.entries ||
+      jsonResponse?.user_events?.entries;
+    if (msg_entries) {    // if the JSON contains messages...
+      TLD_background.cleanDirectMessages(msg_entries, requestDetails);
+    } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets...
+      TLD_background.cleanRegularTweets(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.conversation_timeline?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
+      TLD_background.cleanGraphQLReplies(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {
+      TLD_background.cleanProfileTweets(jsonResponse, requestDetails);
+    }
+    //console.log(stringResponse);    // for debugging
+    stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
+    //console.log(stringResponse);    // for debugging
+    //console.log(stringResponse);    // for debugging
+    filter.write(encoder.encode(stringResponse));
+    filter.close();
+    //console.log("The response was modified successfully");    // for debugging
+  };
+
+  // Resolve with an empty Object, which is a valid BlockingResponse that permits
+  // the webRequest to complete normally, after it is resolved.
+  return {};
 };
 
 
@@ -523,7 +554,7 @@ browser.browserAction.onClicked.addListener(TLD_background.toggleStatus);    // 
 browser.runtime.onMessage.addListener(TLD_background.handleMessage);    // listen for messages from the background script
 
 browser.webRequest.onBeforeRequest.addListener(
-  TLD_background.interceptNetworkRequests,
+  TLD_background.modifyNetworkRequests,
   {urls: ["*://*.twitter.com/*"]},
   ["blocking"]
 );    // intercept the network responses from twitter.com
