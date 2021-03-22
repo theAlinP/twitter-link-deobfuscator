@@ -188,9 +188,7 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
   let filter = await TLD_background.interceptNetworkRequests(requestDetails);
 
   if (filter === undefined) {
-  // Resolve with an empty Object, which is a valid BlockingResponse that permits
-  // the webRequest to complete normally, after it is resolved.
-    return {};
+    return;
   }
 
   let decoder = new TextDecoder("utf-8");
@@ -211,11 +209,11 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
       }
     }
     //console.log(stringResponse);    // for debugging
+
     if (!TLD_background.hasJsonStructure(stringResponse)) {
-      // Resolve with an empty Object, which is a valid BlockingResponse that permits
-      // the webRequest to complete normally, after it is resolved.
-      return {};
+      return;
     }
+
     //console.log(stringResponse);    // for debugging
     let jsonResponse = JSON.parse(stringResponse);
     //console.log(requestDetails.url);    // for debugging
@@ -241,9 +239,7 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
     //console.log("The response was modified successfully");    // for debugging
   };
 
-  // Resolve with an empty Object, which is a valid BlockingResponse that permits
-  // the webRequest to complete normally, after it is resolved.
-  return {};
+  return;
 };
 
 
