@@ -182,7 +182,6 @@ TLD_background.interceptNetworkRequests = async function(requestDetails) {
  * @memberof TLD_background
  * @param {object} requestDetails - An object passed over to the listener
  * function with detailed information about the request
- * @returns {object} - Returns an empty blockingResponse object
  */
 TLD_background.modifyNetworkRequests = async function(requestDetails) {
   let filter = await TLD_background.interceptNetworkRequests(requestDetails);
