@@ -1,0 +1,2 @@
+# Ignore the folder with packaged Firefox extensions
+web-ext-artifacts/
