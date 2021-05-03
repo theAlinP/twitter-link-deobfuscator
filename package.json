@@ -2,6 +2,11 @@
   "name": "twitter-link-deobfuscator",
   "version": "1.3.5",
   "description": "Reveals the original destinations of the links and of the Twitter Cards from tweets and replies as well as from Direct Messages, but also the \"Website\" link and others, which are usually concealed using shortened URLs.",
+  "scripts": {
+    "lint": "npx web-ext lint",
+    "load": "npx web-ext run",
+    "build": "npx web-ext build"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/theAlinP/twitter-link-deobfuscator.git"
@@ -17,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/theAlinP/twitter-link-deobfuscator/issues"
   },
-  "homepage": "https://github.com/theAlinP/twitter-link-deobfuscator#readme"
+  "homepage": "https://github.com/theAlinP/twitter-link-deobfuscator#readme",
+  "devDependencies": {
+    "web-ext": "^6.1.0"
+  }
 }
