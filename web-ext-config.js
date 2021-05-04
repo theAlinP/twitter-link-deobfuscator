@@ -2,7 +2,8 @@ module.exports = {
   ignoreFiles: [
     'package.json',
     'package-lock.json',
-    'web-ext-config.js'
+    'web-ext-config.js',
+    'git_hooks'
   ],
   run: {
     browserConsole: true,

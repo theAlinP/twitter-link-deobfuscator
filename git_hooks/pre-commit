@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+
+
+#===============================================================================
+# This script should be used as a Git hook
+# It can be copied to the .git/hooks directory or you can run the command
+# `git config core.hooksPath git_hooks`
+# to use the git_hooks directory as the path Git looks for hooks in.
+# Warning: Checking out older commits could change the version of this Git hook
+#===============================================================================
+
+
+#-------------------------------------------------------------------------------
+# Validate the source code with web-ext
+# If there is a web-ext version installed locally, the script will exit with the
+# status code of the `web-ext lint` command.
+# If there is a global and a local version of web-ext, the local version will be
+# used. If there is only a global version installed, that one will be used.
+# If there is no web-ext module installed, neither globally nor locally, the
+# script exits with an exit status of 0 and allows the commit to continue,
+# meaning this hook can be enabled even if the dependencies were not installed
+#-------------------------------------------------------------------------------
+
+shopt -s expand_aliases
+alias webExt='npx --no-install web-ext'
+
+#npm list web-ext >& /dev/null    # the proper way to check if web-ext is installed locally but it scans all the installed packages
+webExt --version &> /dev/null    # a hack to check if web-ext is installed locally or globally
+webExt_exit_code=$?
+
+#[ "${webExt_exit_code}" -ne 0 ] && exit 0
+if [[ "${webExt_exit_code}" == 0 ]]; then
+  echo ""
+  echo "Please wait while the source code is validated using web-ext"
+  echo "The commit will be aborted if any errors are found"
+  webExt lint    # lint the add-on
+  webExtReturn=$?    # store the exit code in a variable
+  echo ""
+  exit $webExtReturn    # exit with the exit code of the linting command
+else
+  echo "The web-ext package is not installed neither globally nor locally"
+  echo "This script will exit and the commit will not be aborted"
+  exit 0
+fi
