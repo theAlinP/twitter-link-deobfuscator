@@ -1,9 +1,9 @@
 module.exports = {
   ignoreFiles: [
+    'commitlint.config.js',
     'package.json',
     'package-lock.json',
-    'web-ext-config.js',
-    'git_hooks'
+    'web-ext-config.js'
   ],
   run: {
     browserConsole: true,

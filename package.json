@@ -6,7 +6,8 @@
     "lint": "npx web-ext lint",
     "load": "npx web-ext run",
     "build": "npx web-ext build",
-    "cmt": "npx cz"
+    "cmt": "npx cz",
+    "prepare": "npx husky install"
   },
   "repository": {
     "type": "git",
@@ -25,8 +26,11 @@
   },
   "homepage": "https://github.com/theAlinP/twitter-link-deobfuscator#readme",
   "devDependencies": {
+    "@commitlint/cli": "^12.1.1",
+    "@commitlint/config-conventional": "^12.1.1",
     "commitizen": "^4.2.3",
     "cz-conventional-changelog": "^3.3.0",
+    "husky": "^6.0.0",
     "web-ext": "^6.1.0"
   },
   "config": {
