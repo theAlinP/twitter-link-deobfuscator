@@ -1,6 +1,7 @@
 # Twitter Link Deobfuscator
 
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 Reveals the original destinations of the links and of the Twitter Cards from tweets and replies as well as from Direct Messages, but also the "Website" link and others, which are usually concealed using shortened URLs.
 

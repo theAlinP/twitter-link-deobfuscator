@@ -5,7 +5,8 @@
   "scripts": {
     "lint": "npx web-ext lint",
     "load": "npx web-ext run",
-    "build": "npx web-ext build"
+    "build": "npx web-ext build",
+    "cmt": "npx cz"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,13 @@
   },
   "homepage": "https://github.com/theAlinP/twitter-link-deobfuscator#readme",
   "devDependencies": {
+    "commitizen": "^4.2.3",
+    "cz-conventional-changelog": "^3.3.0",
     "web-ext": "^6.1.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
