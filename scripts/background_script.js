@@ -370,7 +370,7 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
 TLD_background.cleanDirectMessages = function(msg_entries, requestDetails) {
   for (let entry of msg_entries) {
     //console.log(entry.message.message_data.text);    // for debugging
-    if (!entry.message.message_data?.attachment?.card) {
+    if (!entry?.message?.message_data?.attachment?.card) {
       continue;
     }
     TLD_background.uncloakTwitterCard(entry, entry.message.message_data.attachment.card, requestDetails.tabId);
