@@ -1,0 +1,21 @@
+{
+  "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\n",
+  "types": [
+    {"type": "feat", "section": "Features"},
+    {"type": "fix", "section": "Bug Fixes"},
+    {"type": "chore", "section": "Other updates"},
+    {"type": "docs", "section": "Other updates"},
+    {"type": "style", "section": "Other updates"},
+    {"type": "refactor", "section": "Other updates"},
+    {"type": "perf", "section": "Other updates"},
+    {"type": "test", "section": "Other updates"},
+    {"type": "build", "section": "Other updates"},
+    {"type": "ci", "section": "Other updates"},
+    {"type": "revert", "section": "Other updates"}
+  ],
+  "tagPrefix": "",
+  "skip": {
+    "commit": true,
+    "tag": true
+  }
+}
