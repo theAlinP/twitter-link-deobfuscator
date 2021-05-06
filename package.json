@@ -8,7 +8,7 @@
     "build": "npx web-ext build",
     "cmt": "npx cz",
     "prepare": "npx husky install",
-    "release": "npx standard-version --tag-prefix \"\""
+    "release": "npx standard-version"
   },
   "repository": {
     "type": "git",
