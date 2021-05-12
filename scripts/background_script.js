@@ -341,16 +341,17 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
    * Restore the original URL of the Twitter Card
    */
   card.url = lastURL.expanded_url;
+  let binding_values = card.binding_values || card?.legacy?.binding_values;
   if (Object.prototype.toString.call(
-    card.binding_values) === "[object Array]") {
-    for (let binding of card.binding_values) {
+    binding_values) === "[object Array]") {
+    for (let binding of binding_values) {
       if (binding.key === "card_url") {
         binding.value.string_value = lastURL.expanded_url;
       }
     }
   } else if (Object.prototype.toString.call(
-    card.binding_values) === "[object Object]") {
-    card.binding_values.card_url.string_value = lastURL.expanded_url;
+    binding_values) === "[object Object]") {
+    binding_values.card_url.string_value = lastURL.expanded_url;
   }
 
   /**
@@ -467,18 +468,20 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
     /**
      * Uncloak the Twitter Cards from regular tweets
      */
-    if (entry?.content?.itemContent?.tweet?.legacy?.card) {
-      //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
-      let cardObject = entry.content.itemContent.tweet.legacy.card;
+    if (entry?.content?.itemContent?.tweet?.legacy?.card ||
+      entry?.content?.itemContent?.tweet?.card) {
+      let cardObject = entry?.content?.itemContent?.tweet?.legacy?.card ||
+      entry?.content?.itemContent?.tweet?.card;
       TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
     }
 
     /**
      * Uncloak the Twitter Cards from retweets
      */
-    if (entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card) {
-      //console.log(entry.content.itemContent.tweet.legacy.full_text);    // for debugging
-      let cardObject = entry.content.itemContent.tweet.legacy.retweeted_status.legacy.card;
+    if (entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
+      entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.card) {
+      let cardObject = entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
+      entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.card;
       TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
     }
 
@@ -494,18 +497,20 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
         /**
          * Uncloak the Twitter Cards from regular tweets
          */
-        if (threadEntry?.item?.itemContent?.tweet?.legacy?.card) {
-          //console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
-          let cardObject = threadEntry.item.itemContent.tweet.legacy.card;
+        if (threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
+          threadEntry?.item?.itemContent?.tweet?.card) {
+          let cardObject = threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
+          threadEntry?.item?.itemContent?.tweet?.card;
           TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
         }
 
         /**
          * Uncloak the Twitter Cards from retweets
          */
-        if (threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card) {
-          //console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
-          let cardObject = threadEntry.item.itemContent.tweet.legacy.retweeted_status.legacy.card;
+        if (threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
+          threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.card) {
+          let cardObject = threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
+          threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.card;
           TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
         }
       }
