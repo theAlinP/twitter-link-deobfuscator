@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.3.7](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.3.6...1.3.7) (2021-05-12)
+
+
+### Bug Fixes
+
+* **background_script.js:** uncloak the Twitter Cards from the profile pages ([d75109b](https://github.com/theAlinP/twitter-link-deobfuscator/commit/d75109ba860594680206e898d3cdc2ff4eb7a9ee))
+
+
+### Other updates
+
+* update dependencies ([24a4dec](https://github.com/theAlinP/twitter-link-deobfuscator/commit/24a4dec7624eb9db0fd272c842be8993bcacc173))
+
 ### [1.3.6](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.3.5...1.3.6) (2021-05-06)
 
 
