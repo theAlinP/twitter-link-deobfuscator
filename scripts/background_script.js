@@ -301,10 +301,6 @@ TLD_background.determineCardURL = function(entry) {
     }
   } else if (entry?.content?.itemContent?.tweet?.legacy?.entities?.urls) {
     urls = entry.content.itemContent.tweet.legacy.entities.urls;
-    if (urls.length === 0 &&
-      entry.content.itemContent.tweet.legacy?.retweeted_status?.legacy?.entities?.urls) {
-      urls = entry.content.itemContent.tweet.legacy.retweeted_status.legacy.entities.urls;
-    }
   } else {
     return null;
   }
@@ -340,7 +336,6 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
   /**
    * Restore the original URL of the Twitter Card
    */
-  card.url = lastURL.expanded_url;
   let binding_values = card.binding_values || card?.legacy?.binding_values;
   if (Object.prototype.toString.call(
     binding_values) === "[object Array]") {
@@ -501,16 +496,6 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
           threadEntry?.item?.itemContent?.tweet?.card) {
           let cardObject = threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
           threadEntry?.item?.itemContent?.tweet?.card;
-          TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
-        }
-
-        /**
-         * Uncloak the Twitter Cards from retweets
-         */
-        if (threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
-          threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.card) {
-          let cardObject = threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
-          threadEntry?.item?.itemContent?.tweet?.legacy?.retweeted_status?.card;
           TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
         }
       }
