@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.3.8](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.3.7...1.3.8) (2021-06-22)
+
+
+### Bug Fixes
+
+* uncloak the Twitter Cards from the profile pages again ([0dcceca](https://github.com/theAlinP/twitter-link-deobfuscator/commit/0dcceca167a054ad791047cc5ed8c1406be8f9e0))
+
+
+### Other updates
+
+* update the dependencies ([ba6b3fc](https://github.com/theAlinP/twitter-link-deobfuscator/commit/ba6b3fc264a39e22905e364eb7ed51be17572c78))
+* remove unnecessary code ([a85587f](https://github.com/theAlinP/twitter-link-deobfuscator/commit/a85587f223646706fdcea6005d16b33cb24b09b5))
+* update the ESLint configuration file ([6fb09e8](https://github.com/theAlinP/twitter-link-deobfuscator/commit/6fb09e8ab59832dfde3f4d29690de55c059fc311))
+
 ### [1.3.7](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.3.6...1.3.7) (2021-05-12)
 
 
