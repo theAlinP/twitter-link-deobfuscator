@@ -430,7 +430,7 @@ TLD_background.cleanGraphQLReplies = function(jsonResponse, requestDetails) {
   let tweet_entries;
   if (jsonResponse.data.conversation_timeline.instructions[0]?.moduleItems) {
     tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].moduleItems;
-  } else if (jsonResponse.data.conversation_timeline.instructions[0]?.entries[0]?.content.items) {
+  } else if (jsonResponse.data.conversation_timeline.instructions[0]?.entries[0]?.content?.items) {
     tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items;
   } else {
     //console.log("No tweet entries were found");    // for debugging
