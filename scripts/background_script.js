@@ -401,7 +401,7 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
     //console.log(tweet_entries[entry].full_text);    // for debugging
 
     /**
-     * Detect if the tweet contains a poll, and if it does,
+     * Determine if the tweet contains a poll, and if it does,
      * don't uncloak the Card, wich is in fact the poll itself.
      * It can be detected only if the user is not logged in
      */
