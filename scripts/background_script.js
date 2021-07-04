@@ -371,6 +371,41 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
 
 
 /**
+ * A function that restores a text link's original URL
+ * @method uncloakTextLinks
+ * @memberof TLD_background
+ * @param {object} entry - An object containing a tweet
+ * @param {object} links - An object containing a Twitter Card
+ * @param {number} tabId - The ID of the tab whose badge text must be updated
+ */
+TLD_background.uncloakTextLinks = function(entry, links, tabId) {
+  for (let link of links) {
+    //console.log(link);    // for debugging
+
+    // Replace the text url from the body of the message or tweet
+    //entry.message.message_data.text = entry.message.message_data.text.replace(link.url, link.expanded_url);    // messages
+    //entry.full_text = entry.full_text.replace(link.url, link.expanded_url);    // tweets from the Home page
+    //entry.item.itemContent.tweet.legacy.full_text = entry.item.itemContent.tweet.legacy.full_text.replace(link.url, link.expanded_url);    // replies; tweets and retweets from a profile page
+    //entry.item.itemContent.tweet_results.result.legacy.full_text = entry.item.itemContent.tweet_results.result.legacy.full_text.replace(link.url, link.expanded_url);    // tweets from treads from a profile page
+
+    /*console.log(entry?.message?.message_data?.text ||    // messages
+      entry?.full_text ||    // regular tweets from the Home page
+      entry?.item?.itemContent?.tweet?.legacy?.full_text ||    // replies
+      entry?.content?.itemContent?.tweet_results?.result?.legacy?.full_text ||    // tweets and retweets from a profile page
+      entry.item.itemContent.tweet_results.result?.legacy.full_text);*/    // tweets from threads from a profile page
+    //console.log(link.url);    // for debugging
+    link.url = link.expanded_url;
+    //console.log(link.url);    // for debugging
+
+    /**
+     * Update the badge text
+     */
+    TLD_background.messageContentScript(tabId);    // send a message to the content script from the tab the network request was made
+  }    /* uncloak the links from messages, tweets from the Home page, replies,
+          tweets and retweets and tweet threads from a profile page*/
+};
+
+/**
  * A function that uncloaks the Twitter Cards from Direct Messages
  * @method cleanDirectMessages
  * @memberof TLD_background
@@ -380,6 +415,21 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
 TLD_background.cleanDirectMessages = function(msg_entries, requestDetails) {
   for (let entry of msg_entries) {
     //console.log(entry.message.message_data.text);    // for debugging
+
+    /**
+     * Uncloak the text links
+     */
+    if (!entry?.message?.message_data?.entities?.urls) {
+      continue;
+    }
+    let links = entry.message.message_data.entities.urls;
+    //console.log(links);    // for debugging
+    TLD_background.uncloakTextLinks(entry, links, requestDetails.tabId);
+
+
+    /**
+     * Uncloak the Twitter Cards
+     */
     if (!entry?.message?.message_data?.attachment?.card) {
       continue;
     }
@@ -401,6 +451,16 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
     //console.log(tweet_entries[entry].full_text);    // for debugging
 
     /**
+     * Uncloak the text links
+     */
+    if (!tweet_entries[entry]?.entities?.urls) {
+      continue;
+    }
+    let links = tweet_entries[entry].entities.urls;
+    //console.log(links);    // for debugging
+    TLD_background.uncloakTextLinks(tweet_entries[entry], links, requestDetails.tabId);
+
+    /**
      * Determine if the tweet contains a poll, and if it does,
      * don't uncloak the Card, wich is in fact the poll itself.
      * It can be detected only if the user is not logged in
@@ -410,6 +470,9 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
       continue;
     }
 
+    /**
+     * Uncloak the Twitter Cards
+     */
     if (!tweet_entries[entry]?.card) {
       continue;
     }
@@ -438,6 +501,20 @@ TLD_background.cleanGraphQLReplies = function(jsonResponse, requestDetails) {
   }
   for (let entry of tweet_entries) {
     //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
+
+    /**
+     * Uncloak the text links
+     */
+    if (!entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
+      continue;
+    }
+    let links = entry.item.itemContent.tweet.legacy.entities.urls;
+    //console.log(links);    // for debugging
+    TLD_background.uncloakTextLinks(entry, links, requestDetails.tabId);
+
+    /**
+     * Uncloak the Twitter Cards
+     */
     if (!entry.item.itemContent.tweet.legacy?.card) {
       continue;
     }
@@ -470,9 +547,24 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
   let tweet_entries = jsonResponse.data.user.result.timeline.timeline.instructions[0].entries;
   if (jsonResponse.data.user.result.timeline.timeline?.instructions[1]) {
     tweet_entries.unshift(jsonResponse.data.user.result.timeline.timeline.instructions[1].entry);
+    //console.log(tweet_entries);
   }    // add the pinned tweet to the array of tweets
 
   for (let entry of tweet_entries) {
+
+    /**
+     * Uncloak the text links from regular tweets
+     */
+    if (entry?.content?.itemContent?.tweet?.legacy?.entities?.urls ||
+      entry?.content?.itemContent?.tweet?.entities?.urls ||
+      entry?.content?.itemContent?.tweet_results?.result?.legacy?.entities?.urls) {
+      //console.log(entry);    // for debugging
+      let links = entry?.content?.itemContent?.tweet?.legacy?.entities?.urls ||
+        entry?.content?.itemContent?.tweet?.entities?.urls ||
+        entry?.content?.itemContent?.tweet_results?.result?.legacy?.entities?.urls;
+      //console.log(links);    // for debugging
+      TLD_background.uncloakTextLinks(entry, links, requestDetails.tabId);
+    }
 
     /**
      * Uncloak the Twitter Cards from regular tweets
@@ -484,6 +576,20 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
       entry?.content?.itemContent?.tweet?.card ||
       entry?.content?.itemContent?.tweet_results?.result?.card;
       TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
+    }
+
+    /**
+     * Uncloak the text links from retweets
+     */
+    if (entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.entities?.urls ||
+      entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.entities?.urls ||
+      entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.legacy?.entities?.urls) {
+      //console.log(entry);    // for debugging
+      let links = entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.entities?.urls ||
+        entry?.content?.itemContent?.tweet?.retweeted_status?.legacy?.entities?.urls ||
+        entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.legacy?.entities?.urls;
+      //console.log(links);    // for debugging
+      TLD_background.uncloakTextLinks(entry, links, requestDetails.tabId);
     }
 
     /**
@@ -501,23 +607,41 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
     /**
      * Uncloak the Twitter Cards from threads
      */
-    if (entry?.content?.items) {
-      for (let threadEntry of entry.content.items) {
-        /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
-          console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
-        }*/
+    if (!entry?.content?.items) {
+      continue;
+    }    // exit if the entry doesn't contain a thread
+    for (let threadEntry of entry.content.items) {
+      /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
+        console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
+      }*/
 
-        /**
-         * Uncloak the Twitter Cards from regular tweets
-         */
-        if (threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
-          threadEntry?.item?.itemContent?.tweet?.card ||
-          threadEntry?.item?.itemContent?.tweet_results?.result?.card) {
-          let cardObject = threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
-          threadEntry?.item?.itemContent?.tweet?.card ||
-          threadEntry?.item?.itemContent?.tweet_results?.result?.card;
-          TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
-        }
+      /**
+       * Uncloak the text links from regular tweets
+       */
+      if (!(threadEntry?.item?.itemContent?.tweet?.legacy?.entities?.urls ||
+        threadEntry?.item?.itemContent?.tweet?.entities?.urls ||
+        threadEntry?.item?.itemContent?.tweet_results?.result?.legacy?.entities?.urls)) {
+        continue;
+      } else {
+        //console.log(entry);    // for debugging
+        //console.log(threadEntry);    // for debugging
+        let links = threadEntry?.item?.itemContent?.tweet?.legacy?.entities?.urls ||
+        threadEntry?.item?.itemContent?.tweet?.entities?.urls ||
+        threadEntry?.item?.itemContent?.tweet_results?.result?.legacy?.entities?.urls;
+        //console.log(links);    // for debugging
+        TLD_background.uncloakTextLinks(threadEntry, links, requestDetails.tabId);
+      }
+
+      /**
+       * Uncloak the Twitter Cards from regular tweets
+       */
+      if (threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
+        threadEntry?.item?.itemContent?.tweet?.card ||
+        threadEntry?.item?.itemContent?.tweet_results?.result?.card) {
+        let cardObject = threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
+        threadEntry?.item?.itemContent?.tweet?.card ||
+        threadEntry?.item?.itemContent?.tweet_results?.result?.card;
+        TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
       }
     }
   }

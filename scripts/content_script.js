@@ -107,14 +107,14 @@ TLD.cleanReactWebsiteLink = async function() {
 TLD.listenForReactTweetsAndReplies = function(container) {
   //console.log(container);    // for debugging
 
-  TLD.revealReactLinks(container);
+  // TLD.revealReactLinks(container);
 
   /**
    * Call TLD.revealReactLinks() every time new tweets or replies are added
    */
   TLD.tweetsAndRepliesContainerObserver = new MutationObserver(() => {
-    //console.log("TLD.tweetsAndRepliesContainerObserver");    // for debugging
-    TLD.revealReactLinks(container);
+    console.log("TLD.tweetsAndRepliesContainerObserver");    // for debugging
+    // TLD.revealReactLinks(container);
   });
   const tweetsAndRepliesContainerObserverConfig = {childList: true, subtree: false};
   TLD.tweetsAndRepliesContainerObserver.observe(container, tweetsAndRepliesContainerObserverConfig);
@@ -135,14 +135,14 @@ TLD.listenForReactTweetsAndReplies = function(container) {
 TLD.listenForReactMessages = function(container) {
   //console.log(container);    // for debugging
 
-  TLD.revealReactLinks(container);
+  // TLD.revealReactLinks(container);
 
   /**
    * Call TLD.revealReactLinks() every time new messages are added
    */
   TLD.messagesContainerObserver = new MutationObserver(() => {
     //console.log("TLD.messagesContainerObserver");    // for debugging
-    TLD.revealReactLinks(container);
+    // TLD.revealReactLinks(container);
   });
   const messagesContainerObserverConfig = {childList: true, subtree: true};
   TLD.messagesContainerObserver.observe(container, messagesContainerObserverConfig);
@@ -249,13 +249,13 @@ TLD.modifyDMBox = function() {
   let asideElement = DMBox.querySelector("aside");
   if (asideElement === null) return;
   //console.log(asideElement);    // for debugging
-  let asideParent = asideElement.parentElement;
+  /* let asideParent = asideElement.parentElement;
   //console.log(asideParent);    // for debugging
   let messageContainerContainer = asideParent.firstElementChild;
   //console.log(messageContainerContainer);    // for debugging
   let messageContainer = messageContainerContainer.querySelector("div[style*='padding-top'][style*='padding-bottom']");
   //console.log(messageContainer);    // for debugging
-  if (messageContainer !== null) TLD.revealReactLinks(messageContainer);
+  if (messageContainer !== null) TLD.revealReactLinks(messageContainer); */
 };
 
 
