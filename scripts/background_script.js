@@ -305,7 +305,7 @@ TLD_background.determineCardURL = function(entry) {
     /**
      * Select the URLs from tweets and retweets from profile pages
      */
-    urls = entry.content.itemContent.tweet_results?.result.legacy.entities.urls;
+    urls = entry.content.itemContent.tweet_results.result.legacy.entities.urls;
     if (urls.length === 0 &&
       entry.content.itemContent.tweet_results.result.legacy?.retweeted_status_result?.result?.legacy?.entities?.urls) {
       urls = entry.content.itemContent.tweet_results.result.legacy.retweeted_status_result.result.legacy.entities.urls;
@@ -314,7 +314,7 @@ TLD_background.determineCardURL = function(entry) {
     /**
      * Select the URLs from tweets inside threads from profile pages
      */
-    urls = entry.item.itemContent.tweet_results?.result.legacy.entities.urls;
+    urls = entry.item.itemContent.tweet_results.result.legacy.entities.urls;
   } else {
     return null;
   }
@@ -469,7 +469,7 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
    */
   let tweet_entries = jsonResponse.data.user.result.timeline.timeline.instructions[0].entries;
   if (jsonResponse.data.user.result.timeline.timeline?.instructions[1]) {
-    tweet_entries.unshift(jsonResponse.data.user.result.timeline.timeline?.instructions[1].entry);
+    tweet_entries.unshift(jsonResponse.data.user.result.timeline.timeline.instructions[1].entry);
   }    // add the pinned tweet to the array of tweets
 
   for (let entry of tweet_entries) {
