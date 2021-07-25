@@ -495,21 +495,22 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
     /**
      * Uncloak the Twitter Cards from threads
      */
-    if (entry?.content?.items) {
-      for (let threadEntry of entry.content.items) {
-        /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
-          console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
-        }*/
+    if (!entry?.content?.items) {
+      continue;
+    }
+    for (let threadEntry of entry.content.items) {
+      /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
+        console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
+      }*/
 
-        /**
-         * Uncloak the Twitter Cards from regular tweets
-         */
-        let threadCard = threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
-          threadEntry?.item?.itemContent?.tweet?.card ||
-          threadEntry?.item?.itemContent?.tweet_results?.result?.card;
-        if (threadCard) {
-          TLD_background.uncloakTwitterCard(threadEntry, threadCard, requestDetails.tabId);
-        }
+      /**
+       * Uncloak the Twitter Cards from regular tweets
+       */
+      let threadCard = threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
+        threadEntry?.item?.itemContent?.tweet?.card ||
+        threadEntry?.item?.itemContent?.tweet_results?.result?.card;
+      if (threadCard) {
+        TLD_background.uncloakTwitterCard(threadEntry, threadCard, requestDetails.tabId);
       }
     }
   }
