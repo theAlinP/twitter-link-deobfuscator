@@ -237,8 +237,6 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
     filter.close();
     //console.log("The response was modified successfully");    // for debugging
   };
-
-  return;
 };
 
 
