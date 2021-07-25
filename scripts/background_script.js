@@ -427,12 +427,9 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
  * @param {object} requestDetails - An object passed over by the event listener
  */
 TLD_background.cleanGraphQLReplies = function(jsonResponse, requestDetails) {
-  let tweet_entries;
-  if (jsonResponse.data.conversation_timeline.instructions[0]?.moduleItems) {
-    tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].moduleItems;
-  } else if (jsonResponse.data.conversation_timeline.instructions[0]?.entries[0]?.content?.items) {
-    tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items;
-  } else {
+  let tweet_entries = jsonResponse?.data?.conversation_timeline?.instructions[0]?.moduleItems ||
+    jsonResponse?.data?.conversation_timeline?.instructions[0]?.entries[0]?.content?.items;
+  if (!tweet_entries) {
     //console.log("No tweet entries were found");    // for debugging
     return;
   }
@@ -468,8 +465,9 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
    * Collect all the tweet entries into one array
    */
   let tweet_entries = jsonResponse.data.user.result.timeline.timeline.instructions[0].entries;
-  if (jsonResponse.data.user.result.timeline.timeline?.instructions[1]) {
-    tweet_entries.unshift(jsonResponse.data.user.result.timeline.timeline.instructions[1].entry);
+  let pinnedTweet = jsonResponse.data.user.result.timeline.timeline?.instructions[1]?.entry;
+  if (pinnedTweet) {
+    tweet_entries.unshift(pinnedTweet);
   }    // add the pinned tweet to the array of tweets
 
   for (let entry of tweet_entries) {
@@ -477,25 +475,21 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
     /**
      * Uncloak the Twitter Cards from regular tweets
      */
-    if (entry?.content?.itemContent?.tweet?.legacy?.card ||
-      entry?.content?.itemContent?.tweet?.card ||
-      entry?.content?.itemContent?.tweet_results?.result?.card) {
-      let cardObject = entry?.content?.itemContent?.tweet?.legacy?.card ||
+    let tweetCard = entry?.content?.itemContent?.tweet?.legacy?.card ||
       entry?.content?.itemContent?.tweet?.card ||
       entry?.content?.itemContent?.tweet_results?.result?.card;
-      TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
+    if (tweetCard) {
+      TLD_background.uncloakTwitterCard(entry, tweetCard, requestDetails.tabId);
     }
 
     /**
      * Uncloak the Twitter Cards from retweets
      */
-    if (entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
-      entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.card ||
-      entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.card) {
-      let cardObject = entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
+    let retweetCard = entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
       entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.card ||
       entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.card;
-      TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
+    if (retweetCard) {
+      TLD_background.uncloakTwitterCard(entry, retweetCard, requestDetails.tabId);
     }
 
     /**
@@ -510,13 +504,11 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
         /**
          * Uncloak the Twitter Cards from regular tweets
          */
-        if (threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
-          threadEntry?.item?.itemContent?.tweet?.card ||
-          threadEntry?.item?.itemContent?.tweet_results?.result?.card) {
-          let cardObject = threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
+        let threadCard = threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
           threadEntry?.item?.itemContent?.tweet?.card ||
           threadEntry?.item?.itemContent?.tweet_results?.result?.card;
-          TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
+        if (threadCard) {
+          TLD_background.uncloakTwitterCard(threadEntry, threadCard, requestDetails.tabId);
         }
       }
     }
