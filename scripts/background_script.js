@@ -165,11 +165,10 @@ TLD_background.interceptNetworkRequests = async function(requestDetails) {
     //console.log(requestDetails.url);    // for debugging
     let cleanUrl = requestDetails.url.replace(/\/?\?.*/, "");    // remove the last "/" and the query strings from the request URL
     //console.log(cleanUrl);    // for debugging
-    if (!TLD_background.pathRegex.test(cleanUrl)) {
-      return;
+    if (TLD_background.pathRegex.test(cleanUrl)) {
+      //console.log(requestDetails);    // for debugging
+      filter = browser.webRequest.filterResponseData(requestDetails.requestId);
     }
-    //console.log(requestDetails);    // for debugging
-    filter = browser.webRequest.filterResponseData(requestDetails.requestId);
   });
   return filter;
 };
@@ -378,10 +377,9 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
 TLD_background.cleanDirectMessages = function(msg_entries, requestDetails) {
   for (let entry of msg_entries) {
     //console.log(entry.message.message_data.text);    // for debugging
-    if (!entry?.message?.message_data?.attachment?.card) {
-      continue;
+    if (entry?.message?.message_data?.attachment?.card) {
+      TLD_background.uncloakTwitterCard(entry, entry.message.message_data.attachment.card, requestDetails.tabId);
     }
-    TLD_background.uncloakTwitterCard(entry, entry.message.message_data.attachment.card, requestDetails.tabId);
   }
 };
 
@@ -408,10 +406,9 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
       continue;
     }
 
-    if (!tweet_entries[entry]?.card) {
-      continue;
+    if (tweet_entries[entry]?.card) {
+      TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId);
     }
-    TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId);
   }
 };
 
@@ -433,10 +430,9 @@ TLD_background.cleanGraphQLReplies = function(jsonResponse, requestDetails) {
   }
   for (let entry of tweet_entries) {
     //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-    if (!entry.item.itemContent.tweet.legacy?.card) {
-      continue;
+    if (entry.item.itemContent.tweet.legacy?.card) {
+      TLD_background.uncloakTwitterCard(entry, entry.item.itemContent.tweet.legacy.card, requestDetails.tabId);
     }
-    TLD_background.uncloakTwitterCard(entry, entry.item.itemContent.tweet.legacy.card, requestDetails.tabId);
   }
 };
 
