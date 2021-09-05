@@ -36,7 +36,8 @@ TLD_background.config.pathRegexPatterns = [
   "/notifications/view/.+[^/].json$",    // if a tweet from the "Notifications" page was opened
   "/timeline/list.json$",    // if an API call is made to request tweets for the "Lists" page
   "/timeline/bookmark.json$",    // if an API call is made to request tweets for the "Bookmarks" page
-  "/graphql/[a-zA-Z0-9_.+-]+/UserTweets$"    // if a GraphQL API call is made to request tweets from a profile page
+  "/graphql/[a-zA-Z0-9_.+-]+/UserTweets$",    // if a GraphQL API call is made to request tweets from a profile page
+  "/graphql/[a-zA-Z0-9_.+-]+/TweetDetail$"    // if a GraphQL API call is made to request replies to tweets
 ];
 TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
@@ -221,11 +222,12 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
       jsonResponse?.user_events?.entries;
     if (msg_entries) {    // if the JSON contains messages...
       TLD_background.cleanDirectMessages(msg_entries, requestDetails);
-    } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets...
+    } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets for the Home page...
       TLD_background.cleanRegularTweets(jsonResponse, requestDetails);
-    } else if (jsonResponse?.data?.conversation_timeline?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
+    } else if (jsonResponse?.data?.conversation_timeline?.instructions[0] ||
+      jsonResponse?.data?.threaded_conversation_with_injections?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
       TLD_background.cleanGraphQLReplies(jsonResponse, requestDetails);
-    } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {
+    } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for a profile page
       TLD_background.cleanProfileTweets(jsonResponse, requestDetails);
     }
     //console.log(stringResponse);    // for debugging
@@ -423,16 +425,19 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
  */
 TLD_background.cleanGraphQLReplies = function(jsonResponse, requestDetails) {
   let tweet_entries = jsonResponse?.data?.conversation_timeline?.instructions[0]?.moduleItems ||
-    jsonResponse?.data?.conversation_timeline?.instructions[0]?.entries[0]?.content?.items;
+    jsonResponse?.data?.conversation_timeline?.instructions[0]?.entries[0]?.content?.items ||
+    jsonResponse?.data?.threaded_conversation_with_injections?.instructions[0]?.entries;
   if (!tweet_entries) {
-    //console.log("No tweet entries were found");    // for debugging
     return;
   }
   for (let entry of tweet_entries) {
     //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-    if (entry.item.itemContent.tweet.legacy?.card) {
-      TLD_background.uncloakTwitterCard(entry, entry.item.itemContent.tweet.legacy.card, requestDetails.tabId);
+    let cardObject = entry?.item?.itemContent?.tweet?.legacy?.card ||
+    entry?.content?.itemContent?.tweet_results?.result?.card;
+    if (!cardObject) {
+      continue;
     }
+    TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
   }
 };
 
