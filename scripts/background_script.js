@@ -394,7 +394,7 @@ TLD_background.cleanDirectMessages = function(msg_entries, requestDetails) {
  * @param {object} requestDetails - An object passed over by the event listener
  */
 TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
-  let tweet_entries = jsonResponse.globalObjects.tweets;
+  let tweet_entries = TLD_background.selectTweetEntries(jsonResponse);
   for (let entry of Object.keys(tweet_entries)) {
     //console.log(tweet_entries[entry].full_text);    // for debugging
 
@@ -424,9 +424,7 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
  * @param {object} requestDetails - An object passed over by the event listener
  */
 TLD_background.cleanGraphQLReplies = function(jsonResponse, requestDetails) {
-  let tweet_entries = jsonResponse?.data?.conversation_timeline?.instructions[0]?.moduleItems ||
-    jsonResponse?.data?.conversation_timeline?.instructions[0]?.entries[0]?.content?.items ||
-    jsonResponse?.data?.threaded_conversation_with_injections?.instructions[0]?.entries;
+  let tweet_entries = TLD_background.selectTweetEntries(jsonResponse);
   if (!tweet_entries) {
     return;
   }
@@ -463,7 +461,7 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
   /**
    * Collect all the tweet entries into one array
    */
-  let tweet_entries = jsonResponse.data.user.result.timeline.timeline.instructions[0].entries;
+  let tweet_entries = TLD_background.selectTweetEntries(jsonResponse);
   let pinnedTweet = jsonResponse.data.user.result.timeline.timeline?.instructions[1]?.entry;
   if (pinnedTweet) {
     tweet_entries.unshift(pinnedTweet);
@@ -513,6 +511,25 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
       }
     }
   }
+};
+
+
+/**
+ * A function that selects and returns an array or object containing tweets
+ * @method selectTweetEntries
+ * @memberof TLD_background
+ * @param {object} jsonResponse - A parsed JSON containing tweets
+ * @returns {(Array|Object)} - Returns an array or object with
+ * the tweet entries as objects
+ */
+TLD_background.selectTweetEntries = function(jsonResponse) {
+  let tweet_entries = jsonResponse?.globalObjects?.tweets ||    // regular tweets
+    jsonResponse?.data?.conversation_timeline?.instructions[0]?.moduleItems ||    // replies to tweets
+    jsonResponse?.data?.conversation_timeline?.instructions[0]?.entries[0]?.content?.items ||    // replies to tweets
+    jsonResponse?.data?.threaded_conversation_with_injections?.instructions[0]?.entries ||    // replies to tweets
+    jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]?.entries;    // tweets from profile pages
+
+  return tweet_entries;
 };
 
 
