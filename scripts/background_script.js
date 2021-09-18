@@ -36,7 +36,10 @@ TLD_background.config.pathRegexPatterns = [
   "/notifications/view/.+[^/].json$",    // if a tweet from the "Notifications" page was opened
   "/timeline/list.json$",    // if an API call is made to request tweets for the "Lists" page
   "/timeline/bookmark.json$",    // if an API call is made to request tweets for the "Bookmarks" page
-  "/graphql/[a-zA-Z0-9_.+-]+/UserTweets$"    // if a GraphQL API call is made to request tweets from a profile page
+  "/graphql/[a-zA-Z0-9_.+-]+/UserTweets$",    // if a GraphQL API call is made to request tweets from a profile page
+  "/graphql/[a-zA-Z0-9_.+-]+/TweetDetail$",    // if a GraphQL API call is made to request replies to tweets
+  "/graphql/[a-zA-Z0-9_.+-]+/Bookmarks$",    // if a GraphQL API call is made to request tweets for the "Bookmarks" page
+  "/graphql/[a-zA-Z0-9]+/ListLatestTweetsTimeline$"    // if a GraphQL API call is made to request tweets for the "Lists" page
 ];
 TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
@@ -165,11 +168,10 @@ TLD_background.interceptNetworkRequests = async function(requestDetails) {
     //console.log(requestDetails.url);    // for debugging
     let cleanUrl = requestDetails.url.replace(/\/?\?.*/, "");    // remove the last "/" and the query strings from the request URL
     //console.log(cleanUrl);    // for debugging
-    if (!TLD_background.pathRegex.test(cleanUrl)) {
-      return;
+    if (TLD_background.pathRegex.test(cleanUrl)) {
+      //console.log(requestDetails);    // for debugging
+      filter = browser.webRequest.filterResponseData(requestDetails.requestId);
     }
-    //console.log(requestDetails);    // for debugging
-    filter = browser.webRequest.filterResponseData(requestDetails.requestId);
   });
   return filter;
 };
@@ -199,11 +201,11 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
   filter.onstop = () => {
     //console.log("The response will be modified");    // for debugging
     let stringResponse = "";
-    if (data.length == 1) {
+    if (data.length === 1) {
       stringResponse = decoder.decode(data[0]);
     } else {
       for (let i = 0; i < data.length; i++){
-        let stream = (i == data.length - 1) ? false : true;
+        let stream = (i === data.length - 1) ? false : true;
         stringResponse += decoder.decode(data[i], {stream});
       }
     }
@@ -222,12 +224,17 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
       jsonResponse?.user_events?.entries;
     if (msg_entries) {    // if the JSON contains messages...
       TLD_background.cleanDirectMessages(msg_entries, requestDetails);
-    } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets...
+    } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets for the Home page...
       TLD_background.cleanRegularTweets(jsonResponse, requestDetails);
-    } else if (jsonResponse?.data?.conversation_timeline?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
-      TLD_background.cleanGraphQLReplies(jsonResponse, requestDetails);
-    } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {
-      TLD_background.cleanProfileTweets(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.conversation_timeline?.instructions[0] ||
+      jsonResponse?.data?.threaded_conversation_with_injections?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for a profile page
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Bookmarks" page
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Lists" page
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     }
     //console.log(stringResponse);    // for debugging
     stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
@@ -237,8 +244,6 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
     filter.close();
     //console.log("The response was modified successfully");    // for debugging
   };
-
-  return;
 };
 
 
@@ -283,16 +288,31 @@ TLD_background.messageContentScript = function(tabID) {
  * @method determineCardURL
  * @memberof TLD_background
  * @param {object} entry - An object containing a tweet
+ * @param {object} [tweet_entries] - An optional object containing tweets
  * @returns {object} - Returns an object that is a property of the "entry"
  * argument which contains the original URL that should be used when
  * uncloaking the Twitter Card
  */
-TLD_background.determineCardURL = function(entry) {
+TLD_background.determineCardURL = function(entry, tweet_entries) {
   let urls;
   if (entry?.message?.message_data?.entities?.urls) {
     urls = entry.message.message_data.entities.urls;
   } else if (entry?.entities?.urls) {
     urls = entry.entities.urls;
+  } else if (entry?.entities?.user_mentions) {
+  /**
+   * This code block is ran in rare cases of retweets on the "Home" page
+   * or tweets that are actually embedded or promoted or contain a video
+   */
+    if (entry?.retweeted_status_id_str) {    // if the tweet is a retweet
+      let retweetedTweetId = entry?.retweeted_status_id_str;
+      urls = tweet_entries[retweetedTweetId]?.entities?.urls;
+      if (!urls) {    // if the retweeted tweet doesn't contain any URLs...
+        return null;
+      }
+    } else {    // if the tweet is embedded or promoted or contains a video card
+      return null;
+    }
   } else if (entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
     urls = entry.item.itemContent.tweet.legacy.entities.urls;
     if (urls.length === 0 &&
@@ -305,7 +325,7 @@ TLD_background.determineCardURL = function(entry) {
     /**
      * Select the URLs from tweets and retweets from profile pages
      */
-    urls = entry.content.itemContent.tweet_results?.result.legacy.entities.urls;
+    urls = entry.content.itemContent.tweet_results.result.legacy.entities.urls;
     if (urls.length === 0 &&
       entry.content.itemContent.tweet_results.result.legacy?.retweeted_status_result?.result?.legacy?.entities?.urls) {
       urls = entry.content.itemContent.tweet_results.result.legacy.retweeted_status_result.result.legacy.entities.urls;
@@ -314,7 +334,7 @@ TLD_background.determineCardURL = function(entry) {
     /**
      * Select the URLs from tweets inside threads from profile pages
      */
-    urls = entry.item.itemContent.tweet_results?.result.legacy.entities.urls;
+    urls = entry.item.itemContent.tweet_results.result.legacy.entities.urls;
   } else {
     return null;
   }
@@ -336,13 +356,14 @@ TLD_background.determineCardURL = function(entry) {
  * @param {object} entry - An object containing a tweet
  * @param {object} card - An object containing a Twitter Card
  * @param {number} tabId - The ID of the tab whose badge text must be updated
+ * @param {object} [tweet_entries] - An optional object containing tweets
  */
-TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
+TLD_background.uncloakTwitterCard = function(entry, card, tabId, tweet_entries) {
 
   /**
    * Determine the Twitter Card's original URL
    */
-  let lastURL = TLD_background.determineCardURL(entry);
+  let lastURL = TLD_background.determineCardURL(entry, tweet_entries);
   if (!lastURL) {
     return;
   }
@@ -380,10 +401,9 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
 TLD_background.cleanDirectMessages = function(msg_entries, requestDetails) {
   for (let entry of msg_entries) {
     //console.log(entry.message.message_data.text);    // for debugging
-    if (!entry?.message?.message_data?.attachment?.card) {
-      continue;
+    if (entry?.message?.message_data?.attachment?.card) {
+      TLD_background.uncloakTwitterCard(entry, entry.message.message_data.attachment.card, requestDetails.tabId);
     }
-    TLD_background.uncloakTwitterCard(entry, entry.message.message_data.attachment.card, requestDetails.tabId);
   }
 };
 
@@ -396,12 +416,12 @@ TLD_background.cleanDirectMessages = function(msg_entries, requestDetails) {
  * @param {object} requestDetails - An object passed over by the event listener
  */
 TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
-  let tweet_entries = jsonResponse.globalObjects.tweets;
+  let tweet_entries = TLD_background.selectTweetEntries(jsonResponse);
   for (let entry of Object.keys(tweet_entries)) {
     //console.log(tweet_entries[entry].full_text);    // for debugging
 
     /**
-     * Detect if the tweet contains a poll, and if it does,
+     * Determine if the tweet contains a poll, and if it does,
      * don't uncloak the Card, wich is in fact the poll itself.
      * It can be detected only if the user is not logged in
      */
@@ -410,66 +430,36 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
       continue;
     }
 
-    if (!tweet_entries[entry]?.card) {
-      continue;
+    if (tweet_entries[entry]?.card) {
+      TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId, tweet_entries);
     }
-    TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId);
   }
 };
 
 
 /**
- * A function that uncloaks the Twitter Cards from replies to tweets
- * from GraphQL API calls
- * @method cleanGraphQLReplies
+ * A general function that uncloaks Twitter Cards from tweets from various pages
+ * @method cleanVariousTweets
  * @memberof TLD_background
- * @param {object} jsonResponse - A JSON containing replies to tweets
+ * @param {object} jsonResponse - A parsed JSON containing tweets
  * @param {object} requestDetails - An object passed over by the event listener
  */
-TLD_background.cleanGraphQLReplies = function(jsonResponse, requestDetails) {
-  let tweet_entries;
-  if (jsonResponse.data.conversation_timeline.instructions[0]?.moduleItems) {
-    tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].moduleItems;
-  } else if (jsonResponse.data.conversation_timeline.instructions[0]?.entries[0]?.content.items) {
-    tweet_entries = jsonResponse.data.conversation_timeline.instructions[0].entries[0].content.items;
-  } else {
-    //console.log("No tweet entries were found");    // for debugging
-    return;
-  }
-  for (let entry of tweet_entries) {
-    //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-    if (!entry.item.itemContent.tweet.legacy?.card) {
-      continue;
-    }
-    TLD_background.uncloakTwitterCard(entry, entry.item.itemContent.tweet.legacy.card, requestDetails.tabId);
-  }
-};
-
-
-/**
- * A function that uncloaks the Twitter Cards from tweets from profile pages
- * @method cleanProfileTweets
- * @memberof TLD_background
- * @param {object} jsonResponse - A JSON containing tweets
- * @param {object} requestDetails - An object passed over by the event listener
- */
-TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
-  /**
-   * This code block is ran after a response to an API call like
-   * "https://twitter.com/i/api/graphql/9u_4RUcGtdogbSPhyuMfmw/UserTweets"
-   * containing tweets for profile pages, while logged in to Twitter.
-   */
-
-  if (!jsonResponse.data.user.result.timeline.timeline.instructions[0]?.entries) {
-    return;
-  }
+TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
 
   /**
    * Collect all the tweet entries into one array
    */
-  let tweet_entries = jsonResponse.data.user.result.timeline.timeline.instructions[0].entries;
-  if (jsonResponse.data.user.result.timeline.timeline?.instructions[1]) {
-    tweet_entries.unshift(jsonResponse.data.user.result.timeline.timeline?.instructions[1].entry);
+  let tweet_entries = TLD_background.selectTweetEntries(jsonResponse);
+  if (!tweet_entries) {
+    return;
+  }
+
+  /**
+   * Add the pinned tweet from profile pages to the array with tweet entries
+   */
+  let pinnedTweet = jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[1]?.entry;
+  if (pinnedTweet) {
+    tweet_entries.unshift(pinnedTweet);
   }    // add the pinned tweet to the array of tweets
 
   for (let entry of tweet_entries) {
@@ -477,50 +467,60 @@ TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
     /**
      * Uncloak the Twitter Cards from regular tweets
      */
-    if (entry?.content?.itemContent?.tweet?.legacy?.card ||
-      entry?.content?.itemContent?.tweet?.card ||
-      entry?.content?.itemContent?.tweet_results?.result?.card) {
-      let cardObject = entry?.content?.itemContent?.tweet?.legacy?.card ||
-      entry?.content?.itemContent?.tweet?.card ||
-      entry?.content?.itemContent?.tweet_results?.result?.card;
-      TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
+    let tweetCard = entry?.content?.itemContent?.tweet_results?.result?.card;
+    if (tweetCard) {
+      TLD_background.uncloakTwitterCard(entry, tweetCard, requestDetails.tabId);
     }
 
     /**
      * Uncloak the Twitter Cards from retweets
      */
-    if (entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
-      entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.card ||
-      entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.card) {
-      let cardObject = entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
-      entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.card ||
-      entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.card;
-      TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
+    let retweetCard = entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.card;
+    if (retweetCard) {
+      TLD_background.uncloakTwitterCard(entry, retweetCard, requestDetails.tabId);
     }
 
     /**
      * Uncloak the Twitter Cards from threads
      */
-    if (entry?.content?.items) {
-      for (let threadEntry of entry.content.items) {
-        /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
-          console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
-        }*/
+    if (!entry?.content?.items) {
+      continue;
+    }
+    for (let threadEntry of entry.content.items) {
+      /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
+        console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
+      }*/
 
-        /**
-         * Uncloak the Twitter Cards from regular tweets
-         */
-        if (threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
-          threadEntry?.item?.itemContent?.tweet?.card ||
-          threadEntry?.item?.itemContent?.tweet_results?.result?.card) {
-          let cardObject = threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
-          threadEntry?.item?.itemContent?.tweet?.card ||
-          threadEntry?.item?.itemContent?.tweet_results?.result?.card;
-          TLD_background.uncloakTwitterCard(threadEntry, cardObject, requestDetails.tabId);
-        }
+      /**
+       * Uncloak the Twitter Cards from regular tweets
+       */
+      let threadCard = threadEntry?.item?.itemContent?.tweet_results?.result?.card;
+      if (threadCard) {
+        TLD_background.uncloakTwitterCard(threadEntry, threadCard, requestDetails.tabId);
       }
     }
   }
+};
+
+
+/**
+ * A function that selects and returns an array or object containing tweets
+ * @method selectTweetEntries
+ * @memberof TLD_background
+ * @param {object} jsonResponse - A parsed JSON containing tweets
+ * @returns {(Array|Object)} - Returns an array or object with
+ * the tweet entries as objects
+ */
+TLD_background.selectTweetEntries = function(jsonResponse) {
+  let tweet_entries = jsonResponse?.globalObjects?.tweets ||    // regular tweets
+    jsonResponse?.data?.conversation_timeline?.instructions[0]?.moduleItems ||    // replies to tweets
+    jsonResponse?.data?.conversation_timeline?.instructions[0]?.entries[0]?.content?.items ||    // replies to tweets
+    jsonResponse?.data?.threaded_conversation_with_injections?.instructions[0]?.entries ||    // replies to tweets
+    jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]?.entries ||    // tweets for profile pages
+    jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Bookmarks" page
+    jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]?.entries;    // tweets for the "Lists" page
+
+  return tweet_entries;
 };
 
 
