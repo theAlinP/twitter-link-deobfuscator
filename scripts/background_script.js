@@ -38,7 +38,8 @@ TLD_background.config.pathRegexPatterns = [
   "/timeline/bookmark.json$",    // if an API call is made to request tweets for the "Bookmarks" page
   "/graphql/[a-zA-Z0-9_.+-]+/UserTweets$",    // if a GraphQL API call is made to request tweets from a profile page
   "/graphql/[a-zA-Z0-9_.+-]+/TweetDetail$",    // if a GraphQL API call is made to request replies to tweets
-  "/graphql/[a-zA-Z0-9_.+-]+/Bookmarks$"    // if a GraphQL API call is made to request tweets for the "Bookmarks" page
+  "/graphql/[a-zA-Z0-9_.+-]+/Bookmarks$",    // if a GraphQL API call is made to request tweets for the "Bookmarks" page
+  "/graphql/[a-zA-Z0-9]+/ListLatestTweetsTimeline$"    // if a GraphQL API call is made to request tweets for the "Lists" page
 ];
 TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
@@ -231,6 +232,8 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
     } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for a profile page
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Bookmarks" page
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Lists" page
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     }
     //console.log(stringResponse);    // for debugging
@@ -498,7 +501,8 @@ TLD_background.selectTweetEntries = function(jsonResponse) {
     jsonResponse?.data?.conversation_timeline?.instructions[0]?.entries[0]?.content?.items ||    // replies to tweets
     jsonResponse?.data?.threaded_conversation_with_injections?.instructions[0]?.entries ||    // replies to tweets
     jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]?.entries ||    // tweets for profile pages
-    jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]?.entries;    // tweets for the "Bookmarks" page
+    jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Bookmarks" page
+    jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]?.entries;    // tweets for the "Lists" page
 
   return tweet_entries;
 };
