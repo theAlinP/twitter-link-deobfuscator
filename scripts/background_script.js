@@ -226,9 +226,9 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
       TLD_background.cleanRegularTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.conversation_timeline?.instructions[0] ||
       jsonResponse?.data?.threaded_conversation_with_injections?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
-      TLD_background.cleanGraphQLReplies(jsonResponse, requestDetails);
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for a profile page
-      TLD_background.cleanProfileTweets(jsonResponse, requestDetails);
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     }
     //console.log(stringResponse);    // for debugging
     stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
@@ -416,53 +416,26 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
 
 
 /**
- * A function that uncloaks the Twitter Cards from replies to tweets
- * from GraphQL API calls
- * @method cleanGraphQLReplies
+ * A general function that uncloaks Twitter Cards from tweets from various pages
+ * @method cleanVariousTweets
  * @memberof TLD_background
- * @param {object} jsonResponse - A JSON containing replies to tweets
+ * @param {object} jsonResponse - A parsed JSON containing tweets
  * @param {object} requestDetails - An object passed over by the event listener
  */
-TLD_background.cleanGraphQLReplies = function(jsonResponse, requestDetails) {
-  let tweet_entries = TLD_background.selectTweetEntries(jsonResponse);
-  if (!tweet_entries) {
-    return;
-  }
-  for (let entry of tweet_entries) {
-    //console.log(entry.item.itemContent.tweet.legacy.full_text);    // for debugging
-    let cardObject = entry?.item?.itemContent?.tweet?.legacy?.card ||
-    entry?.content?.itemContent?.tweet_results?.result?.card;
-    if (!cardObject) {
-      continue;
-    }
-    TLD_background.uncloakTwitterCard(entry, cardObject, requestDetails.tabId);
-  }
-};
-
-
-/**
- * A function that uncloaks the Twitter Cards from tweets from profile pages
- * @method cleanProfileTweets
- * @memberof TLD_background
- * @param {object} jsonResponse - A JSON containing tweets
- * @param {object} requestDetails - An object passed over by the event listener
- */
-TLD_background.cleanProfileTweets = function(jsonResponse, requestDetails) {
-  /**
-   * This code block is ran after a response to an API call like
-   * "https://twitter.com/i/api/graphql/9u_4RUcGtdogbSPhyuMfmw/UserTweets"
-   * containing tweets for profile pages, while logged in to Twitter.
-   */
-
-  if (!jsonResponse.data.user.result.timeline.timeline.instructions[0]?.entries) {
-    return;
-  }
+TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
 
   /**
    * Collect all the tweet entries into one array
    */
   let tweet_entries = TLD_background.selectTweetEntries(jsonResponse);
-  let pinnedTweet = jsonResponse.data.user.result.timeline.timeline?.instructions[1]?.entry;
+  if (!tweet_entries) {
+    return;
+  }
+
+  /**
+   * Add the pinned tweet from profile pages to the array with tweet entries
+   */
+  let pinnedTweet = jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[1]?.entry;
   if (pinnedTweet) {
     tweet_entries.unshift(pinnedTweet);
   }    // add the pinned tweet to the array of tweets
