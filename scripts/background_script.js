@@ -445,9 +445,7 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
     /**
      * Uncloak the Twitter Cards from regular tweets
      */
-    let tweetCard = entry?.content?.itemContent?.tweet?.legacy?.card ||
-      entry?.content?.itemContent?.tweet?.card ||
-      entry?.content?.itemContent?.tweet_results?.result?.card;
+    let tweetCard = entry?.content?.itemContent?.tweet_results?.result?.card;
     if (tweetCard) {
       TLD_background.uncloakTwitterCard(entry, tweetCard, requestDetails.tabId);
     }
@@ -455,9 +453,7 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
     /**
      * Uncloak the Twitter Cards from retweets
      */
-    let retweetCard = entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.legacy?.card ||
-      entry?.content?.itemContent?.tweet?.legacy?.retweeted_status?.card ||
-      entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.card;
+    let retweetCard = entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.card;
     if (retweetCard) {
       TLD_background.uncloakTwitterCard(entry, retweetCard, requestDetails.tabId);
     }
@@ -476,9 +472,7 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
       /**
        * Uncloak the Twitter Cards from regular tweets
        */
-      let threadCard = threadEntry?.item?.itemContent?.tweet?.legacy?.card ||
-        threadEntry?.item?.itemContent?.tweet?.card ||
-        threadEntry?.item?.itemContent?.tweet_results?.result?.card;
+      let threadCard = threadEntry?.item?.itemContent?.tweet_results?.result?.card;
       if (threadCard) {
         TLD_background.uncloakTwitterCard(threadEntry, threadCard, requestDetails.tabId);
       }
