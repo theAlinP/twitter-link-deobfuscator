@@ -288,16 +288,31 @@ TLD_background.messageContentScript = function(tabID) {
  * @method determineCardURL
  * @memberof TLD_background
  * @param {object} entry - An object containing a tweet
+ * @param {object} [tweet_entries] - An optional object containing tweets
  * @returns {object} - Returns an object that is a property of the "entry"
  * argument which contains the original URL that should be used when
  * uncloaking the Twitter Card
  */
-TLD_background.determineCardURL = function(entry) {
+TLD_background.determineCardURL = function(entry, tweet_entries) {
   let urls;
   if (entry?.message?.message_data?.entities?.urls) {
     urls = entry.message.message_data.entities.urls;
   } else if (entry?.entities?.urls) {
     urls = entry.entities.urls;
+  } else if (entry?.entities?.user_mentions) {
+  /**
+   * This code block is ran in rare cases of retweets on the "Home" page
+   * or tweets that are actually embedded or promoted or contain a video
+   */
+    if (entry?.retweeted_status_id_str) {    // if the tweet is a retweet
+      let retweetedTweetId = entry?.retweeted_status_id_str;
+      urls = tweet_entries[retweetedTweetId]?.entities?.urls;
+      if (!urls) {    // if the retweeted tweet doesn't contain any URLs...
+        return null;
+      }
+    } else {    // if the tweet is embedded or promoted or contains a video card
+      return null;
+    }
   } else if (entry?.item?.itemContent?.tweet?.legacy?.entities?.urls) {
     urls = entry.item.itemContent.tweet.legacy.entities.urls;
     if (urls.length === 0 &&
@@ -341,13 +356,14 @@ TLD_background.determineCardURL = function(entry) {
  * @param {object} entry - An object containing a tweet
  * @param {object} card - An object containing a Twitter Card
  * @param {number} tabId - The ID of the tab whose badge text must be updated
+ * @param {object} [tweet_entries] - An optional object containing tweets
  */
-TLD_background.uncloakTwitterCard = function(entry, card, tabId) {
+TLD_background.uncloakTwitterCard = function(entry, card, tabId, tweet_entries) {
 
   /**
    * Determine the Twitter Card's original URL
    */
-  let lastURL = TLD_background.determineCardURL(entry);
+  let lastURL = TLD_background.determineCardURL(entry, tweet_entries);
   if (!lastURL) {
     return;
   }
@@ -415,7 +431,7 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
     }
 
     if (tweet_entries[entry]?.card) {
-      TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId);
+      TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId, tweet_entries);
     }
   }
 };
