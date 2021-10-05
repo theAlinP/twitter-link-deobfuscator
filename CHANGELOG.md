@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.3.9...1.4.0) (2021-10-05)
+
+
+### Features
+
+* uncloak the text links from "event" pages ([e1b24cd](https://github.com/theAlinP/twitter-link-deobfuscator/commit/e1b24cd99a854d292d4d7a33e6715a92648430e6))
+* uncloak the Twitter Cards from "event" pages ([cc42ce7](https://github.com/theAlinP/twitter-link-deobfuscator/commit/cc42ce70724b3baf2b5df9c79716250498b5553d))
+* uncloak the Twitter Cards from the "Explore" page ([206a018](https://github.com/theAlinP/twitter-link-deobfuscator/commit/206a01833cbed2e713685d2f3b0f986b25ab0bf5))
+
+
+### Other updates
+
+* update the dependencies ([7a9ef46](https://github.com/theAlinP/twitter-link-deobfuscator/commit/7a9ef46fae721896f6fff271dfd8262309cc130c))
+
 ### [1.3.9](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.3.8...1.3.9) (2021-09-18)
 
 
