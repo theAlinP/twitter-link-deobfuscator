@@ -40,7 +40,8 @@ TLD_background.config.pathRegexPatterns = [
   "/graphql/[a-zA-Z0-9_.+-]+/TweetDetail$",    // if a GraphQL API call is made to request replies to tweets
   "/graphql/[a-zA-Z0-9_.+-]+/Bookmarks$",    // if a GraphQL API call is made to request tweets for the "Bookmarks" page
   "/graphql/[a-zA-Z0-9]+/ListLatestTweetsTimeline$",    // if a GraphQL API call is made to request tweets for the "Lists" page
-  "/guide.json$"    // if an API call is made to request tweets for the "Explore" page
+  "/guide.json$",    // if an API call is made to request tweets for the "Explore" page
+  "/live_event/timeline/[0-9]+.json$"    // if an API call is made to request tweets for the "Explore" page
 ];
 TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
