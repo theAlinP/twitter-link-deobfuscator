@@ -200,6 +200,9 @@ TLD.detectPage = function() {
       //console.log("User description or profile header detected.");    // for debugging
       //console.log("A profile page was opened.");    // for debugging
       return "profile";
+    } else if (/\/i\/events\/[0-9]+\/*$/.test(locationPathname)) {
+      //console.log("An \"event\" page was opened.");    // for debugging
+      return "event";
     } else {
       //console.log("A unknown page was opened.");    // for debugging
       return "unknown";
@@ -287,6 +290,7 @@ TLD.modifyReactPages = function() {
     case "timeline":    // if a tweet from the "Notifications" page was opened...
     case "list":    // if a list from the "Lists" page was opened...
     case "bookmarks":    // if the "Bookmarks" page was opened...
+    case "event":    // if an "event" page was opened...
       if (TLD.findReactTimeline() &&
         TLD.findReactTimeline().querySelector("div[style*='min-height']") &&
         TLD.findReactTimeline().querySelector("div[style*='min-height']")
