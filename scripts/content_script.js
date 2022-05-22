@@ -259,7 +259,8 @@ TLD.modifyDMBox = function() {
   //console.log(asideParent);    // for debugging
   let messageContainerContainer = asideParent.firstElementChild;
   //console.log(messageContainerContainer);    // for debugging
-  let messageContainer = messageContainerContainer.querySelector("div[style*='padding-top'][style*='padding-bottom']");
+  let messageContainer = messageContainerContainer.querySelector(
+    "div[style*='position'][style*='min-height']");
   //console.log(messageContainer);    // for debugging
   if (messageContainer !== null) TLD.revealReactLinks(messageContainer);
 };
