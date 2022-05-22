@@ -193,6 +193,9 @@ TLD.detectPage = function() {
   } else if (/\/i\/bookmarks\/*$/.test(locationPathname)) {
     //console.log("The \"Bookmarks\" page was opened.");    // for debugging
     return "bookmarks";
+  } else if (/\/i\/events\/[0-9]+\/*$/.test(locationPathname)) {
+    //console.log("An \"event\" page was opened.");    // for debugging
+    return "event";
   } else if (/\/i\/topics\/[0-9]+\/*$/.test(locationPathname)) {
     //console.log("A \"Topics\" page was opened.");    // for debugging
     return "topics";
@@ -203,13 +206,10 @@ TLD.detectPage = function() {
       //console.log("User description or profile header detected.");    // for debugging
       //console.log("A profile page was opened.");    // for debugging
       return "profile";
-    } else if (/\/i\/events\/[0-9]+\/*$/.test(locationPathname)) {
-      //console.log("An \"event\" page was opened.");    // for debugging
-      return "event";
-    } else {
-      //console.log("A unknown page was opened.");    // for debugging
-      return "unknown";
     }
+  } else {
+    //console.log("A unknown page was opened.");    // for debugging
+    return "unknown";
   }
 };
 
