@@ -41,7 +41,8 @@ TLD_background.config.pathRegexPatterns = [
   "/graphql/[a-zA-Z0-9_.+-]+/Bookmarks$",    // if a GraphQL API call is made to request tweets for the "Bookmarks" page
   "/graphql/[a-zA-Z0-9]+/ListLatestTweetsTimeline$",    // if a GraphQL API call is made to request tweets for the "Lists" page
   "/guide.json$",    // if an API call is made to request tweets for the "Explore" page
-  "/live_event/timeline/[0-9]+.json$"    // if an API call is made to request tweets for the "Explore" page
+  "/live_event/timeline/[0-9]+.json$",    // if an API call is made to request tweets for the "Explore" page
+  "/graphql/[a-zA-Z0-9]+/TopicLandingPage$"    // if a GraphQL API call is made to request tweets for a "Topic" page
 ];
 TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
@@ -236,6 +237,8 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
     } else if (jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Bookmarks" page
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Lists" page
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.topic_by_rest_id?.topic_page?.body?.timeline) {    // if the JSON contains tweets for a "Topic" page
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     }
     //console.log(stringResponse);    // for debugging
@@ -521,6 +524,20 @@ TLD_background.selectTweetEntries = function(jsonResponse) {
     jsonResponse?.data?.user?.result?.timeline?.timeline?.instructions[0]?.entries ||    // tweets for profile pages
     jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Bookmarks" page
     jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]?.entries;    // tweets for the "Lists" page
+
+  /**
+   * For "Topic" pages, the "entries" property containing the array with tweets
+   * can be found in the "instructions" array but at 3 different indexes
+   * (instructions[0], [1] and [2]). It is cleaner to loop through that array
+   * and search for that property
+   */
+  if (jsonResponse?.data?.topic_by_rest_id?.topic_page?.body?.timeline?.instructions) {
+    for (const value of jsonResponse?.data?.topic_by_rest_id?.topic_page?.body?.timeline?.instructions) {
+      if (value.entries) {
+        tweet_entries = value.entries;
+      }
+    }
+  }
 
   return tweet_entries;
 };
