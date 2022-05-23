@@ -534,7 +534,7 @@ TLD_background.selectTweetEntries = function(jsonResponse) {
    * and search for that property
    */
   if (jsonResponse?.data?.topic_by_rest_id?.topic_page?.body?.timeline?.instructions) {
-    for (const value of jsonResponse?.data?.topic_by_rest_id?.topic_page?.body?.timeline?.instructions) {
+    for (const value of jsonResponse.data.topic_by_rest_id.topic_page.body.timeline.instructions) {
       if (value.entries) {
         tweet_entries = value.entries;
       }
