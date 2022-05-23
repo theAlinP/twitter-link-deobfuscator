@@ -193,6 +193,12 @@ TLD.detectPage = function() {
   } else if (/\/i\/bookmarks\/*$/.test(locationPathname)) {
     //console.log("The \"Bookmarks\" page was opened.");    // for debugging
     return "bookmarks";
+  } else if (/\/i\/events\/[0-9]+\/*$/.test(locationPathname)) {
+    //console.log("An \"event\" page was opened.");    // for debugging
+    return "event";
+  } else if (/\/i\/topics\/[0-9]+\/*$/.test(locationPathname)) {
+    //console.log("A \"Topics\" page was opened.");    // for debugging
+    return "topics";
   } else if (/\/[^/]+\/*$/.test(locationPathname)) {
     let mainElement = document.body.querySelector("#react-root main");
     if (mainElement.querySelector("div[data-testid=\"UserDescription\"]")
@@ -200,13 +206,10 @@ TLD.detectPage = function() {
       //console.log("User description or profile header detected.");    // for debugging
       //console.log("A profile page was opened.");    // for debugging
       return "profile";
-    } else if (/\/i\/events\/[0-9]+\/*$/.test(locationPathname)) {
-      //console.log("An \"event\" page was opened.");    // for debugging
-      return "event";
-    } else {
-      //console.log("A unknown page was opened.");    // for debugging
-      return "unknown";
     }
+  } else {
+    //console.log("A unknown page was opened.");    // for debugging
+    return "unknown";
   }
 };
 
@@ -256,7 +259,8 @@ TLD.modifyDMBox = function() {
   //console.log(asideParent);    // for debugging
   let messageContainerContainer = asideParent.firstElementChild;
   //console.log(messageContainerContainer);    // for debugging
-  let messageContainer = messageContainerContainer.querySelector("div[style*='padding-top'][style*='padding-bottom']");
+  let messageContainer = messageContainerContainer.querySelector(
+    "div[style*='position'][style*='min-height']");
   //console.log(messageContainer);    // for debugging
   if (messageContainer !== null) TLD.revealReactLinks(messageContainer);
 };
@@ -291,6 +295,7 @@ TLD.modifyReactPages = function() {
     case "list":    // if a list from the "Lists" page was opened...
     case "bookmarks":    // if the "Bookmarks" page was opened...
     case "event":    // if an "event" page was opened...
+    case "topics":    // if a "Topics" page was opened...
       if (TLD.findReactTimeline() &&
         TLD.findReactTimeline().querySelector("div[style*='min-height']") &&
         TLD.findReactTimeline().querySelector("div[style*='min-height']")
