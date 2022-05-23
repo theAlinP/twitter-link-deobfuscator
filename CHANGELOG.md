@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.4.0...1.5.0) (2022-05-23)
+
+
+### Features
+
+* uncloak the Twitter Cards from "Topic" pages ([b4932cb](https://github.com/theAlinP/twitter-link-deobfuscator/commit/b4932cb55e872086164fb0c13e3f536c8d013166))
+* uncloak the text links from "Topic" pages ([9014428](https://github.com/theAlinP/twitter-link-deobfuscator/commit/9014428ea4d8db52d0bba2b7887b4ac365902a04))
+
+
+### Bug Fixes
+
+* uncloak the Twitter Cards from "List" pages ([d5990b3](https://github.com/theAlinP/twitter-link-deobfuscator/commit/d5990b39a8e38e80263cbd8a69212f0a862a66d6))
+* uncloak the Twitter Cards from profile pages ([60b7e30](https://github.com/theAlinP/twitter-link-deobfuscator/commit/60b7e30a60cb93f1a6fa12b91036c00bc7b2efbf))
+* fix the way to detect "event" or unknown pages ([a2ebf6d](https://github.com/theAlinP/twitter-link-deobfuscator/commit/a2ebf6dbf18ed7f64c83366c311337db4ceb89c8))
+* uncloak the text links from the Direct Messages box/drawer ([95e6811](https://github.com/theAlinP/twitter-link-deobfuscator/commit/95e68114254d57cef061e6d29f88d17807da824d))
+
+
+### Other updates
+
+* remove unnecessary optional chaining ([fde4391](https://github.com/theAlinP/twitter-link-deobfuscator/commit/fde439117e4bcaf4f8ab62c76693dbb2c8c5441c))
+* update the dependencies ([b4f3a78](https://github.com/theAlinP/twitter-link-deobfuscator/commit/b4f3a78aaa4c9a2ab8ce86f5a5ab305d470d7270))
+
 ## [1.4.0](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.3.9...1.4.0) (2021-10-05)
 
 
