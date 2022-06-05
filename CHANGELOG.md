@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.5.1](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.5.0...1.5.1) (2022-06-05)
+
+
+### Bug Fixes
+
+* clean the Twitter Cards from individual tweets ([643cb3a](https://github.com/theAlinP/twitter-link-deobfuscator/commit/643cb3a163d005b62ea0d404a0cd47bf6f7acf2c))
+
+
+### Other updates
+
+* update the dependencies ([db71137](https://github.com/theAlinP/twitter-link-deobfuscator/commit/db71137b5b0ad0ee9d6e427843b908f5082d60e1))
+
 ## [1.5.0](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.4.0...1.5.0) (2022-05-23)
 
 

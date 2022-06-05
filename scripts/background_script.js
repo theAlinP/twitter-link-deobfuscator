@@ -229,8 +229,7 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
       TLD_background.cleanDirectMessages(msg_entries, requestDetails);
     } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets for the Home page...
       TLD_background.cleanRegularTweets(jsonResponse, requestDetails);
-    } else if (jsonResponse?.data?.conversation_timeline?.instructions[0] ||
-      jsonResponse?.data?.threaded_conversation_with_injections?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
+    } else if (jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[0] ||
       jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[1]) {    // if the JSON contains tweets for a profile page
@@ -520,8 +519,7 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
 TLD_background.selectTweetEntries = function(jsonResponse) {
   let tweet_entries = jsonResponse?.globalObjects?.tweets ||    // regular tweets
     jsonResponse?.data?.conversation_timeline?.instructions[0]?.moduleItems ||    // replies to tweets
-    jsonResponse?.data?.conversation_timeline?.instructions[0]?.entries[0]?.content?.items ||    // replies to tweets
-    jsonResponse?.data?.threaded_conversation_with_injections?.instructions[0]?.entries ||    // replies to tweets
+    jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]?.entries ||    // replies to tweets
     jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[0]?.entries ||    // tweets for profile pages
     jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[1]?.entries ||    // tweets for profile pages
     jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Bookmarks" page
