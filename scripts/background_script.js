@@ -485,7 +485,8 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
     /**
      * Uncloak the Twitter Cards from regular tweets
      */
-    let tweetCard = entry?.content?.itemContent?.tweet_results?.result?.card;
+    let tweetCard = entry?.content?.itemContent?.tweet_results?.result?.card ||
+    entry?.item?.itemContent?.tweet_results?.result?.card;    // Cards from additional replies to tweets after clicking "Show replies"
     if (tweetCard) {
       TLD_background.uncloakTwitterCard(entry, tweetCard, requestDetails.tabId);
     }
@@ -537,7 +538,8 @@ TLD_background.selectTweetEntries = function(jsonResponse) {
     jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[1]?.entries ||    // tweets for profile pages
     jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Bookmarks" page
     jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Lists" page
-    jsonResponse?.data?.home?.home_timeline_urt?.instructions[0]?.entries;    // latest tweets for the "Home" page
+    jsonResponse?.data?.home?.home_timeline_urt?.instructions[0]?.entries ||    // latest tweets for the "Home" page
+    jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]?.moduleItems;    // additional replies to tweets after clicking "Show replies"
 
   /**
    * For "Topic" pages, the "entries" property containing the array with tweets
