@@ -26,8 +26,7 @@ TLD_background.config.pathRegexPatterns = [
   "/conversation/[0-9]+.json$",    // if the JSON contains replies to tweets
   "/conversation/[0-9]+-[0-9]+.json$",    // if the JSON contains additional Direct Messages
   "/user_updates.json$",    // if the JSON contains additional Direct Messages
-  "/home.json$",    // if the JSON contains the initial or additional top tweets requested from the "Home" page
-  "/home_latest.json$",    // if the JSON contains the initial or additional latest tweets requested from the "Home" page
+  "/home.json$",    // if the JSON contains the initial or additional top tweets for the "Home" page
   "/profile/[0-9]+.json$",    // if the JSON contains initial or additional tweets requested from a profile page
   "/graphql/.+[^/]/Conversation$",    // if a GraphQL API call is made to request replies to tweets
   "/adaptive.json$",    // if the JSON contains search results
@@ -42,7 +41,8 @@ TLD_background.config.pathRegexPatterns = [
   "/graphql/[a-zA-Z0-9-_]+/ListLatestTweetsTimeline$",    // if a GraphQL API call is made to request tweets for the "Lists" page
   "/guide.json$",    // if an API call is made to request tweets for the "Explore" page
   "/live_event/timeline/[0-9]+.json$",    // if an API call is made to request tweets for the "Explore" page
-  "/graphql/[a-zA-Z0-9]+/TopicLandingPage$"    // if a GraphQL API call is made to request tweets for a "Topic" page
+  "/graphql/[a-zA-Z0-9]+/TopicLandingPage$",    // if a GraphQL API call is made to request tweets for a "Topic" page
+  "/graphql/[a-zA-Z0-9-_]+/HomeLatestTimeline$"    // if a GraphQL API call is made to request the latest tweets for the "Home" page
 ];
 TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
@@ -227,7 +227,7 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
       jsonResponse?.user_events?.entries;
     if (msg_entries) {    // if the JSON contains messages...
       TLD_background.cleanDirectMessages(msg_entries, requestDetails);
-    } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains tweets for the Home page...
+    } else if (jsonResponse?.globalObjects?.tweets) {    // if the JSON contains the top tweets for the "Home" page...
       TLD_background.cleanRegularTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
@@ -239,6 +239,8 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
     } else if (jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Lists" page
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.topic_by_rest_id?.topic_page?.body?.timeline) {    // if the JSON contains tweets for a "Topic" page
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.home?.home_timeline_urt) {    // if the JSON contains the latest tweets for the "Home" page...
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     }
     //console.log(stringResponse);    // for debugging
@@ -365,6 +367,28 @@ TLD_background.determineCardURL = function(entry, tweet_entries) {
  */
 TLD_background.uncloakTwitterCard = function(entry, card, tabId, tweet_entries) {
 
+  let binding_values = card.binding_values || card?.legacy?.binding_values;
+
+  /**
+   * Determine if the tweet contains a poll, and if it does,
+   * don't uncloak the Card, wich is in fact the poll itself.
+   */
+  if (Object.prototype.toString.call(
+    binding_values) === "[object Array]") {
+    for (let binding of binding_values) {
+      if (binding.key === "choice1_count") {
+        //console.log("This tweet contains a poll");    // for debugging
+        return;
+      }
+    }
+  } else if (Object.prototype.toString.call(
+    binding_values) === "[object Object]") {
+    if (binding_values?.choice1_count) {
+      //console.log("This tweet contains a poll");    // for debugging
+      return;
+    }
+  }
+
   /**
    * Determine the Twitter Card's original URL
    */
@@ -376,7 +400,6 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId, tweet_entries) 
   /**
    * Restore the original URL of the Twitter Card
    */
-  let binding_values = card.binding_values || card?.legacy?.binding_values;
   if (Object.prototype.toString.call(
     binding_values) === "[object Array]") {
     for (let binding of binding_values) {
@@ -425,16 +448,6 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
   for (let entry of Object.keys(tweet_entries)) {
     //console.log(tweet_entries[entry].full_text);    // for debugging
 
-    /**
-     * Determine if the tweet contains a poll, and if it does,
-     * don't uncloak the Card, wich is in fact the poll itself.
-     * It can be detected only if the user is not logged in
-     */
-    if (tweet_entries[entry]?.card?.binding_values?.choice1_count) {
-      //console.log("This tweet contains a poll");    // for debugging
-      continue;
-    }
-
     if (tweet_entries[entry]?.card) {
       TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId, tweet_entries);
     }
@@ -472,7 +485,8 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
     /**
      * Uncloak the Twitter Cards from regular tweets
      */
-    let tweetCard = entry?.content?.itemContent?.tweet_results?.result?.card;
+    let tweetCard = entry?.content?.itemContent?.tweet_results?.result?.card ||
+    entry?.item?.itemContent?.tweet_results?.result?.card;    // Cards from additional replies to tweets after clicking "Show replies"
     if (tweetCard) {
       TLD_background.uncloakTwitterCard(entry, tweetCard, requestDetails.tabId);
     }
@@ -517,13 +531,15 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
  * the tweet entries as objects
  */
 TLD_background.selectTweetEntries = function(jsonResponse) {
-  let tweet_entries = jsonResponse?.globalObjects?.tweets ||    // regular tweets
+  let tweet_entries = jsonResponse?.globalObjects?.tweets ||    // top tweets for the "Home" page
     jsonResponse?.data?.conversation_timeline?.instructions[0]?.moduleItems ||    // replies to tweets
     jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]?.entries ||    // replies to tweets
     jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[0]?.entries ||    // tweets for profile pages
     jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[1]?.entries ||    // tweets for profile pages
     jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Bookmarks" page
-    jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]?.entries;    // tweets for the "Lists" page
+    jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Lists" page
+    jsonResponse?.data?.home?.home_timeline_urt?.instructions[0]?.entries ||    // latest tweets for the "Home" page
+    jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]?.moduleItems;    // additional replies to tweets after clicking "Show replies"
 
   /**
    * For "Topic" pages, the "entries" property containing the array with tweets
