@@ -365,6 +365,28 @@ TLD_background.determineCardURL = function(entry, tweet_entries) {
  */
 TLD_background.uncloakTwitterCard = function(entry, card, tabId, tweet_entries) {
 
+  let binding_values = card.binding_values || card?.legacy?.binding_values;
+
+  /**
+   * Determine if the tweet contains a poll, and if it does,
+   * don't uncloak the Card, wich is in fact the poll itself.
+   */
+  if (Object.prototype.toString.call(
+    binding_values) === "[object Array]") {
+    for (let binding of binding_values) {
+      if (binding.key === "choice1_count") {
+        //console.log("This tweet contains a poll");    // for debugging
+        return;
+      }
+    }
+  } else if (Object.prototype.toString.call(
+    binding_values) === "[object Object]") {
+    if (binding_values?.choice1_count) {
+      //console.log("This tweet contains a poll");    // for debugging
+      return;
+    }
+  }
+
   /**
    * Determine the Twitter Card's original URL
    */
@@ -376,7 +398,6 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId, tweet_entries) 
   /**
    * Restore the original URL of the Twitter Card
    */
-  let binding_values = card.binding_values || card?.legacy?.binding_values;
   if (Object.prototype.toString.call(
     binding_values) === "[object Array]") {
     for (let binding of binding_values) {
@@ -424,16 +445,6 @@ TLD_background.cleanRegularTweets = function(jsonResponse, requestDetails) {
   let tweet_entries = TLD_background.selectTweetEntries(jsonResponse);
   for (let entry of Object.keys(tweet_entries)) {
     //console.log(tweet_entries[entry].full_text);    // for debugging
-
-    /**
-     * Determine if the tweet contains a poll, and if it does,
-     * don't uncloak the Card, wich is in fact the poll itself.
-     * It can be detected only if the user is not logged in
-     */
-    if (tweet_entries[entry]?.card?.binding_values?.choice1_count) {
-      //console.log("This tweet contains a poll");    // for debugging
-      continue;
-    }
 
     if (tweet_entries[entry]?.card) {
       TLD_background.uncloakTwitterCard(tweet_entries[entry], tweet_entries[entry].card, requestDetails.tabId, tweet_entries);
