@@ -12,9 +12,9 @@ The Twitter servers secretly conceal the hyperlinks' destinations with shortened
 
 Please note that TLD will expand URLs from t.co to other shortened URLs, like bit.ly or mzl.la, if the user originally posted those shortened URLs, but it will not further expand the original shortened URLs to their final destinations.
 
-NOTE: This extension goes into action only while browsing twitter.com and stays dormant when other websites are browsed.
+NOTE: This extension goes into action only while browsing twitter.com/twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion and stays dormant when other websites are browsed.
 
-The add-on can be enabled and disabled by clicking its icon from the browser toolbar. Once the add-on is installed and while it is enabled, it will wait in the background for a page from twitter.com to be opened and only then it will go into action and scan the web page for any hyperlinks with shortened URLs and clean them.
+The add-on can be enabled and disabled by clicking its icon from the browser toolbar. Once the add-on is installed and while it is enabled, it will wait in the background for a page from twitter.com/twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion to be opened and only then it will go into action and scan the web page for any hyperlinks with shortened URLs and clean them.
 
 Twitter Link Deobfuscator only needs the minimum amount of permissions. It does not collect, use, store nor share user data.
 
@@ -28,7 +28,7 @@ You can then (or before) clone/download this Git repository and temporarily inst
 There is another way to install add-ons temporarily, and that is by using the [web-ext](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Getting_started_with_web-ext "Getting started with web-ext") command line tool. Web-ext is a Node.js module that can do a lot more than just allow installing add-ons but I leave that for you to discover.
 
 ## Disclaimer
-TLD is guaranteed to work correctly on [twitter.com](https://twitter.com "https://twitter.com") and the subdomain [mobile.twitter.com](https://mobile.twitter.com "https://mobile.twitter.com") which is the version optimized for mobile devices.
+TLD is guaranteed to work correctly on [twitter.com](https://twitter.com "https://twitter.com"), the subdomain [mobile.twitter.com](https://mobile.twitter.com "https://mobile.twitter.com") which is the version optimized for mobile devices, and the Tor onion domain [https://twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion](https://twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion "https://twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion")
 
 I cannot guarantee that it will work on any of its other subdomains (about.twitter.com, analytics.twitter.com, careers.twitter.com, data.twitter.com, developer.twitter.com, help.twitter.com, media.twitter.com, marketing.twitter.com etc.). Because not many people browse those subdomains and because there is not much user generated content there, in the sense of tweets, just some occasional quoted ones, I did not spend much time to make it work there. I intend to get to it at some point, but I don't know when. If someone says they need TLD to work on subdomains, I will make this a priority.
 
