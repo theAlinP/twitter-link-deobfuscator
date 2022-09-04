@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.5.2...1.6.0) (2022-09-04)
+
+
+### Features
+
+* support Twitter Tor service(.onion domain) ([d520aa7](https://github.com/theAlinP/twitter-link-deobfuscator/commit/d520aa715c5568653daad94b5a1674b3c588e159))
+
+
+### Other updates
+
+* update the dependencies ([742512d](https://github.com/theAlinP/twitter-link-deobfuscator/commit/742512d5aa200f441bdbf5c38ca4a70af2ca0d07))
+* replace the "/" between the domains to not confuse them with an URL ([0b67acf](https://github.com/theAlinP/twitter-link-deobfuscator/commit/0b67acf7e489ad727778e9cd83db6e504a38a1e6))
+
 ### [1.5.2](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.5.1...1.5.2) (2022-07-07)
 
 

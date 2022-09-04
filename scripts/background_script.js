@@ -161,7 +161,7 @@ TLD_background.interceptNetworkRequests = async function(requestDetails) {
   if (storedSettings.enabled !== true) {
     return;
   }    // don't clean the links if the add-on is not enabled
-  let tabs = await browser.tabs.query({discarded: false, url: "*://*.twitter.com/*"});
+  let tabs = await browser.tabs.query({discarded: false, url: ["*://*.twitter.com/*", "*://*.twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion/*"]});
   //console.log(tabs);    // for debugging
   tabs.forEach(tab => {
     //console.log(tab);    // for debugging
@@ -595,6 +595,6 @@ browser.runtime.onMessage.addListener(TLD_background.handleMessage);    // liste
 
 browser.webRequest.onBeforeRequest.addListener(
   TLD_background.modifyNetworkRequests,
-  {urls: ["*://*.twitter.com/*"]},
+  {urls: ["*://*.twitter.com/*","*://*.twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion/*"]},
   ["blocking"]
-);    // intercept the network responses from twitter.com
+);    // intercept the network responses from twitter.com or its Tor onion domain
