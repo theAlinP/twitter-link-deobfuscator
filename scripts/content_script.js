@@ -164,6 +164,10 @@ TLD.detectPage = function() {
   //console.log(locationPathname);    // for debugging
 
   if (/^\/[^/]+\/status\/.*/.test(locationPathname)) {
+    if (/\/photo\/[0-9]+$/.test(locationPathname)) {
+      //console.log("A photo was opened");    // for debugging
+      return "photo";
+    }
     //console.log("A tweet page was opened.");    // for debugging
     return "tweet";
   } else if (/^\/home\/*$/.test(locationPathname)) {
@@ -279,6 +283,9 @@ TLD.modifyReactPages = function() {
     if (TLD.lastCleanedPage === window.location.href) {
       return;
     }    // return if this page was already cleaned
+
+    let tweetsContainer, tweetsAndRepliesContainers;    // declare some variables used in the case blocks
+
     /**
      * Clean the tweets or replies on the page which was opened initially
      */
@@ -296,13 +303,10 @@ TLD.modifyReactPages = function() {
     case "bookmarks":    // if the "Bookmarks" page was opened...
     case "event":    // if an "event" page was opened...
     case "topics":    // if a "Topics" page was opened...
-      if (TLD.findReactTimeline() &&
-        TLD.findReactTimeline().querySelector("div[style*='min-height']") &&
-        TLD.findReactTimeline().querySelector("div[style*='min-height']")
-          .childElementCount > 1) {
-        //console.log("The Timeline was found.");    // for debugging
-        TLD.listenForReactTweetsAndReplies(TLD.findReactTimeline()
-          .querySelector("div[style*='min-height']"));    // find the container with tweets or replies and clean them
+      tweetsContainer = TLD.findReactTimeline()?.querySelector("div[style*='min-height']");
+      if (tweetsContainer?.childElementCount > 1) {
+        //console.log("The container with tweets or replies was found.");    // for debugging
+        TLD.listenForReactTweetsAndReplies(tweetsContainer);    // listen for added tweets or replies and clean them
         TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
       } else {    // if the Timeline can't be found or was deleted...
         //console.log("The Timeline was not found.");    // for debugging
@@ -329,11 +333,24 @@ TLD.modifyReactPages = function() {
       TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
       //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
       break;
+    case "photo":    // if a photo was opened...
+      tweetsAndRepliesContainers = document.querySelectorAll("div.css-1dbjc4n [aria-label=\"Timeline: Conversation\"] > div[style*='min-height']");
+      if (tweetsAndRepliesContainers.length > 0) {
+        //console.log("The Timeline and/or the conversation container were found");    // for debugging
+        tweetsAndRepliesContainers.forEach(container => {    // clean both the containers
+          TLD.listenForReactTweetsAndReplies(container);    // listen for added tweets or replies and clean them
+          TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
+        });
+      }
+      break;
     case "unknown":    // if a unknown page was opened...
       TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
       //console.log(`TLD.lastCleanedPage: ${TLD.lastCleanedPage}`);    // for debugging
     }
 
+    /**
+     * Monitor the DM box on all the pages
+     */
     //console.log(TLD.DMBoxMOActive);    // for debugging
     let DMBox = document.querySelector("div[data-testid=\"DMDrawer\"]");
     if (DMBox !== null && TLD.DMBoxMOActive === false) {
@@ -351,6 +368,28 @@ TLD.modifyReactPages = function() {
   });
   const mainObserverConfig = {childList: true, subtree: true};
   TLD.mainObserver.observe(mainElement, mainObserverConfig);
+
+  /**
+   * Monitor all the pages for opened photos
+   */
+  let layersElement = document.querySelector("#react-root div#layers");
+  if (layersElement) {
+    TLD.layersObserver = new MutationObserver(() => {
+      if (TLD.lastCleanedPage === window.location.href) {
+        return;
+      }    // return if this page was already cleaned
+
+      let tweetsAndRepliesContainer = layersElement.querySelector("div.css-1dbjc4n [aria-label=\"Timeline: Conversation\"] > div[style*='min-height']");
+      if (!tweetsAndRepliesContainer) {
+        return;
+      }
+      //console.log("The conversation container was found");    // for debugging
+      TLD.listenForReactTweetsAndReplies(tweetsAndRepliesContainer);    // listen for added tweets or replies and clean them
+      TLD.lastCleanedPage = window.location.href;    // store the URL of this page which was just cleaned
+    });
+  }
+  const layersObserverConfig = {childList: true, subtree: true};
+  TLD.layersObserver.observe(layersElement, layersObserverConfig);
 };
 
 
@@ -442,13 +481,15 @@ browser.runtime.onMessage.addListener(() => {
   TLD.increaseBadgeNumber();    // increase the number shown on top of the icon
 });    // listen for messages from the background script and increase the badge number
 
-if (document.body.querySelector("#react-root main")) {
+if ( document.body.querySelector("#react-root div#layers") &&
+  document.body.querySelector("#react-root main")) {
   //console.log("The main element was found.");    // for debugging
   TLD.modifyReactPages();
 } else {
   TLD.bodyObserver = new MutationObserver(() => {
     //console.log("TLD.bodyObserver");    // for debugging
-    if (!document.body.querySelector("#react-root main")) {
+    if (!document.body.querySelector("#react-root div#layers") ||
+      !document.body.querySelector("#react-root main")) {
       return;
     }    // return if the <main> element was not created yet
     //console.log("The main element was found.");    // for debugging
