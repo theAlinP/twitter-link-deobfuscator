@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.6.1](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.6.0...1.6.1) (2022-10-23)
+
+
+### Bug Fixes
+
+* uncloak the text links from replies to tweets with photos ([de304ec](https://github.com/theAlinP/twitter-link-deobfuscator/commit/de304ec424a7cd4859f1d1c74da4dfa6fda991e6))
+* uncloak the Twitter Cards from the top tweets from the "Home" page ([6cd15da](https://github.com/theAlinP/twitter-link-deobfuscator/commit/6cd15daa8195308b465fb7cb3e43aba60c2530ad))
+
+
+### Other updates
+
+* update the dependencies ([0f738d5](https://github.com/theAlinP/twitter-link-deobfuscator/commit/0f738d5b0c363291c79a80e0a5ff0e87e99f0057))
+* improve readability ([1115150](https://github.com/theAlinP/twitter-link-deobfuscator/commit/1115150ffbd7baab9d5c7f11653cfceb43f5b242))
+
 ## [1.6.0](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.5.2...1.6.0) (2022-09-04)
 
 

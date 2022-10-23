@@ -26,7 +26,6 @@ TLD_background.config.pathRegexPatterns = [
   "/conversation/[0-9]+.json$",    // if the JSON contains replies to tweets
   "/conversation/[0-9]+-[0-9]+.json$",    // if the JSON contains additional Direct Messages
   "/user_updates.json$",    // if the JSON contains additional Direct Messages
-  "/home.json$",    // if the JSON contains the initial or additional top tweets for the "Home" page
   "/profile/[0-9]+.json$",    // if the JSON contains initial or additional tweets requested from a profile page
   "/graphql/.+[^/]/Conversation$",    // if a GraphQL API call is made to request replies to tweets
   "/adaptive.json$",    // if the JSON contains search results
@@ -42,7 +41,8 @@ TLD_background.config.pathRegexPatterns = [
   "/guide.json$",    // if an API call is made to request tweets for the "Explore" page
   "/live_event/timeline/[0-9]+.json$",    // if an API call is made to request tweets for the "Explore" page
   "/graphql/[a-zA-Z0-9]+/TopicLandingPage$",    // if a GraphQL API call is made to request tweets for a "Topic" page
-  "/graphql/[a-zA-Z0-9-_]+/HomeLatestTimeline$"    // if a GraphQL API call is made to request the latest tweets for the "Home" page
+  "/graphql/[a-zA-Z0-9-_]+/HomeLatestTimeline$",    // if a GraphQL API call is made to request the latest tweets for the "Home" page
+  "/graphql/[a-zA-Z0-9-_]+/HomeTimeline$"    // if a GraphQL API call is made to request the top tweets for the "Home" page
 ];
 TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
