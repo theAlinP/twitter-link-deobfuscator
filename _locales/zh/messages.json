@@ -1,0 +1,18 @@
+{
+  "extensionName": {
+    "message": "Twitter 連結還原器",
+    "description": "這個擴充功能的名稱。"
+  },
+  "extensionDescription": {
+    "message": "揭露被 Twitter 伺服器縮短的推文、回覆、直接訊息，以及\"網站\"連結等原本的連結目的地。此擴充功能只在瀏覽 twitter.com 或 twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion 網站時啟動。",
+    "description": "這個擴充功能的描述。"
+  },
+  "enabledStateTitle": {
+    "message": "Twitter 連結還原器 - 已啟用",
+    "description": "當擴充功能啟用時，將滑鼠移至工具列上的擴充功能圖示時顯示的標題。"
+  },
+  "disabledStateTitle": {
+    "message": "Twitter 連結還原器 - 已停用",
+    "description": "當擴充功能停用時，將滑鼠移至工具列上的擴充功能圖示時顯示的標題。"
+  }
+}
