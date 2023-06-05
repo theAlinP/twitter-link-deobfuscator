@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [1.7.0](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.6.1...1.7.0) (2023-06-05)
+
+
+### Features
+
+* add Chinese(zh) locale ([ac8ae12](https://github.com/theAlinP/twitter-link-deobfuscator/commit/ac8ae1236102390993c69a87d58362815367396a))
+
+
+### Bug Fixes
+
+* uncloak the Twitter Cards from quoted tweets ([ff0b22a](https://github.com/theAlinP/twitter-link-deobfuscator/commit/ff0b22ab31f1e92d2481ecd0fe0f0675d993afcd))
+
+
+### Other updates
+
+* **deps:** bump cacheable-request and got ([a18f169](https://github.com/theAlinP/twitter-link-deobfuscator/commit/a18f1691ca56c8fabd5e5ce574f744823a19fb7e))
+* update the dependencies ([f0b7462](https://github.com/theAlinP/twitter-link-deobfuscator/commit/f0b7462b16a9f37fef733d87cfc55a559b106540)), closes [#28](https://github.com/theAlinP/twitter-link-deobfuscator/issues/28)
+* update the dependencies ([92b8280](https://github.com/theAlinP/twitter-link-deobfuscator/commit/92b8280390292347bece8070a323aa8ea057cfea))
+
+
 ### [1.6.1](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.6.0...1.6.1) (2022-10-23)
 
 

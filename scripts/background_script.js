@@ -243,9 +243,8 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
     } else if (jsonResponse?.data?.home?.home_timeline_urt) {    // if the JSON contains the latest tweets for the "Home" page...
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     }
-    //console.log(stringResponse);    // for debugging
+    //console.log(jsonResponse);    // for debugging
     stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
-    //console.log(stringResponse);    // for debugging
     //console.log(stringResponse);    // for debugging
     filter.write(encoder.encode(stringResponse));
     filter.close();
@@ -328,31 +327,47 @@ TLD_background.determineCardURL = function(entry, tweet_entries) {
     }
   } else if (entry?.content?.itemContent?.tweet?.legacy?.entities?.urls) {
     urls = entry.content.itemContent.tweet.legacy.entities.urls;
-  } else if (entry?.content?.itemContent?.tweet_results?.result?.legacy?.entities?.urls) {
+  } else {  // tweets, retweets, quoted tweets and threads from profile pages
     /**
-     * Select the URLs from tweets and retweets from profile pages
+     * Select the URLs from tweets from profile pages
      */
-    urls = entry.content.itemContent.tweet_results.result.legacy.entities.urls;
-    if (urls.length === 0 &&
-      entry.content.itemContent.tweet_results.result.legacy?.retweeted_status_result?.result?.legacy?.entities?.urls) {
+    if (entry?.content?.itemContent?.tweet_results?.result?.legacy?.entities?.urls) {
+      urls = entry.content.itemContent.tweet_results.result.legacy.entities.urls;
+    }
+
+    /**
+     * Select the URLs from retweets from profile pages
+     */
+    if ((urls === undefined || urls.length === 0) &&
+      entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.legacy?.entities?.urls) {
       urls = entry.content.itemContent.tweet_results.result.legacy.retweeted_status_result.result.legacy.entities.urls;
     }
-  } else if (entry?.item?.itemContent?.tweet_results?.result?.legacy?.entities?.urls) {
+
+    /**
+     * Select the URLs from quoted tweets from profile pages
+     */
+    if ((urls === undefined || urls.length === 0) &&
+      entry?.content?.itemContent?.tweet_results?.result?.quoted_status_result?.result?.legacy?.entities?.urls) {
+      urls = entry.content.itemContent.tweet_results.result.quoted_status_result.result.legacy.entities.urls;
+    }
+
     /**
      * Select the URLs from tweets inside threads from profile pages
      */
-    urls = entry.item.itemContent.tweet_results.result.legacy.entities.urls;
-  } else {
-    return null;
+    if (entry?.item?.itemContent?.tweet_results?.result?.legacy?.entities?.urls) {
+      urls = entry.item.itemContent.tweet_results.result.legacy.entities.urls;
+    }
   }
+
   //console.log(urls);    // for debugging
-  if (urls.length === 0) {
+  if (urls === undefined || urls.length === 0) { // if no URLs were found...
     //console.error("No URLs found");    // for debugging
     return null;
+  } else {
+    let lastURL = urls[urls.length - 1];
+    //console.log(lastURL);    // for debugging
+    return lastURL;
   }
-  let lastURL = urls[urls.length - 1];
-  //console.log(lastURL);    // for debugging
-  return lastURL;
 };
 
 
@@ -410,6 +425,16 @@ TLD_background.uncloakTwitterCard = function(entry, card, tabId, tweet_entries) 
   } else if (Object.prototype.toString.call(
     binding_values) === "[object Object]") {
     binding_values.card_url.string_value = lastURL.expanded_url;
+  }
+
+  /**
+   * Restore the other original URL of the Twitter Card
+   * (does not seem to be used/necessary any more)
+   */
+  if (card.url) {
+    card.url = lastURL.expanded_url;
+  } else if (card?.legacy?.url) {
+    card.legacy.url = lastURL.expanded_url;
   }
 
   /**
@@ -497,6 +522,14 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
     let retweetCard = entry?.content?.itemContent?.tweet_results?.result?.legacy?.retweeted_status_result?.result?.card;
     if (retweetCard) {
       TLD_background.uncloakTwitterCard(entry, retweetCard, requestDetails.tabId);
+    }
+
+    /**
+     * Uncloak the Twitter Cards from quoted tweets
+     */
+    let quotedCard = entry?.content?.itemContent?.tweet_results?.result?.quoted_status_result?.result?.card;
+    if (quotedCard) {
+      TLD_background.uncloakTwitterCard(entry, quotedCard, requestDetails.tabId);
     }
 
     /**
