@@ -4,7 +4,7 @@
     "description": "The name of the extension."
   },
   "extensionDescription": {
-    "message": "Reveals the original destinations of the links and of the Twitter Cards from tweets and replies as well as from Direct Messages, but also the \"Website\" link and others, which are usually concealed using shortened URLs. The extension goes into action only while browsing twitter.com or twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion.",
+    "message": "Reveals the original destinations of the links and of the Twitter Cards from tweets and replies as well as from Direct Messages, but also the \"Website\" link and others, which are usually concealed using shortened URLs. The extension goes into action only while browsing twitter.com.",
     "description": "The description of the extension."
   },
   "enabledStateTitle": {
