@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.7.1](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.7.0...1.7.1) (2024-04-21)
+
+
+### Bug Fixes
+
+* uncloak the text links again ([7659813](https://github.com/theAlinP/twitter-link-deobfuscator/commit/765981309356c81b2bdb9810664eb72d192a67c4)), closes [#35](https://github.com/theAlinP/twitter-link-deobfuscator/issues/35)
+
+
+### Other updates
+
+* update the dependencies ([3a5ea76](https://github.com/theAlinP/twitter-link-deobfuscator/commit/3a5ea7610023ac6eca31c5298a479905a2900676)), closes [#34](https://github.com/theAlinP/twitter-link-deobfuscator/issues/34)
+* update the year from the LICENSE file ([6e8c315](https://github.com/theAlinP/twitter-link-deobfuscator/commit/6e8c31579668394d8dbd6c0ceff9550175cfde5e))
+
 
 ## [1.7.0](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.6.1...1.7.0) (2023-06-05)
 
