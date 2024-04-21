@@ -27,13 +27,13 @@
   },
   "homepage": "https://github.com/theAlinP/twitter-link-deobfuscator#readme",
   "devDependencies": {
-    "@commitlint/cli": "^17.6.5",
-    "@commitlint/config-conventional": "^17.6.5",
+    "@commitlint/cli": "^19.2.2",
+    "@commitlint/config-conventional": "^19.2.2",
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "^3.3.0",
-    "husky": "^8.0.3",
+    "husky": "^9.0.11",
     "standard-version": "^9.5.0",
-    "web-ext": "^7.6.2"
+    "web-ext": "^7.11.0"
   },
   "config": {
     "commitizen": {
