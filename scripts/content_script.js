@@ -405,11 +405,8 @@ TLD.modifyReactPages = function() {
 TLD.selectLinks = function(container) {
   let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
   if (links.length === 0) {
-    links = container.querySelectorAll("a.css-4rbku5.css-18t94o4.css-901oao.css-16my406.r-1loqt21.r-poiln3.r-bcqeeo.r-qvutc0");
+    links = container.querySelectorAll("a.css-1qaijid.r-bcqeeo.r-qvutc0.r-poiln3.r-1loqt21");
   }    // in case the links have no "title" attributes
-  if (links.length === 0) {
-    links = container.querySelectorAll("a.css-16my406.r-bcqeeo.r-qvutc0.css-901oao");
-  }    // fallback in case the CSS classes of the links have been changed
   return links;
 };
 
