@@ -9,7 +9,8 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.twitter.com/*"
+        "*://*.twitter.com/*",
+        "*://*.x.com/*"
       ],
       "js": [
         "scripts/content_script.js"
@@ -45,6 +46,7 @@
   },
   "permissions": [
     "*://*.twitter.com/*",
+    "*://*.x.com/*",
     "storage",
     "tabs",
     "webRequest",
