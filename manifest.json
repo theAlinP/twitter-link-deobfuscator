@@ -9,8 +9,7 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.twitter.com/*",
-        "*://*.twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion/*"
+        "*://*.twitter.com/*"
       ],
       "js": [
         "scripts/content_script.js"
@@ -46,7 +45,6 @@
   },
   "permissions": [
     "*://*.twitter.com/*",
-    "*://*.twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion/*",
     "storage",
     "tabs",
     "webRequest",

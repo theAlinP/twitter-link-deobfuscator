@@ -4,7 +4,7 @@
     "description": "這個擴充功能的名稱。"
   },
   "extensionDescription": {
-    "message": "揭露被 Twitter 伺服器縮短的推文、回覆、直接訊息，以及\"網站\"連結等原本的連結目的地。此擴充功能只在瀏覽 twitter.com 或 twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion 網站時啟動。",
+    "message": "揭露被 Twitter 伺服器縮短的推文、回覆、直接訊息，以及\"網站\"連結等原本的連結目的地。此擴充功能只在瀏覽 twitter.com 網站時啟動。",
     "description": "這個擴充功能的描述。"
   },
   "enabledStateTitle": {
