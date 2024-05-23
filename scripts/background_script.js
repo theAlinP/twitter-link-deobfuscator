@@ -231,8 +231,7 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
       TLD_background.cleanRegularTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]) {    // if the JSON contains replies to tweets from a GraphQL API call...
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
-    } else if (jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[0] ||
-      jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[1]) {    // if the JSON contains tweets for a profile page
+    } else if (jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions) {    // if the JSON contains tweets for a profile page
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Bookmarks" page
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
@@ -497,13 +496,6 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
     return;
   }
 
-  /**
-   * Add the pinned tweet from profile pages to the array with tweet entries
-   */
-  let pinnedTweet = jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[2]?.entry;
-  if (pinnedTweet) {
-    tweet_entries.unshift(pinnedTweet);
-  }    // add the pinned tweet to the array of tweets
 
   for (let entry of tweet_entries) {
 
@@ -564,15 +556,41 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
  * the tweet entries as objects
  */
 TLD_background.selectTweetEntries = function(jsonResponse) {
-  let tweet_entries = jsonResponse?.globalObjects?.tweets ||    // top tweets for the "Home" page
+
+  let tweet_entries = [];
+
+  /**
+   * Add the tweets from various pages to the array with tweet entries
+   */
+  tweet_entries = jsonResponse?.globalObjects?.tweets ||    // top tweets for the "Home" page
     jsonResponse?.data?.conversation_timeline?.instructions[0]?.moduleItems ||    // replies to tweets
     jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]?.entries ||    // replies to tweets
-    jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[0]?.entries ||    // tweets for profile pages
-    jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions[1]?.entries ||    // tweets for profile pages
     jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Bookmarks" page
     jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Lists" page
     jsonResponse?.data?.home?.home_timeline_urt?.instructions[0]?.entries ||    // latest tweets for the "Home" page
     jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]?.moduleItems;    // additional replies to tweets after clicking "Show replies"
+
+
+  /**
+   * Add the tweets from profile pages to the array with tweet entries
+   */
+  if (tweet_entries === undefined || tweet_entries.length === 0) {
+    tweet_entries = [];
+
+    if (jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions) {
+      let instructions = jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions;
+      for (let instruction of instructions) {
+        if (instruction.type === "TimelinePinEntry") {
+          tweet_entries.push(instruction.entry);
+        }    // add the pinned tweet to the array
+        if (instruction.type === "TimelineAddEntries") {
+          for (let entry of instruction.entries) {
+            tweet_entries.push(entry);
+          }
+        }    // add the other tweets to the array
+      }
+    }
+  }
 
   /**
    * For "Topic" pages, the "entries" property containing the array with tweets
