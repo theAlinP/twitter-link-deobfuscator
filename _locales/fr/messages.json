@@ -4,7 +4,7 @@
     "description": "Le nom de l'extension."
   },
   "extensionDescription": {
-    "message": "Révèle les destinations originales des liens et des Cartes Twitter de tweets et de réponses ainsi que de Messages Directs, mais aussi le lien «Site Web» et d'autres, qui sont généralement cachés à l'aide des URL raccourcies. L'extension entre en action uniquement en naviguant sur twitter.com ou twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion.",
+    "message": "Révèle les destinations originales des liens et des Cartes Twitter de tweets et de réponses ainsi que de Messages Directs, mais aussi le lien «Site Web» et d'autres, qui sont généralement cachés à l'aide des URL raccourcies. L'extension entre en action uniquement en naviguant sur twitter.com et x.com.",
     "description": "La description de l'extension."
   },
   "enabledStateTitle": {
