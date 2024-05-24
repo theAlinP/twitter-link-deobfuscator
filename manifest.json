@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "author": "Alin Pasol",
   "homepage_url": "https://github.com/theAlinP/twitter-link-deobfuscator",
   "description": "__MSG_extensionDescription__",
@@ -10,7 +10,7 @@
     {
       "matches": [
         "*://*.twitter.com/*",
-        "*://*.twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion/*"
+        "*://*.x.com/*"
       ],
       "js": [
         "scripts/content_script.js"
@@ -46,7 +46,7 @@
   },
   "permissions": [
     "*://*.twitter.com/*",
-    "*://*.twitter3e4tixl4xyajtrzo62zg5vztmjuricljdp2c5kshju4avyoid.onion/*",
+    "*://*.x.com/*",
     "storage",
     "tabs",
     "webRequest",

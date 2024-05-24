@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+### [1.7.2](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.7.1...1.7.2) (2024-05-24)
+
+
+### Bug Fixes
+
+* uncloak the Twitter Cards from pinned and regular tweets from profile pages ([89cd135](https://github.com/theAlinP/twitter-link-deobfuscator/commit/89cd135915657806fd7fc8160674751c6c0320ab))
+* detect and uncloak the text links again ([699bcce](https://github.com/theAlinP/twitter-link-deobfuscator/commit/699bcce231b69e612ee2c51766996eb7870b1c75))
+* run on the x.com domain, too ([ce3d06c](https://github.com/theAlinP/twitter-link-deobfuscator/commit/ce3d06c459c05809331dbd4d8fc8b60a686cfd49))
+
+
+### Other updates
+
+* update the dependencies ([902f5dd](https://github.com/theAlinP/twitter-link-deobfuscator/commit/902f5ddeecd08e9f18d803b5e4446504d95acf5d))
+
 ### [1.7.1](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.7.0...1.7.1) (2024-04-21)
 
 

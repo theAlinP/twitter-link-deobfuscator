@@ -403,10 +403,10 @@ TLD.modifyReactPages = function() {
  * @returns {NodeList} - Returns the list of text links found in the container
  */
 TLD.selectLinks = function(container) {
-  let links = container.querySelectorAll("a[title]");    // in case the links have "title" attributes
+  let links = container.querySelectorAll("a.css-1qaijid.r-bcqeeo.r-qvutc0.r-poiln3.r-1loqt21");    // the old way of detecting the text links
   if (links.length === 0) {
-    links = container.querySelectorAll("a.css-1qaijid.r-bcqeeo.r-qvutc0.r-poiln3.r-1loqt21");
-  }    // in case the links have no "title" attributes
+    links = container.querySelectorAll("a.css-1jxf684.r-bcqeeo.r-qvutc0.r-poiln3.r-1loqt21");
+  }    // the new way of detecting the text links
   return links;
 };
 
