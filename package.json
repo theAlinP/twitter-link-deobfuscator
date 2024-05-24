@@ -1,6 +1,6 @@
 {
   "name": "twitter-link-deobfuscator",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "Reveals the original destinations of the links and of the Twitter Cards from tweets and replies as well as from Direct Messages, but also the \"Website\" link and others, which are usually concealed using shortened URLs.",
   "scripts": {
     "lint": "npx web-ext lint",
