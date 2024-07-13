@@ -587,13 +587,10 @@ TLD_background.selectTweetEntries = function(jsonResponse) {
     jsonResponse?.data?.home?.home_timeline_urt?.instructions[0]?.entries ||    // latest tweets for the "Home" page
     jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]?.moduleItems;    // additional replies to tweets after clicking "Show replies"
 
-
   /**
    * Add the tweets from profile pages to the array with tweet entries
    */
   if (tweet_entries === undefined || tweet_entries.length === 0) {
-    tweet_entries = [];
-
     if (jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions) {
       let instructions = jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions;
       tweet_entries = TLD_background.parseTweetEntries(instructions);
