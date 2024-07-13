@@ -42,7 +42,8 @@ TLD_background.config.pathRegexPatterns = [
   "/live_event/timeline/[0-9]+.json$",    // if an API call is made to request tweets for the "Explore" page
   "/graphql/[a-zA-Z0-9]+/TopicLandingPage$",    // if a GraphQL API call is made to request tweets for a "Topic" page
   "/graphql/[a-zA-Z0-9-_]+/HomeLatestTimeline$",    // if a GraphQL API call is made to request the latest tweets for the "Home" page
-  "/graphql/[a-zA-Z0-9-_]+/HomeTimeline$"    // if a GraphQL API call is made to request the top tweets for the "Home" page
+  "/graphql/[a-zA-Z0-9-_]+/HomeTimeline$",    // if a GraphQL API call is made to request the top tweets for the "Home" page
+  "/graphql/[a-zA-Z0-9-_]+/CommunitiesExploreTimeline$"    // if a GraphQL API call is made to request tweets for the "Communities" page
 ];
 TLD_background.pathRegex = new RegExp(TLD_background.config.pathRegexPatterns.join("|"), "i");
 //console.log(TLD_background);    // for debugging
@@ -241,6 +242,8 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.home?.home_timeline_urt) {    // if the JSON contains the latest tweets for the "Home" page...
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.viewer?.explore_communities_timeline?.timeline?.instructions) {    // if the JSON contains tweets for the "Communities" page...
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     }
     //console.log(jsonResponse);    // for debugging
     stringResponse = JSON.stringify(jsonResponse);    // the slashes from URLs and the emojis are no longer \ and Unicode-escaped
@@ -355,6 +358,13 @@ TLD_background.determineCardURL = function(entry, tweet_entries) {
      */
     if (entry?.item?.itemContent?.tweet_results?.result?.legacy?.entities?.urls) {
       urls = entry.item.itemContent.tweet_results.result.legacy.entities.urls;
+    }
+
+    /**
+     * Select the URLs from tweets from the "Communities" page
+     */
+    if (entry?.content?.itemContent?.tweet_results?.result?.tweet?.legacy?.entities?.urls) {
+      urls = entry.content.itemContent.tweet_results.result.tweet.legacy.entities.urls;
     }
   }
 
@@ -527,21 +537,28 @@ TLD_background.cleanVariousTweets = function(jsonResponse, requestDetails) {
     /**
      * Uncloak the Twitter Cards from threads
      */
-    if (!entry?.content?.items) {
-      continue;
-    }
-    for (let threadEntry of entry.content.items) {
-      /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
-        console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
-      }*/
+    if (entry?.content?.items) {
+      for (let threadEntry of entry.content.items) {
+        /*if (threadEntry?.item?.itemContent?.tweet?.legacy?.full_text) {
+          console.log(threadEntry.item.itemContent.tweet.legacy.full_text);    // for debugging
+        }*/
 
-      /**
-       * Uncloak the Twitter Cards from regular tweets
-       */
-      let threadCard = threadEntry?.item?.itemContent?.tweet_results?.result?.card;
-      if (threadCard) {
-        TLD_background.uncloakTwitterCard(threadEntry, threadCard, requestDetails.tabId);
+        /**
+         * Uncloak the Twitter Cards from regular tweets
+         */
+        let threadCard = threadEntry?.item?.itemContent?.tweet_results?.result?.card;
+        if (threadCard) {
+          TLD_background.uncloakTwitterCard(threadEntry, threadCard, requestDetails.tabId);
+        }
       }
+    }
+
+    /**
+   * Uncloak the Twitter Cards from the "Communities" page
+   */
+    let communitiesCard = entry?.content?.itemContent?.tweet_results?.result?.tweet?.card;
+    if (communitiesCard) {
+      TLD_background.uncloakTwitterCard(entry, communitiesCard, requestDetails.tabId);
     }
   }
 };
@@ -579,16 +596,7 @@ TLD_background.selectTweetEntries = function(jsonResponse) {
 
     if (jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions) {
       let instructions = jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions;
-      for (let instruction of instructions) {
-        if (instruction.type === "TimelinePinEntry") {
-          tweet_entries.push(instruction.entry);
-        }    // add the pinned tweet to the array
-        if (instruction.type === "TimelineAddEntries") {
-          for (let entry of instruction.entries) {
-            tweet_entries.push(entry);
-          }
-        }    // add the other tweets to the array
-      }
+      tweet_entries = TLD_background.parseTweetEntries(instructions);
     }
   }
 
@@ -606,6 +614,39 @@ TLD_background.selectTweetEntries = function(jsonResponse) {
     }
   }
 
+  /**
+   * Add the tweets from the "Communities" page to the array with tweet entries
+   */
+  if (tweet_entries === undefined || tweet_entries.length === 0) {
+    if (jsonResponse?.data?.viewer?.explore_communities_timeline?.timeline?.instructions) {
+      let instructions = jsonResponse?.data?.viewer?.explore_communities_timeline?.timeline?.instructions;
+      tweet_entries = TLD_background.parseTweetEntries(instructions);
+    }
+  }
+
+  return tweet_entries;
+};
+
+
+/**
+ * A function that selects and returns an array containing tweets
+ * @method parseTweetEntries
+ * @memberof TLD_background
+ * @param {object} instructions - An array containing objects
+ * @returns {(Array)} - Returns an array with the tweet entries as objects
+ */
+TLD_background.parseTweetEntries = function(instructions) {
+  let tweet_entries = [];
+  for (let instruction of instructions) {
+    if (instruction.type === "TimelinePinEntry") {
+      tweet_entries.push(instruction.entry);
+    }    // add the pinned tweet to the array
+    if (instruction.type === "TimelineAddEntries") {
+      for (let entry of instruction.entries) {
+        tweet_entries.push(entry);
+      }
+    }    // add the other tweets to the array
+  }
   return tweet_entries;
 };
 

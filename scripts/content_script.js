@@ -203,6 +203,9 @@ TLD.detectPage = function() {
   } else if (/\/i\/topics\/[0-9]+\/*$/.test(locationPathname)) {
     //console.log("A \"Topics\" page was opened.");    // for debugging
     return "topics";
+  } else if (/^\/.*\/communities(\/explore)?$/.test(locationPathname)) {
+    //console.log("A \"Communities\" page was opened.");    // for debugging
+    return "communities";
   } else if (/\/[^/]+\/*$/.test(locationPathname)) {
     let mainElement = document.body.querySelector("#react-root main");
     if (mainElement.querySelector("div[data-testid=\"UserDescription\"]")
@@ -280,11 +283,24 @@ TLD.modifyReactPages = function() {
   //console.log(mainElement);    // for debugging
   TLD.mainObserver = new MutationObserver(() => {
     //console.log("TLD.mainObserver");    // for debugging
-    if (TLD.lastCleanedPage === window.location.href) {
-      return;
-    }    // return if this page was already cleaned
+    let tweetsContainer, tweetsAndRepliesContainers, DMBox;    // declare some variables
 
-    let tweetsContainer, tweetsAndRepliesContainers;    // declare some variables used in the case blocks
+    if (TLD.lastCleanedPage === window.location.href) {
+
+      /**
+       * On the "Communities" page, clicking on one of the topics loads more
+       * tweets but the URL doesn't change so it's necessary to reset
+       * TLD.lastCleanedPage for the new tweets to be cleaned
+       */
+      if (TLD.detectPage() === "communities") {
+        tweetsContainer = TLD.findReactTimeline()?.querySelector("div[style*='min-height']");
+        if (!tweetsContainer) {
+          TLD.lastCleanedPage = null;    // reset the property with the URL of the page which was last cleaned
+        }
+      }
+
+      return;
+    }    // return if this page was already cleaned or a new topic from the "Communities" page was clicked
 
     /**
      * Clean the tweets or replies on the page which was opened initially
@@ -303,6 +319,7 @@ TLD.modifyReactPages = function() {
     case "bookmarks":    // if the "Bookmarks" page was opened...
     case "event":    // if an "event" page was opened...
     case "topics":    // if a "Topics" page was opened...
+    case "communities":    // if a "Communities" page was opened...
       tweetsContainer = TLD.findReactTimeline()?.querySelector("div[style*='min-height']");
       if (tweetsContainer?.childElementCount > 1) {
         //console.log("The container with tweets or replies was found.");    // for debugging
@@ -352,7 +369,7 @@ TLD.modifyReactPages = function() {
      * Monitor the DM box on all the pages
      */
     //console.log(TLD.DMBoxMOActive);    // for debugging
-    let DMBox = document.querySelector("div[data-testid=\"DMDrawer\"]");
+    DMBox = document.querySelector("div[data-testid=\"DMDrawer\"]");
     if (DMBox !== null && TLD.DMBoxMOActive === false) {
       //console.log(DMBox);    // for debugging
       TLD.modifyDMBox();
