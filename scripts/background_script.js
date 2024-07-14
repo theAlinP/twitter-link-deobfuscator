@@ -38,8 +38,7 @@ TLD_background.config.pathRegexPatterns = [
   "/graphql/[a-zA-Z0-9_.+-]+/TweetDetail$",    // if a GraphQL API call is made to request replies to tweets
   "/graphql/[a-zA-Z0-9_.+-]+/Bookmarks$",    // if a GraphQL API call is made to request tweets for the "Bookmarks" page
   "/graphql/[a-zA-Z0-9-_]+/ListLatestTweetsTimeline$",    // if a GraphQL API call is made to request tweets for the "Lists" page
-  "/guide.json$",    // if an API call is made to request tweets for the "Explore" page
-  "/live_event/timeline/[0-9]+.json$",    // if an API call is made to request tweets for the "Explore" page
+  "/graphql/[a-zA-Z0-9-_]+/ExplorePage$",    // if an API call is made to request tweets for the "Explore" page
   "/graphql/[a-zA-Z0-9]+/TopicLandingPage$",    // if a GraphQL API call is made to request tweets for a "Topic" page
   "/graphql/[a-zA-Z0-9-_]+/HomeLatestTimeline$",    // if a GraphQL API call is made to request the latest tweets for the "Home" page
   "/graphql/[a-zA-Z0-9-_]+/HomeTimeline$",    // if a GraphQL API call is made to request the top tweets for the "Home" page
@@ -243,6 +242,8 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
     } else if (jsonResponse?.data?.home?.home_timeline_urt) {    // if the JSON contains the latest tweets for the "Home" page...
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.viewer?.explore_communities_timeline?.timeline?.instructions) {    // if the JSON contains tweets for the "Communities" page...
+      TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
+    } else if (jsonResponse?.data?.explore_page?.body?.initialTimeline?.timeline?.timeline?.instructions) {    // if the JSON contains the latest tweets for the "Explore" page...
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     }
     //console.log(jsonResponse);    // for debugging
@@ -617,6 +618,16 @@ TLD_background.selectTweetEntries = function(jsonResponse) {
   if (tweet_entries === undefined || tweet_entries.length === 0) {
     if (jsonResponse?.data?.viewer?.explore_communities_timeline?.timeline?.instructions) {
       let instructions = jsonResponse?.data?.viewer?.explore_communities_timeline?.timeline?.instructions;
+      tweet_entries = TLD_background.parseTweetEntries(instructions);
+    }
+  }
+
+  /**
+   * Add the tweets from the "Explore" page to the array with tweet entries
+   */
+  if (tweet_entries === undefined || tweet_entries.length === 0) {
+    if (jsonResponse?.data?.explore_page?.body?.initialTimeline?.timeline?.timeline?.instructions) {
+      let instructions = jsonResponse?.data?.explore_page?.body?.initialTimeline?.timeline?.timeline?.instructions;
       tweet_entries = TLD_background.parseTweetEntries(instructions);
     }
   }
