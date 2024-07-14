@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+
+
+## [1.8.0](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.7.2...1.8.0) (2024-07-14)
+
+
+### Features
+
+* uncloak the Twitter Cards from the "Communities" page ([3fdaa00](https://github.com/theAlinP/twitter-link-deobfuscator/commit/3fdaa000d3387a67a8481eec7ea347c5b244b980))
+* uncloak the text links from the "Communities" page ([ecf8e64](https://github.com/theAlinP/twitter-link-deobfuscator/commit/ecf8e648b44865bc8595af1fc2d0989d0fa69094))
+
+
+### Bug Fixes
+
+* uncloak the Twitter Cards from the "Bookmarks" page ([de114ed](https://github.com/theAlinP/twitter-link-deobfuscator/commit/de114ed38ba7a4cacd15d81417c6a00e478042f2))
+* uncloak the Twitter Cards from the "Explore" page ([e582a73](https://github.com/theAlinP/twitter-link-deobfuscator/commit/e582a7386c9f20462d002f4e6b2abf54dbf2a1c1))
+* uncloak the text links from the "Explore" page ([61f3f32](https://github.com/theAlinP/twitter-link-deobfuscator/commit/61f3f32e02544941cce8c2a99ec696824d71e75b))
+
+
+### Other updates
+
+* update the dependencies ([8ca46d5](https://github.com/theAlinP/twitter-link-deobfuscator/commit/8ca46d58f91bc0899bb8630029059afdd8fb810d))
+* remove unnecessary lines of code ([dd311b4](https://github.com/theAlinP/twitter-link-deobfuscator/commit/dd311b43938760f81b5251fd07ba352ec3a13070))
+* **deps-dev:** bump braces from 3.0.2 to 3.0.3 ([6200e15](https://github.com/theAlinP/twitter-link-deobfuscator/commit/6200e159c43b72cb8d46e9e1b1761d9dacb7751a))
+
+
+
 ### [1.7.2](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.7.1...1.7.2) (2024-05-24)
 
 
@@ -15,6 +41,7 @@ All notable changes to this project will be documented in this file.
 ### Other updates
 
 * update the dependencies ([902f5dd](https://github.com/theAlinP/twitter-link-deobfuscator/commit/902f5ddeecd08e9f18d803b5e4446504d95acf5d))
+
 
 ### [1.7.1](https://github.com/theAlinP/twitter-link-deobfuscator/compare/1.7.0...1.7.1) (2024-04-21)
 
