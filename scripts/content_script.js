@@ -173,7 +173,7 @@ TLD.detectPage = function() {
   } else if (/^\/home\/*$/.test(locationPathname)) {
     //console.log("The home page was opened.");    // for debugging
     return "home";
-  } else if (/^\/explore\/*$/.test(locationPathname)) {
+  } else if (/^\/explore(\/.*)?$/.test(locationPathname)) {
     //console.log("The \"Explore\" page was opened.");    // for debugging
     return "explore";
   } else if (/^\/messages\/*$/.test(locationPathname)) {
