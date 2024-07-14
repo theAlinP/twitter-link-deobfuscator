@@ -233,7 +233,7 @@ TLD_background.modifyNetworkRequests = async function(requestDetails) {
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.user?.result?.timeline_v2?.timeline?.instructions) {    // if the JSON contains tweets for a profile page
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
-    } else if (jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Bookmarks" page
+    } else if (jsonResponse?.data?.bookmark_timeline_v2?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Bookmarks" page
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
     } else if (jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]) {    // if the JSON contains tweets for the "Lists" page
       TLD_background.cleanVariousTweets(jsonResponse, requestDetails);
@@ -583,7 +583,7 @@ TLD_background.selectTweetEntries = function(jsonResponse) {
   tweet_entries = jsonResponse?.globalObjects?.tweets ||    // top tweets for the "Home" page
     jsonResponse?.data?.conversation_timeline?.instructions[0]?.moduleItems ||    // replies to tweets
     jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]?.entries ||    // replies to tweets
-    jsonResponse?.data?.bookmark_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Bookmarks" page
+    jsonResponse?.data?.bookmark_timeline_v2?.timeline?.instructions[0]?.entries ||    // tweets for the "Bookmarks" page
     jsonResponse?.data?.list?.tweets_timeline?.timeline?.instructions[0]?.entries ||    // tweets for the "Lists" page
     jsonResponse?.data?.home?.home_timeline_urt?.instructions[0]?.entries ||    // latest tweets for the "Home" page
     jsonResponse?.data?.threaded_conversation_with_injections_v2?.instructions[0]?.moduleItems;    // additional replies to tweets after clicking "Show replies"
